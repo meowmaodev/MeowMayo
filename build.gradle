@@ -1,65 +1,121 @@
 buildscript {
     repositories {
-        jcenter()   // JCenter mirror
-        maven {
-            name = "forge"
-            url = "http://files.minecraftforge.net/maven"
-        }
+        maven { url "http://files.minecraftforge.net/maven" }
+        maven { url 'https://repo.spongepowered.org/maven'}
     }
     dependencies {
-        classpath 'net.minecraftforge.gradle:ForgeGradle:2.1-SNAPSHOT'
+        classpath "net.minecraftforge.gradle:ForgeGradle:2.1-SNAPSHOT"
+        classpath 'org.spongepowered:mixingradle:0.6-SNAPSHOT'
     }
 }
 
-apply plugin: 'net.minecraftforge.gradle.forge'
+plugins {
+    id "java"
+    id "com.github.johnrengelman.shadow" version "2.0.4"
+}
 
-group = 'com.mmdev.meowmayo'
-version = '0.0.1'
-archivesBaseName = 'meowmayo'
+apply plugin: "net.minecraftforge.gradle.forge"
+apply plugin: 'org.spongepowered.mixin'
 
-sourceCompatibility = 1.8
-targetCompatibility = 1.8
+version = "0.0.1"
+group = "com.mmdev.meowmayo"
+archivesBaseName = "meowmayo"
+
+sourceCompatibility = targetCompatibility = 1.8
+compileJava.options.encoding = "UTF-8"
 
 minecraft {
-    version = "1.8.9-11.15.1.2318-1.8.9"
-    runDir = "run"
-    mappings = "stable_20"
-    // Optional: disables creation of obfuscated sources jar
-    // makeObfSourceJar = false
+    version = "1.8.9-11.15.1.2318-1.8.9" // Version 1.8.9
+    runDir = "run" // Where to put the forge run data (mods, configs, etc.), in a normal minecraft installation this is .minecraft
+    mappings = "stable_22" // The mappings for 1.8.9
+    makeObfSourceJar = false // Disables the creation of a source jar
 }
 
+// This is the configuration for the shadow plugin, which is used to add libraries to the jar.
+configurations {
+    shade
+    compile.extendsFrom(shade)
+}
+
+// Configures the SpongePowered Repository
 repositories {
-    // Only needed if you add external dependencies
-    jcenter()
+    maven { url 'https://repo.spongepowered.org/maven/' }
 }
 
+/**
+ * This is where we bundle mixins into the jar.
+ * shade -> bundles the library into the jar
+ * compile -> library only available at compile time (not accessible at runtime)
+ */
 dependencies {
-    // deobfCompile is used for dependencies that need mapping
-    // Example:
-    // deobfCompile 'com.example:some-mod:1.0.0'
-}
-
-processResources {
-    inputs.property "version", project.version
-    inputs.property "mcversion", project.minecraft.version
-
-    from(sourceSets.main.resources.srcDirs) {
-        include 'mcmod.info'
-        expand 'version': project.version, 'mcversion': project.minecraft.version
-    }
-
-    from(sourceSets.main.resources.srcDirs) {
-        exclude 'mcmod.info'
+    shade('org.spongepowered:mixin:0.7.10-SNAPSHOT') {
+        exclude module: 'launchwrapper'
+        exclude module: 'guava'
+        exclude module: 'gson'
+        exclude module: 'commons-io'
+        exclude module: 'log4j-core'
     }
 }
 
-// Optional: clean up build directories to prevent stale classes
-tasks.withType(JavaCompile) {
-    options.encoding = 'UTF-8'
-    options.compilerArgs << "-Xlint:unchecked" << "-Xlint:deprecation"
+//processResources {
+//    inputs.property "version", project.version
+//    inputs.property "mcversion", project.minecraft.version
+//
+//    // Replaces version in mcmod.info with the project version.
+//    from(sourceSets.main.resources.srcDirs) {
+//        include "mcmod.info"
+//
+//        //replace version and mcversion
+//        expand "version":project.version, "mcversion":project.minecraft.version
+//    }
+//
+//    // Copies all other resources.
+//    from(sourceSets.main.resources.srcDirs) {
+//        exclude "mcmod.info"
+//    }
+//
+//    rename '(.+_at.cfg)', 'META-INF/$1'
+//}
+
+// This is the configuration for the shadow plugin, which is used to add libraries to the jar.
+shadowJar {
+    dependencies {}
+    configurations = [project.configurations.shade] // Adds the gradle configuration "shade" so we can use it.
+    duplicatesStrategy DuplicatesStrategy.EXCLUDE // Prevents duplicates
+    classifier ""
 }
 
-// Optional: Gradle wrapper version override (forces newer wrapper)
-task wrapper(type: Wrapper) {
-    gradleVersion = '2.14.1'
+reobf {
+    // Reobfuscates the jar.
+    shadowJar {}
+}
+
+/**
+ * Adds the manifest values
+ * FMLCorePlugin -> Put the Mixin Loader here
+ * ModSide -> Client or Server
+ * TweakClass -> Mixin tweaker
+ * MixinConfigs -> Put your mixin config here (mixins.MODID.json)
+ */
+//TODO: Change the FMLCorePlugin to the mixin loader with your own package
+//TODO: Add your own MixinConfig(s)
+jar {
+    manifest.attributes(
+            "FMLCorePlugin" : "com.mmdev.meowmayo.mixins.MixinLoader",
+            "ForceLoadAsMod": true,
+            "TweakOrder": 0,
+            "ModSide": "CLIENT",
+            'FMLCorePluginContainsFMLMod': true,
+            'TweakClass': 'org.spongepowered.asm.launch.MixinTweaker',
+            'MixinConfigs': 'mixins.meowmayo.json'
+    )
+}
+
+// This adds the refmap.
+// (You do not need to create the refmap, it is created automatically by the mixin plugin)
+//TODO: Change the refmap name to your own
+sourceSets {
+    main {
+        ext.refMap = "mixins.meowmayo.refmap.json"
+    }
 }

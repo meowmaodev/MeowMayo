@@ -41,7 +41,7 @@ public class SettingsGui extends GuiScreen {
 
         int y = 35;
         for (int i = 0; i < ModConfig.getSettings().size(); i++) {
-            GuiButton catButton = new GuiButton(i, 10, y, 80, 20, ModConfig.getSettings().get(i).getName());
+            GuiButton catButton = new GuiButton(i, 5, y, 90, 20, ModConfig.getSettings().get(i).getName());
             this.buttonList.add(catButton);
             y += 30;
         }
@@ -146,14 +146,14 @@ public class SettingsGui extends GuiScreen {
         super.drawScreen(mouseX, mouseY, partialTicks);
 
         if (activeSlider != null && Mouse.isButtonDown(0)) {
-            float x1 = (width-10) - (Math.round(((width-10)-110)*.25f)+15);
-            float percent = (mouseX - x1) / (width-25-x1);
+            float x1 = (width-10) - ((int)(((width-10)-110)*.25f)+15);
+            float percent = (mouseX - x1) / ((width-25)-x1);
             if (activeSlider instanceof FloatSliderSetting) {
                 FloatSliderSetting sl = (FloatSliderSetting) activeSlider;
-                sl.setValue(Math.round(((sl.getMax() - sl.getMin())*percent)*10)/10f);
+                sl.setValue(Math.round((((sl.getMax() - sl.getMin())*percent) + sl.getMin())*10)/10f);
             } else if (activeSlider instanceof IntSliderSetting) {
                 IntSliderSetting sl = (IntSliderSetting) activeSlider;
-                sl.setValue(Math.round((sl.getMax() - sl.getMin())*percent));
+                sl.setValue(Math.round((sl.getMax() - sl.getMin())*percent) + sl.getMin());
             }
         }
     }
@@ -243,7 +243,6 @@ public class SettingsGui extends GuiScreen {
     protected void mouseReleased(int mouseX, int mouseY, int state) {
         super.mouseReleased(mouseX, mouseY, state);
         if (state == 0 && activeSlider != null) {
-            System.out.println("Released " + activeSlider);
             ConfigSettings.edit(activeSlider.getTitle(), activeSlider.getValue());
             activeSlider = null;
         }

@@ -1,9 +1,7 @@
 package com.mmdev.meowmayo.commands;
 
-import net.minecraft.client.Minecraft;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.ICommandSender;
-//import net.minecraft.util.ChatComponentText;
 import java.util.List;
 import java.util.Arrays;
 
@@ -35,6 +33,5 @@ public class SettingsCommand extends CommandBase {
     @Override
     public void processCommand(ICommandSender sender, String[] args) {
         GuiHandler.setGuiToOpen(new SettingsGui());
-//        mc.thePlayer.addChatMessage(new ChatComponentText("Hello from mod!"));
     }
 }
