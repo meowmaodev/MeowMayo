@@ -17,6 +17,7 @@ import com.mmdev.meowmayo.features.kuudra.*;
 import com.mmdev.meowmayo.features.party.*;
 import com.mmdev.meowmayo.utils.TextOverlayUtils;
 import com.mmdev.meowmayo.utils.PartyCommandListUtils;
+import com.mmdev.meowmayo.utils.PartyUtils;
 
 @Mod(modid = MeowMayo.MODID, version = MeowMayo.VERSION, clientSideOnly = true)
 public class MeowMayo {

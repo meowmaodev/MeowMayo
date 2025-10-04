@@ -48,6 +48,7 @@ public class PartyUtils {
     private static final Pattern notInPartyPattern = Pattern.compile("^You are not currently in a party\\.$");
     private static final Pattern membersPattern = Pattern.compile("^Party Members:(.+)● $");
     private static final Pattern moderatorsPattern = Pattern.compile("^Party Moderators:(.+)● $");
+
 //    @SubscribeEvent
 //    public void onServerJoin(ClientConnectedToServerEvent event) {
 //        getPartyMembers();
