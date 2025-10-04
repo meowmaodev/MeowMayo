@@ -167,12 +167,16 @@ public class SupplyFeatures {
             switch (closestIndex) {
                 case 0:
                     preLocation = SupplyUtils.CrateLocation.TRIANGLE;
+                    break;
                 case 1:
                     preLocation = SupplyUtils.CrateLocation.X;
+                    break;
                 case 2:
                     preLocation = SupplyUtils.CrateLocation.EQUALS;
+                    break;
                 case 3:
                     preLocation = SupplyUtils.CrateLocation.SLASH;
+                    break;
             }
 
         }
@@ -194,6 +198,8 @@ public class SupplyFeatures {
                     }
                 }
             }
+
+//            ChatUtils.system("Detected " + crates.size() + " crates!");
 
             for (double[] crate : crates) {
                 if (MathUtils.get3dDistance(preLocation.getLocation(), crate) < 18.0) {
@@ -242,7 +248,7 @@ public class SupplyFeatures {
 
         if (msg.equals("You moved and the Chest slipped out of your hands!")) endGrab();
         if (msg.equals("[NPC] Elle: OMG! Great work collecting my supplies!")) {
-            missing = null;
+            missing = "";
             endGrab();
         }
     }
@@ -316,7 +322,7 @@ public class SupplyFeatures {
 
     @SubscribeEvent
     public void onWorldLoad(WorldEvent.Load event) {
-        missing = null;
+        missing = "";
         endGrab();
     }
 

@@ -47,6 +47,7 @@ public class MeowMayo {
         MinecraftForge.EVENT_BUS.register(new GuiHandler());
 
         MinecraftForge.EVENT_BUS.register(new TextOverlayUtils());
+        MinecraftForge.EVENT_BUS.register(new PartyUtils());
 
         MinecraftForge.EVENT_BUS.register(new BackpackTracker());
         MinecraftForge.EVENT_BUS.register(new InvulnerabilityItems());

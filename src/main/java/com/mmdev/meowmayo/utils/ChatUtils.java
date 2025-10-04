@@ -20,10 +20,10 @@ public class ChatUtils {
 
     public static void command(String command) {
         Minecraft.getMinecraft().thePlayer.sendChatMessage("/" + command);
-        System.out.println("Executing command: " + command);
     }
 
     public static void system(String message) {
+        if (Minecraft.getMinecraft().thePlayer == null) return;
         Minecraft.getMinecraft().thePlayer.addChatMessage(new ChatComponentText("§e§lMeow§f§lMayo §a> §r" + message));
     }
 

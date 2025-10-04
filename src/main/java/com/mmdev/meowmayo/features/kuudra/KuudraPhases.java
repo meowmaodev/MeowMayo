@@ -57,8 +57,8 @@ public class KuudraPhases {
 
     private static int currPhase = 0;
 
-    private long splits[] = new long[9];
-    private long lag[] = new long[8];
+    private long[] splits = new long[8];
+    private long[] lag = new long[8];
 
     private static long clientMs = 0;
     private static long serverMs = 0;
@@ -104,6 +104,7 @@ public class KuudraPhases {
 
             if (p6L) {
                 if (getKuudra() == null) {
+//                    ChatUtils.system("COULDNT FIND KUUDRA");
 //                    p7L = true;
 //                    p6L = false;
                     return;
@@ -159,6 +160,7 @@ public class KuudraPhases {
 
         if (msg.equals("[NPC] Elle: Okay adventurers, I will go and fish up Kuudra!")) { // run start
             endRun();
+//            ChatUtils.system("Started Run");
             inKuudra = true;
 
             if (!kuudraTrack.getValue()) return;
@@ -183,6 +185,7 @@ public class KuudraPhases {
         }
 
         if (msg.equals("[NPC] Elle: Not again!")) {
+//            ChatUtils.system("Crates Spawned!");
             currPhase = 1;
             lagSplit(0);
 
@@ -193,6 +196,7 @@ public class KuudraPhases {
         if (supplyInfo.getValue() && kuudraTrack.getValue()) {
             Matcher noSupMatch = noSup.matcher(msg);
             if (noSupMatch.matches()) {
+//                ChatUtils.system("Found Missing Sup");
                 String playerName = ChatUtils.stripRank(noSupMatch.group(1));
                 String noSupply = noSupMatch.group(2).toLowerCase();
 
@@ -206,9 +210,10 @@ public class KuudraPhases {
             if (currPhase == 1) {
                 Matcher recoveredMatch = recovered.matcher(msg);
                 if (recoveredMatch.matches()) {
+//                    ChatUtils.system("Player Grabbed Supply");
                     String playerName = ChatUtils.stripRank(recoveredMatch.group(1));
                     supplies.add(new String[]{playerName, getFormattedSplitTime()});
-                    if (getUnformattedLagSplitTime() < 8 + preLeeway.getValue()) {
+                    if (getUnformattedLagSplitTime() < (8.0 + preLeeway.getValue())) {
                         grabbed.add(playerName);
                         preConsistency.get(playerName)[0]++;
                     }
@@ -218,6 +223,7 @@ public class KuudraPhases {
 
         if (msg.equals("[NPC] Elle: OMG! Great work collecting my supplies!")) {
             if (currPhase != 1) return;
+//            ChatUtils.system("Supplies Finished");
             currPhase = 2;
             lagSplit(1);
 
@@ -259,6 +265,7 @@ public class KuudraPhases {
         if (kuudraTrack.getValue() && freshInfo.getValue()) {
             Matcher freshMatch = freshed.matcher(msg);
             if (freshMatch.matches()) {
+//                ChatUtils.system("PLAYER FRESHED");
                 String playerName = ChatUtils.stripRank(freshMatch.group(1));
                 freshCount++;
                 freshes.add(new String[]{playerName, getFormattedSplitTime()});
@@ -267,13 +274,14 @@ public class KuudraPhases {
 
         if (msg.equals("[NPC] Elle: Phew! The Ballista is finally ready! It should be strong enough to tank Kuudra's blows now!")) {
             if (currPhase != 2) return;
+//            ChatUtils.system("Build Done");
 
             currPhase = 3;
             lagSplit(2);
 
             if (!(kuudraTrack.getValue() && inKuudra)) return;
             if (freshInfo.getValue() && freshInfoMessage.getValue()) {
-                String freshMessage = ("§a§l" + freshCount + "§r§freshes detected");
+                String freshMessage = ("§a§l" + freshCount + "§r§ffreshes detected");
                 for (String[] fresh : freshes) {
                     freshMessage += ("\n§b§l" + fresh[0] + " §rFreshed at §a§l" + fresh[1]);
                 }
@@ -285,6 +293,7 @@ public class KuudraPhases {
 
         if (msg.endsWith("has been eaten by Kuudra!") && !msg.startsWith("Elle") && msg.length() <= 44) {
             if (currPhase != 3) return;
+//            ChatUtils.system("Player Cannoned");
 
             currPhase = 4;
             lagSplit(3);
@@ -295,6 +304,7 @@ public class KuudraPhases {
 
         if (msg.endsWith("destroyed one of Kuudra's pods!") && msg.length() <= 50) {
             if (!(currPhase == 3 || currPhase == 4)) return;
+//            ChatUtils.system("Kuudra Stunned");
 
             currPhase = 5;
 
@@ -313,6 +323,7 @@ public class KuudraPhases {
         }
 
         if (msg.trim().equals("DEFEAT")) {
+//            ChatUtils.system("Run FAILED");
             if (kuudraTrack.getValue() && inKuudra) {
                 stats.totalRuns++;
                 globalStats.totalRuns++;
@@ -324,123 +335,134 @@ public class KuudraPhases {
 
         if (msg.trim().equals("KUUDRA DOWN!")) {
             lagSplit(7);
+//            ChatUtils.system("Run Complete");
 
             if (kuudraTrack.getValue() && inKuudra) {
                 splits[8] = System.currentTimeMillis();
 
                 double runTime = ((splits[8] - splits[0]) / 1000.0);
 
-                stats.totalRuns++;
-                globalStats.totalRuns++;
-                stats.totalComps++;
-                globalStats.totalComps++;
-                stats.totalTime += runTime;
-                globalStats.totalTime += runTime;
-                stats.totalCompTime += runTime;
-                globalStats.totalCompTime += runTime;
-
-                double[] runSplits = new double[]{
-                        (splits[1] - splits[0]) / 1000.0,
-                        (splits[2] - splits[1]) / 1000.0,
-                        (splits[3] - splits[2]) / 1000.0,
-                        (splits[4] - splits[3]) / 1000.0,
-                        (splits[5] - splits[4]) / 1000.0,
-                        (splits[6] - splits[5]) / 1000.0,
-                        (splits[7] - splits[6]) / 1000.0,
-                        (splits[8] - splits[7]) / 1000.0
-                };
-
-                double runLag = 0.0;
-
-                double[] lagSplits = new double[8];
-
-                for (int i = 0; i < 8; i++) {
-                    stats.compSplitTimes[i] += runSplits[i];
-                    globalStats.compSplitTimes[i] += runSplits[i];
-                    stats.compLagTimes[i] += lag[i] / 1000.0;
-                    globalStats.compLagTimes[i] += lag[i] / 1000.0;
-                    lagSplits[i] = lag[i] / 1000.0;
-                    runLag += lag[1] / 1000.0;
+                boolean valid = true;
+                for (long time : splits) {
+                    if (time == 0) {
+                        valid = false;
+                        break;
+                    }
                 }
 
-                runLag = Math.round(runLag * 1000.0) / 1000.0;
+                if (valid) {
+                    stats.totalRuns++;
+                    globalStats.totalRuns++;
+                    stats.totalComps++;
+                    globalStats.totalComps++;
+                    stats.totalTime += runTime;
+                    globalStats.totalTime += runTime;
+                    stats.totalCompTime += runTime;
+                    globalStats.totalCompTime += runTime;
 
-                if (runTime > stats.slowest || stats.slowest == -1.0) {
-                    stats.slowest = runTime;
-                    stats.slowestLag = runLag;
-                    stats.slowestSplits = runSplits.clone();
-                    stats.slowestLagSplits = lagSplits.clone();
+                    double[] runSplits = new double[]{
+                            (splits[1] - splits[0]) / 1000.0,
+                            (splits[2] - splits[1]) / 1000.0,
+                            (splits[3] - splits[2]) / 1000.0,
+                            (splits[4] - splits[3]) / 1000.0,
+                            (splits[5] - splits[4]) / 1000.0,
+                            (splits[6] - splits[5]) / 1000.0,
+                            (splits[7] - splits[6]) / 1000.0,
+                            (splits[8] - splits[7]) / 1000.0
+                    };
 
-                    stats.slowestSupplies = supplies;
+                    double runLag = 0.0;
 
-                    stats.slowestFreshCount = freshCount;
-                    stats.slowestFresh = freshes;
+                    double[] lagSplits = new double[8];
+
+                    for (int i = 0; i < 8; i++) {
+                        stats.compSplitTimes[i] += runSplits[i];
+                        globalStats.compSplitTimes[i] += runSplits[i];
+                        stats.compLagTimes[i] += lag[i] / 1000.0;
+                        globalStats.compLagTimes[i] += lag[i] / 1000.0;
+                        lagSplits[i] = lag[i] / 1000.0;
+                        runLag += lag[i] / 1000.0;
+                    }
+
+                    runLag = Math.round(runLag * 1000.0) / 1000.0;
+
+                    if (runTime > stats.slowest || stats.slowest == -1.0) {
+                        stats.slowest = runTime;
+                        stats.slowestLag = runLag;
+                        stats.slowestSplits = runSplits.clone();
+                        stats.slowestLagSplits = lagSplits.clone();
+
+                        stats.slowestSupplies = supplies;
+
+                        stats.slowestFreshCount = freshCount;
+                        stats.slowestFresh = freshes;
+                    }
+
+                    if (runTime > globalStats.slowest || globalStats.slowest == -1.0) {
+                        globalStats.slowest = runTime;
+                        globalStats.slowestLag = runLag;
+                        globalStats.slowestSplits = runSplits.clone();
+                        globalStats.slowestLagSplits = lagSplits.clone();
+
+                        globalStats.slowestSupplies = supplies;
+
+                        globalStats.slowestFreshCount = freshCount;
+                        globalStats.slowestFresh = freshes;
+                    }
+
+                    if (runTime > stats.fastest || stats.fastest == -1.0) {
+                        stats.fastest = runTime;
+                        stats.fastestLag = runLag;
+                        stats.fastestSplits = runSplits.clone();
+                        stats.fastestLagSplits = lagSplits.clone();
+
+                        stats.fastestSupplies = supplies;
+
+                        stats.fastestFreshCount = freshCount;
+                        stats.fastestFresh = freshes;
+                    }
+
+                    if (runTime > globalStats.fastest || globalStats.fastest == -1.0) {
+                        globalStats.fastest = runTime;
+                        globalStats.fastestLag = runLag;
+                        globalStats.fastestSplits = runSplits.clone();
+                        globalStats.fastestLagSplits = lagSplits.clone();
+
+                        globalStats.fastestSupplies = supplies;
+
+                        globalStats.fastestFreshCount = freshCount;
+                        globalStats.fastestFresh = freshes;
+                    }
+
+                    stats.totalLag += runLag;
+                    globalStats.totalLag += runLag;
+
+                    if (lagMessage.getValue()) {
+                        ChatUtils.partyChat(ChatUtils.formatTime(runLag) + " Lost to server lag | No lag time: " + ChatUtils.formatTime(runTime - runLag));
+                    }
+
+                    ChatUtils.system(ChatUtils.formatTime(runLag) + " Lost to server lag | No lag time: " + ChatUtils.formatTime(runTime - runLag));
+                    ChatUtils.system("§fTotal Run Time: §a§l" + ChatUtils.formatTime(runTime) + "\n" +
+                            "§2||§r§f Crates took §a§l" + ChatUtils.formatTime(runSplits[0]) + "§r§f to spawn\n" +
+                            "§||==§r§f Lost §c§l" + ChatUtils.formatTime(lagSplits[0]) + "§r§f to lag\n" +
+                            "§2||§r§f Supplies took §a§l" + ChatUtils.formatTime(runSplits[1]) + "§r§f to finish\n" +
+                            "§||==§r§f Lost §c§l" + ChatUtils.formatTime(lagSplits[1]) + "§r§f to lag\n" +
+                            "§2||§r§f Build took §a§l" + ChatUtils.formatTime(runSplits[2]) + "§r§f to finish\n" +
+                            "§||==§r§f Lost §c§l" + ChatUtils.formatTime(lagSplits[2]) + "§r§f to lag\n" +
+                            "§2||§r§f Cannon took §a§l" + ChatUtils.formatTime(runSplits[3]) + "§r§f to launch\n" +
+                            "§||==§r§f Lost §c§l" + ChatUtils.formatTime(lagSplits[3]) + "§r§f to lag\n" +
+                            "§2||§r§f Kuudra took §a§l" + ChatUtils.formatTime(runSplits[4]) + "§r§f to stun\n" +
+                            "§||==§r§f Lost §c§l" + ChatUtils.formatTime(lagSplits[4]) + "§r§f to lag\n" +
+                            "§2||§r§f DPS took §a§l" + ChatUtils.formatTime(runSplits[5]) + "§r§f to complete\n" +
+                            "§||==§r§f Lost §c§l" + ChatUtils.formatTime(lagSplits[5]) + "§r§f to lag\n" +
+                            "§2||§r§f Skip took §a§l" + ChatUtils.formatTime(runSplits[6]) + "\n" +
+                            "§||==§r§f Lost §c§l" + ChatUtils.formatTime(lagSplits[6]) + "§r§f to lag\n" +
+                            "§2||§r§f Final Phase took §a§l" + ChatUtils.formatTime(runSplits[7]) + "\n" +
+                            "§||==§r§f Lost §c§l" + ChatUtils.formatTime(lagSplits[7]) + "§r§f to lag\n"
+                    );
+
+                    saveStats();
                 }
-
-                if (runTime > globalStats.slowest || globalStats.slowest == -1.0) {
-                    globalStats.slowest = runTime;
-                    globalStats.slowestLag = runLag;
-                    globalStats.slowestSplits = runSplits.clone();
-                    globalStats.slowestLagSplits = lagSplits.clone();
-
-                    globalStats.slowestSupplies = supplies;
-
-                    globalStats.slowestFreshCount = freshCount;
-                    globalStats.slowestFresh = freshes;
-                }
-
-                if (runTime > stats.fastest || stats.fastest == -1.0) {
-                    stats.fastest = runTime;
-                    stats.fastestLag = runLag;
-                    stats.fastestSplits = runSplits.clone();
-                    stats.fastestLagSplits = lagSplits.clone();
-
-                    stats.fastestSupplies = supplies;
-
-                    stats.fastestFreshCount = freshCount;
-                    stats.fastestFresh = freshes;
-                }
-
-                if (runTime > globalStats.fastest || globalStats.fastest == -1.0) {
-                    globalStats.fastest = runTime;
-                    globalStats.fastestLag = runLag;
-                    globalStats.fastestSplits = runSplits.clone();
-                    globalStats.fastestLagSplits = lagSplits.clone();
-
-                    globalStats.fastestSupplies = supplies;
-
-                    globalStats.fastestFreshCount = freshCount;
-                    globalStats.fastestFresh = freshes;
-                }
-
-                stats.totalLag += runLag;
-                globalStats.totalLag += runLag;
-
-                if (lagMessage.getValue()) {
-                    ChatUtils.partyChat(ChatUtils.formatTime(runLag) + " Lost to server lag | No lag time: " + ChatUtils.formatTime(runTime-runLag));
-                }
-
-                ChatUtils.system(ChatUtils.formatTime(runLag) + " Lost to server lag | No lag time: " + ChatUtils.formatTime(runTime-runLag));
-                ChatUtils.system("§fTotal Run Time: §a§l" + ChatUtils.formatTime(runTime) + "\n" +
-                        "§2||§r§f Crates took §a§l" + ChatUtils.formatTime(runSplits[0]) + "§r§f to spawn\n" +
-                        "§||==§r§f Lost §c§l" + ChatUtils.formatTime(lagSplits[0]) + "§r§f to lag\n" +
-                        "§2||§r§f Supplies took §a§l" + ChatUtils.formatTime(runSplits[1]) + "§r§f to finish\n" +
-                        "§||==§r§f Lost §c§l" + ChatUtils.formatTime(lagSplits[1]) + "§r§f to lag\n" +
-                        "§2||§r§f Build took §a§l" + ChatUtils.formatTime(runSplits[2]) + "§r§f to finish\n" +
-                        "§||==§r§f Lost §c§l" + ChatUtils.formatTime(lagSplits[2]) + "§r§f to lag\n" +
-                        "§2||§r§f Cannon took §a§l" + ChatUtils.formatTime(runSplits[3]) + "§r§f to launch\n" +
-                        "§||==§r§f Lost §c§l" + ChatUtils.formatTime(lagSplits[3]) + "§r§f to lag\n" +
-                        "§2||§r§f Kuudra took §a§l" + ChatUtils.formatTime(runSplits[4]) + "§r§f to stun\n" +
-                        "§||==§r§f Lost §c§l" + ChatUtils.formatTime(lagSplits[4]) + "§r§f to lag\n" +
-                        "§2||§r§f DPS took §a§l" + ChatUtils.formatTime(runSplits[5]) + "§r§f to complete\n" +
-                        "§||==§r§f Lost §c§l" + ChatUtils.formatTime(lagSplits[5]) + "§r§f to lag\n" +
-                        "§2||§r§f Skip took §a§l" + ChatUtils.formatTime(runSplits[6]) + "\n" +
-                        "§||==§r§f Lost §c§l" + ChatUtils.formatTime(lagSplits[6]) + "§r§f to lag\n" +
-                        "§2||§r§f Final Phase took §a§l" + ChatUtils.formatTime(runSplits[7]) + "\n" +
-                        "§||==§r§f Lost §c§l" + ChatUtils.formatTime(lagSplits[7]) + "§r§f to lag\n"
-                );
-
-                saveStats();
             }
 
             endRun();
@@ -530,7 +552,6 @@ public class KuudraPhases {
             }
             try (ObjectOutputStream out = new ObjectOutputStream(Files.newOutputStream(file.toPath()))) {
                 out.writeObject(globalStats);
-                System.out.println("saved stats");
             } catch (IOException ignored) {
             }
         } catch (IOException ignored) {
@@ -591,6 +612,9 @@ public class KuudraPhases {
         inKuudra = false;
         currPhase = 0;
 
+        p7L = false;
+        p6L = false;
+
         supplies = new ArrayList<String[]>();
         grabbed = new HashSet<String>();
 
@@ -601,6 +625,9 @@ public class KuudraPhases {
 
         Arrays.fill(lag, 0);
 
+        clientMs = 0;
         serverMs = 0;
+
+//        ChatUtils.system("Ran endRun()");
     }
 }

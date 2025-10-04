@@ -73,7 +73,7 @@ public class KuudraExtras {
     private int tickCounter = 0;
     @SubscribeEvent
     public void onClientTick(TickEvent.ClientTickEvent event) {
-        if ((dangerBlocks.getValue() && KuudraPhases.getCurrPhase() == 7)) return;
+        if (!(dangerBlocks.getValue() && KuudraPhases.getCurrPhase() == 7)) return;
 
         tickCounter++;
         if (tickCounter >= 5) { // every quarter second so we dont spam
