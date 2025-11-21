@@ -101,19 +101,14 @@ reobf {
 //TODO: Add your own MixinConfig(s)
 jar {
     manifest.attributes(
-            "FMLCorePlugin" : "com.mmdev.meowmayo.mixins.MixinLoader",
             "ForceLoadAsMod": true,
             "TweakOrder": 0,
             "ModSide": "CLIENT",
-            'FMLCorePluginContainsFMLMod': true,
             'TweakClass': 'org.spongepowered.asm.launch.MixinTweaker',
             'MixinConfigs': 'mixins.meowmayo.json'
     )
 }
 
-// This adds the refmap.
-// (You do not need to create the refmap, it is created automatically by the mixin plugin)
-//TODO: Change the refmap name to your own
 sourceSets {
     main {
         ext.refMap = "mixins.meowmayo.refmap.json"

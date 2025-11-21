@@ -1,5 +1,6 @@
 package com.mmdev.meowmayo.features.kuudra;
 
+import com.mmdev.meowmayo.features.kuudra.tracker.KuudraPhases;
 import com.mmdev.meowmayo.utils.events.S02ChatReceivedEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
@@ -22,6 +23,7 @@ public class KuudraExtras {
     private ToggleSetting announceMana = (ToggleSetting) ConfigSettings.getSetting("Announce Mana");
     private ToggleSetting dangerBlocks = (ToggleSetting) ConfigSettings.getSetting("Danger Block Warning");
     private ToggleSetting lastAlive = (ToggleSetting) ConfigSettings.getSetting("Last Alive");
+    private ToggleSetting ichorMessage = (ToggleSetting) ConfigSettings.getSetting("Ichor Message");
 
     private Pattern focusPattern = Pattern.compile("^Used Extreme Focus! \\((\\d+) Mana\\)$");
     private Pattern killPattern = Pattern.compile("^(.+) was FINAL KILLED by Kuudra!$");
@@ -47,7 +49,6 @@ public class KuudraExtras {
             }
         }
 
-
         if (announceMana.getValue()) {
             Matcher matcher = focusPattern.matcher(msg);
 
@@ -67,6 +68,10 @@ public class KuudraExtras {
                     ChatUtils.partyChat("You are the last person standing - Solo!");
                 }
             }
+        }
+
+        if (!ichorMessage.getValue() && msg.equals("Casting Spell: Ichor Pool!")) {
+            ChatUtils.partyChat("Casted Ichor Pool at: " + Minecraft.getMinecraft().thePlayer.posX+ ", " + Minecraft.getMinecraft().thePlayer.posY + ", " + Minecraft.getMinecraft().thePlayer.posZ);
         }
     }
 

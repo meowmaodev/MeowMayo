@@ -1,12 +1,10 @@
 package com.mmdev.meowmayo.features.party;
 
-import com.mmdev.meowmayo.features.kuudra.KuudraPhases;
-import com.mmdev.meowmayo.utils.DelayUtils;
+import com.mmdev.meowmayo.features.kuudra.tracker.KuudraPhases;
+import com.mmdev.meowmayo.utils.PartyUtils;
 import com.mmdev.meowmayo.utils.events.S02ChatReceivedEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
-import java.util.Timer;
-import java.util.TimerTask;
 import java.util.Random;
 
 import com.mmdev.meowmayo.config.ConfigSettings;
@@ -246,7 +244,7 @@ public class PartyCommands {
                 break;
             case "allinv":
             case "allinvite":
-                if (allInviteCommand.getValue()) {
+                if (allInviteCommand.getValue() && PartyUtils.isLeader()) {
                     delayed = true;
                     ChatUtils.command("p settings allinvite");
                     scheduleReset(1000);
@@ -255,7 +253,7 @@ public class PartyCommands {
             case "warp":
             case "pwarp":
             case "partywarp":
-                if (warpCommand.getValue()) {
+                if (warpCommand.getValue() && PartyUtils.isLeader()) {
                     delayed = true;
                     ChatUtils.command("p warp");
                     scheduleReset(1000);
@@ -274,7 +272,7 @@ public class PartyCommands {
                 }
                 break;
             case "ptme":
-                if (partyTransferMeCommand.getValue()) {
+                if (partyTransferMeCommand.getValue() && PartyUtils.isLeader()) {
                     delayed = true;
                     if (partyTransferMeWhitelist.getValue()) {
                         if (PartyCommandListUtils.whitelist.contains(ign)) {
@@ -290,7 +288,7 @@ public class PartyCommands {
             case "partytransfer":
             case "ptransfer":
             case "transfer":
-                if (partyTransferCommand.getValue()) {
+                if (partyTransferCommand.getValue() && PartyUtils.isLeader()) {
                     delayed = true;
                     if (partyTransferWhitelist.getValue()) {
                         if (PartyCommandListUtils.whitelist.contains(ign)) {
@@ -310,7 +308,7 @@ public class PartyCommands {
                 break;
             case "ent":
             case "entrance":
-                if (catacombsEntranceCommand.getValue()) {
+                if (catacombsEntranceCommand.getValue() && PartyUtils.isLeader()) {
                     delayed = true;
                     ChatUtils.command("joindungeon catacombs_entrance");
                     scheduleReset(1000);
@@ -318,7 +316,7 @@ public class PartyCommands {
                 break;
             case "floor1":
             case "f1":
-                if (catacombsEntranceCommand.getValue()) {
+                if (catacombsEntranceCommand.getValue() && PartyUtils.isLeader()) {
                     delayed = true;
                     ChatUtils.command("joindungeon catacombs_floor_one");
                     scheduleReset(1000);
@@ -326,7 +324,7 @@ public class PartyCommands {
                 break;
             case "floor2":
             case "f2":
-                if (catacombsEntranceCommand.getValue()) {
+                if (catacombsEntranceCommand.getValue() && PartyUtils.isLeader()) {
                     delayed = true;
                     ChatUtils.command("joindungeon catacombs_floor_two");
                     scheduleReset(1000);
@@ -334,7 +332,7 @@ public class PartyCommands {
                 break;
             case "floor3":
             case "f3":
-                if (catacombsEntranceCommand.getValue()) {
+                if (catacombsEntranceCommand.getValue() && PartyUtils.isLeader()) {
                     delayed = true;
                     ChatUtils.command("joindungeon catacombs_floor_three");
                     scheduleReset(1000);
@@ -342,7 +340,7 @@ public class PartyCommands {
                 break;
             case "floor4":
             case "f4":
-                if (catacombsEntranceCommand.getValue()) {
+                if (catacombsEntranceCommand.getValue() && PartyUtils.isLeader()) {
                     delayed = true;
                     ChatUtils.command("joindungeon catacombs_floor_four");
                     scheduleReset(1000);
@@ -350,7 +348,7 @@ public class PartyCommands {
                 break;
             case "floor5":
             case "f5":
-                if (catacombsEntranceCommand.getValue()) {
+                if (catacombsEntranceCommand.getValue() && PartyUtils.isLeader()) {
                     delayed = true;
                     ChatUtils.command("joindungeon catacombs_floor_five");
                     scheduleReset(1000);
@@ -358,7 +356,7 @@ public class PartyCommands {
                 break;
             case "floor6":
             case "f6":
-                if (catacombsEntranceCommand.getValue()) {
+                if (catacombsEntranceCommand.getValue() && PartyUtils.isLeader()) {
                     delayed = true;
                     ChatUtils.command("joindungeon catacombs_floor_six");
                     scheduleReset(1000);
@@ -366,7 +364,7 @@ public class PartyCommands {
                 break;
             case "floor7":
             case "f7":
-                if (catacombsEntranceCommand.getValue()) {
+                if (catacombsEntranceCommand.getValue() && PartyUtils.isLeader()) {
                     delayed = true;
                     ChatUtils.command("joindungeon catacombs_floor_seven");
                     scheduleReset(1000);
@@ -374,7 +372,7 @@ public class PartyCommands {
                 break;
             case "floor":
             case "f":
-                if (catacombsEntranceCommand.getValue()) {
+                if (catacombsEntranceCommand.getValue() && PartyUtils.isLeader()) {
                     delayed = true;
                     if (args.length == 2) {
                         switch (args[1]) {
@@ -406,7 +404,7 @@ public class PartyCommands {
                 break;
             case "master1":
             case "m1":
-                if (masterCatacombsEntranceCommand.getValue()) {
+                if (masterCatacombsEntranceCommand.getValue() && PartyUtils.isLeader()) {
                     delayed = true;
                     ChatUtils.command("joindungeon master_catacombs_floor_one");
                     scheduleReset(1000);
@@ -414,7 +412,7 @@ public class PartyCommands {
                 break;
             case "master2":
             case "m2":
-                if (masterCatacombsEntranceCommand.getValue()) {
+                if (masterCatacombsEntranceCommand.getValue() && PartyUtils.isLeader()) {
                     delayed = true;
                     ChatUtils.command("joindungeon master_catacombs_floor_two");
                     scheduleReset(1000);
@@ -422,7 +420,7 @@ public class PartyCommands {
                 break;
             case "master3":
             case "m3":
-                if (masterCatacombsEntranceCommand.getValue()) {
+                if (masterCatacombsEntranceCommand.getValue() && PartyUtils.isLeader()) {
                     delayed = true;
                     ChatUtils.command("joindungeon master_catacombs_floor_three");
                     scheduleReset(1000);
@@ -430,7 +428,7 @@ public class PartyCommands {
                 break;
             case "master4":
             case "m4":
-                if (masterCatacombsEntranceCommand.getValue()) {
+                if (masterCatacombsEntranceCommand.getValue() && PartyUtils.isLeader()) {
                     delayed = true;
                     ChatUtils.command("joindungeon master_catacombs_floor_four");
                     scheduleReset(1000);
@@ -438,7 +436,7 @@ public class PartyCommands {
                 break;
             case "master5":
             case "m5":
-                if (masterCatacombsEntranceCommand.getValue()) {
+                if (masterCatacombsEntranceCommand.getValue() && PartyUtils.isLeader()) {
                     delayed = true;
                     ChatUtils.command("joindungeon master_catacombs_floor_five");
                     scheduleReset(1000);
@@ -446,7 +444,7 @@ public class PartyCommands {
                 break;
             case "master6":
             case "m6":
-                if (masterCatacombsEntranceCommand.getValue()) {
+                if (masterCatacombsEntranceCommand.getValue() && PartyUtils.isLeader()) {
                     delayed = true;
                     ChatUtils.command("joindungeon master_catacombs_floor_six");
                     scheduleReset(1000);
@@ -454,7 +452,7 @@ public class PartyCommands {
                 break;
             case "master7":
             case "m7":
-                if (masterCatacombsEntranceCommand.getValue()) {
+                if (masterCatacombsEntranceCommand.getValue() && PartyUtils.isLeader()) {
                     delayed = true;
                     ChatUtils.command("joindungeon master_catacombs_floor_seven");
                     scheduleReset(1000);
@@ -462,7 +460,7 @@ public class PartyCommands {
                 break;
             case "master":
             case "m":
-                if (masterCatacombsEntranceCommand.getValue()) {
+                if (masterCatacombsEntranceCommand.getValue() && PartyUtils.isLeader()) {
                     delayed = true;
                     if (args.length == 2) {
                         switch (args[1]) {
@@ -495,7 +493,7 @@ public class PartyCommands {
             case "basic":
             case "t1":
             case "tier1":
-                if (kuudraEntranceCommand.getValue()) {
+                if (kuudraEntranceCommand.getValue() && PartyUtils.isLeader()) {
                     delayed = true;
                     ChatUtils.partyChat("joindungeon kuudra_basic");
                     scheduleReset(1000);
@@ -505,7 +503,7 @@ public class PartyCommands {
             case "hot":
             case "t2":
             case "tier2":
-                if (kuudraEntranceCommand.getValue()) {
+                if (kuudraEntranceCommand.getValue() && PartyUtils.isLeader()) {
                     delayed = true;
                     ChatUtils.partyChat("joindungeon kuudra_hot");
                     scheduleReset(1000);
@@ -515,7 +513,7 @@ public class PartyCommands {
             case "burning":
             case "t3":
             case "tier3":
-                if (kuudraEntranceCommand.getValue()) {
+                if (kuudraEntranceCommand.getValue() && PartyUtils.isLeader()) {
                     delayed = true;
                     ChatUtils.partyChat("joindungeon kuudra_burning");
                     scheduleReset(1000);
@@ -525,7 +523,7 @@ public class PartyCommands {
             case "fiery":
             case "t4":
             case "tier4":
-                if (kuudraEntranceCommand.getValue()) {
+                if (kuudraEntranceCommand.getValue() && PartyUtils.isLeader()) {
                     delayed = true;
                     ChatUtils.partyChat("joindungeon kuudra_fiery");
                     scheduleReset(1000);
@@ -535,7 +533,7 @@ public class PartyCommands {
             case "infernal":
             case "t5":
             case "tier5":
-                if (kuudraEntranceCommand.getValue()) {
+                if (kuudraEntranceCommand.getValue() && PartyUtils.isLeader()) {
                     delayed = true;
                     ChatUtils.partyChat("joindungeon kuudra_infernal");
                     scheduleReset(1000);

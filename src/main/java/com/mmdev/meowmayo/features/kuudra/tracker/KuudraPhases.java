@@ -1,9 +1,10 @@
-package com.mmdev.meowmayo.features.kuudra;
+package com.mmdev.meowmayo.features.kuudra.tracker;
 
 import com.mmdev.meowmayo.config.settings.FloatSliderSetting;
 import com.mmdev.meowmayo.config.settings.IntSliderSetting;
 import com.mmdev.meowmayo.config.settings.TextSetting;
 import com.mmdev.meowmayo.utils.ChatUtils;
+import com.mmdev.meowmayo.utils.DelayUtils;
 import com.mmdev.meowmayo.utils.PartyUtils;
 import com.mmdev.meowmayo.utils.PlayerUtils;
 import com.mmdev.meowmayo.utils.events.S02ChatReceivedEvent;
@@ -39,6 +40,8 @@ public class KuudraPhases {
     private FloatSliderSetting stunPingHp = (FloatSliderSetting) ConfigSettings.getSetting("Stun Ping HP");
     private TextSetting stunMessage = (TextSetting) ConfigSettings.getSetting("Stun Ping Message");
     private ToggleSetting lagMessage = (ToggleSetting) ConfigSettings.getSetting("Lag Timing");
+    private ToggleSetting autoRequeue = (ToggleSetting) ConfigSettings.getSetting("Kuudra Auto Requeue");
+    private IntSliderSetting autoRequeueDelay = (IntSliderSetting) ConfigSettings.getSetting("Kuudra Requeue Delay");
 
     private static File configFile;
 
@@ -83,7 +86,7 @@ public class KuudraPhases {
     private static List<String[]> supplies = new ArrayList<>();
     private static Set<String> grabbed = new HashSet<>();
 
-    private static Pattern freshed = Pattern.compile("^Party > (.+): Fresh.*$");
+    private static Pattern freshed = Pattern.compile("^Party > (.+): Fresh.*$", Pattern.CASE_INSENSITIVE);
 
     private static int freshCount = 0;
     private static List<String[]> freshes = new ArrayList<>();
@@ -177,6 +180,8 @@ public class KuudraPhases {
                     }
                 }
             }
+
+            PartyUtils.useDowntimeFlag();
 
             splits[0] = System.currentTimeMillis();
         }
@@ -299,13 +304,13 @@ public class KuudraPhases {
 
             p6L = true;
 
-            if (splits[4] == 0) {
+            if (splits[4] == -1) {
                 lagSplit(3);
             } else {
                 lagSplit(4);
             }
             if (!(kuudraTrack.getValue() && inKuudra)) return;
-            if (splits[4] == 0) {
+            if (splits[4] == -1) {
                 splits[4] = System.currentTimeMillis();
             }
             splits[5] = System.currentTimeMillis();
@@ -319,6 +324,15 @@ public class KuudraPhases {
                 globalStats.totalTime += (System.currentTimeMillis() / 1000.0) - ((double) splits[0]);
                 saveStats();
             }
+
+            if (autoRequeue.getValue() && PartyUtils.isLeader()) {
+                if (PartyUtils.getDowntimeFlag()) {
+                    ChatUtils.partyChat("Taking Downtime!");
+                    PartyUtils.useDowntimeFlag();
+                } else {
+                    DelayUtils.scheduleTask(() -> ChatUtils.command("joindungeon kuudra_infernal"), autoRequeueDelay.getValue() * 1000);
+                }
+            }
         }
 
         if (msg.trim().equals("KUUDRA DOWN!")) {
@@ -331,7 +345,7 @@ public class KuudraPhases {
 
                 boolean valid = true;
                 for (long time : splits) {
-                    if (time == 0) {
+                    if (time == -1) {
                         valid = false;
                         break;
                     }
@@ -431,21 +445,21 @@ public class KuudraPhases {
                     ChatUtils.system(ChatUtils.formatTime(runLag) + " Lost to server lag | No lag time: " + ChatUtils.formatTime(runTime - runLag));
                     ChatUtils.system("§fTotal Run Time: §a§l" + ChatUtils.formatTime(runTime) + "\n" +
                             "§2||§r§f Crates took §a§l" + ChatUtils.formatTime(runSplits[0]) + "§r§f to spawn\n" +
-                            "§||==§r§f Lost §c§l" + ChatUtils.formatTime(lagSplits[0]) + "§r§f to lag\n" +
+                            "§2||==§r§f Lost §c§l" + ChatUtils.formatTime(lagSplits[0]) + "§r§f to lag\n" +
                             "§2||§r§f Supplies took §a§l" + ChatUtils.formatTime(runSplits[1]) + "§r§f to finish\n" +
-                            "§||==§r§f Lost §c§l" + ChatUtils.formatTime(lagSplits[1]) + "§r§f to lag\n" +
+                            "§2||==§r§f Lost §c§l" + ChatUtils.formatTime(lagSplits[1]) + "§r§f to lag\n" +
                             "§2||§r§f Build took §a§l" + ChatUtils.formatTime(runSplits[2]) + "§r§f to finish\n" +
-                            "§||==§r§f Lost §c§l" + ChatUtils.formatTime(lagSplits[2]) + "§r§f to lag\n" +
+                            "§2||==§r§f Lost §c§l" + ChatUtils.formatTime(lagSplits[2]) + "§r§f to lag\n" +
                             "§2||§r§f Cannon took §a§l" + ChatUtils.formatTime(runSplits[3]) + "§r§f to launch\n" +
-                            "§||==§r§f Lost §c§l" + ChatUtils.formatTime(lagSplits[3]) + "§r§f to lag\n" +
+                            "§2||==§r§f Lost §c§l" + ChatUtils.formatTime(lagSplits[3]) + "§r§f to lag\n" +
                             "§2||§r§f Kuudra took §a§l" + ChatUtils.formatTime(runSplits[4]) + "§r§f to stun\n" +
-                            "§||==§r§f Lost §c§l" + ChatUtils.formatTime(lagSplits[4]) + "§r§f to lag\n" +
+                            "§2||==§r§f Lost §c§l" + ChatUtils.formatTime(lagSplits[4]) + "§r§f to lag\n" +
                             "§2||§r§f DPS took §a§l" + ChatUtils.formatTime(runSplits[5]) + "§r§f to complete\n" +
-                            "§||==§r§f Lost §c§l" + ChatUtils.formatTime(lagSplits[5]) + "§r§f to lag\n" +
+                            "§2||==§r§f Lost §c§l" + ChatUtils.formatTime(lagSplits[5]) + "§r§f to lag\n" +
                             "§2||§r§f Skip took §a§l" + ChatUtils.formatTime(runSplits[6]) + "\n" +
-                            "§||==§r§f Lost §c§l" + ChatUtils.formatTime(lagSplits[6]) + "§r§f to lag\n" +
+                            "§2||==§r§f Lost §c§l" + ChatUtils.formatTime(lagSplits[6]) + "§r§f to lag\n" +
                             "§2||§r§f Final Phase took §a§l" + ChatUtils.formatTime(runSplits[7]) + "\n" +
-                            "§||==§r§f Lost §c§l" + ChatUtils.formatTime(lagSplits[7]) + "§r§f to lag\n"
+                            "§2||==§r§f Lost §c§l" + ChatUtils.formatTime(lagSplits[7]) + "§r§f to lag\n"
                     );
 
                     saveStats();
@@ -453,6 +467,15 @@ public class KuudraPhases {
             }
 
             endRun();
+
+            if (autoRequeue.getValue() && PartyUtils.isLeader()) {
+                if (PartyUtils.getDowntimeFlag()) {
+                    ChatUtils.partyChat("Taking Downtime!");
+                    PartyUtils.useDowntimeFlag();
+                } else {
+                    DelayUtils.scheduleTask(() -> ChatUtils.command("joindungeon kuudra_infernal"), autoRequeueDelay.getValue() * 1000);
+                }
+            }
         }
     }
 
@@ -583,7 +606,7 @@ public class KuudraPhases {
             if (entity instanceof EntityMagmaCube) {
                 EntityMagmaCube cube = (EntityMagmaCube) entity;
 
-                if (cube.getSlimeSize() == 30 && cube.getHealth() <= 100000f) return cube;
+                if (cube.getSlimeSize() >= 15 ) return cube;
             }
         }
         return null;
@@ -608,13 +631,11 @@ public class KuudraPhases {
         freshes = new ArrayList<String[]>();
         freshCount = 0;
 
-        Arrays.fill(splits, 0);
+        Arrays.fill(splits, -1);
 
         Arrays.fill(lag, 0);
 
         clientMs = 0;
         serverMs = 0;
-
-//        ChatUtils.system("Ran endRun()");
     }
 }

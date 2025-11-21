@@ -1,6 +1,8 @@
 package com.mmdev.meowmayo;
 
+import com.mmdev.meowmayo.features.kuudra.tracker.KuudraPhases;
 import com.mmdev.meowmayo.utils.PartyUtils;
+import com.mmdev.meowmayo.utils.ScoreboardUtils;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
@@ -17,7 +19,6 @@ import com.mmdev.meowmayo.features.kuudra.*;
 import com.mmdev.meowmayo.features.party.*;
 import com.mmdev.meowmayo.utils.TextOverlayUtils;
 import com.mmdev.meowmayo.utils.PartyCommandListUtils;
-import com.mmdev.meowmayo.utils.PartyUtils;
 
 @Mod(modid = MeowMayo.MODID, version = MeowMayo.VERSION, clientSideOnly = true)
 public class MeowMayo {
@@ -46,18 +47,23 @@ public class MeowMayo {
         ClientCommandHandler.instance.registerCommand(new PartyCommandsWhitelistCommand());
         ClientCommandHandler.instance.registerCommand(new PartyCommandsBlacklistCommand());
 
+        DungeonTrack.init();
+
         // Register event handlers
         MinecraftForge.EVENT_BUS.register(new GuiHandler());
 
         MinecraftForge.EVENT_BUS.register(new TextOverlayUtils());
         MinecraftForge.EVENT_BUS.register(new PartyUtils());
+        MinecraftForge.EVENT_BUS.register(new ScoreboardUtils());
 
         MinecraftForge.EVENT_BUS.register(new DungeonsExtras());
         MinecraftForge.EVENT_BUS.register(new F7BossFeatures());
 
         MinecraftForge.EVENT_BUS.register(new BackpackTracker());
         MinecraftForge.EVENT_BUS.register(new InvulnerabilityItems());
+        MinecraftForge.EVENT_BUS.register(new BuffItems());
         MinecraftForge.EVENT_BUS.register(new ToggleSprint());
+        MinecraftForge.EVENT_BUS.register(new EtherwarpHelper());
 
         MinecraftForge.EVENT_BUS.register(new PartyCommands());
 

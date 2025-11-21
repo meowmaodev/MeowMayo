@@ -13,6 +13,8 @@ public class PartyUtils {
     private static boolean kuudraChange = true;
     private static boolean dungeonChange = true;
 
+    private static boolean downtime = false;
+
     private static boolean inParty = false;
     private static String leader = "";
     private static final Set<String> party = new HashSet<>();
@@ -28,6 +30,10 @@ public class PartyUtils {
 
     public static void useKuudraFlag() { kuudraChange = false; }
     public static void useDungeonFlag() { dungeonChange = false; }
+
+    public static void requestDowntime() { downtime = true; }
+    public static void useDowntimeFlag() { downtime = false; }
+    public static boolean getDowntimeFlag() { return downtime; }
 
     public static boolean isLeader() { return leader.equals(playerName); }
     public static boolean isInParty() { return inParty; }
@@ -81,7 +87,7 @@ public class PartyUtils {
             String player = removed.matches() ? removed.group(1) : left.group(1);
             party.remove(ChatUtils.stripRank(player));
             inParty = true;
-            kuudraChange = dungeonChange = true;
+            kuudraChange = dungeonChange = downtime = true;
             return;
         }
 
@@ -109,8 +115,12 @@ public class PartyUtils {
         if (joined.matches()) {
             String user = ChatUtils.stripRank(joined.group(1));
             party.add(user);
+            if (party.size() == 1 && !inParty) { // this should make you leader if someone joins your party and the party doesnt exist
+                party.add(playerName);
+                leader = playerName;
+            }
             inParty = true;
-            kuudraChange = dungeonChange = true;
+            kuudraChange = dungeonChange = downtime = true;
             return;
         }
 
@@ -125,14 +135,14 @@ public class PartyUtils {
             }
             party.add(user);
             inParty = true;
-            kuudraChange = dungeonChange = true;
+            kuudraChange = dungeonChange = downtime = true;
             return;
         }
 
         // Joined someone else’s party
         Matcher youJoined = youJoinedPattern.matcher(msg);
         if (youJoined.matches()) {
-            getPartyMembers();
+            DelayUtils.scheduleTask(PartyUtils::getPartyMembers, 500);
             return;
         }
 
@@ -141,7 +151,7 @@ public class PartyUtils {
         if (plist.matches()) {
             party.clear();
             inParty = true;
-            kuudraChange = dungeonChange = true;
+            kuudraChange = dungeonChange = downtime = true;
             return;
         }
 
@@ -184,8 +194,7 @@ public class PartyUtils {
         inParty = false;
         leader = "";
         party.clear();
-        kuudraChange = true;
-        dungeonChange = true;
+        kuudraChange = dungeonChange = downtime = true;
     }
 
     private static void getPartyMembers() {

@@ -89,10 +89,23 @@ public class ConfigSettings {
         add(new ToggleSetting("Master Catacombs Entrance Command", "Enables Master Catacombs Entrance Party Command", "Party Commands", "Catacombs", false));
         add(new ToggleSetting("Kuudra Entrance Command", "Enables Kuudra Entrance Party Command", "Party Commands", "Kuudra", false));
         add(new ToggleSetting("Kuudra Time Stats Command", "Enables Kuudra Time Stats Party Command", "Party Commands", "Kuudra", false));
+        add(new ToggleSetting("Kuudra Auto Requeue", "Automatically Requeue into a new run | INFERNAL KUUDRA ONLY", "Kuudra", "General", false));
+        add(new IntSliderSetting("Kuudra Requeue Delay", "Time waited to Requeue into a new run", "Kuudra", "General", 0, 0, 10));
+        add(new ToggleSetting("Ichor Message", "Sends a message in party chat when you use Ichor Pool", "Kuudra", "", false));
         add(new ToggleSetting("Coinflip Command", "Enables Coinflip Party Command", "Party Commands", "Fun", false));
         add(new ToggleSetting("Dice Command", "Enables Dice Party Command", "Party Commands", "Fun", false));
         add(new ToggleSetting("Announce Spirit Leap", "Announces when you spirit leap to someone", "Dungeons", "General", false));
         add(new ToggleSetting("Phase 3 Death Warning", "Warns you when a death tick is about to happen in Terminal Phase", "Dungeons", "F7 Boss", false));
+        add(new ToggleSetting("Dragon Spawn Title", "Displays a title for what dragon to go to.", "Dungeons", "M7 Dragons", false));
+        add(new ToggleSetting("Split Dragon", "Splits Dragons for first spawn. Currently assumes split on all power BMH + AT", "Dungeons", "M7 Dragons", false));
+        add(new ToggleSetting("Dragon Spawn Timer", "Displays a timer for dragon spawn", "Dungeons", "M7 Dragons", false));
+        add(new ToggleSetting("Ragnarok Buff Message", "Sends a message in party chat when using ragnarok.", "General", "Buff Items", false));
+        add(new ToggleSetting("Ragnarok Buff Title", "Creates a title when ragnarok is used.", "General", "Buff Items", false));
+        add(new ToggleSetting("Etherwarp Helper", "Highlights the block you will etherwarp to", "General", " Etherwarp", false));
+        add(new ToggleSetting("Fake Player Etherwarp", "Renders a fake copy of you on the etherwarp block", "General", " Etherwarp", false));
+        add(new FloatSliderSetting("Fake Player Transparency", "How transparent the fake player is", "General", " Etherwarp", 0.8f, 0.0f, 1.0f));
+        add(new ToggleSetting("Mimic Dead Message", "Sends a message when a mimic dies", "Dungeons", "General", false));
+        add(new ToggleSetting("Price Dead Message", "Sends a message when a prince crypt dies", "Dungeons", "General", false));
     }
 
     private static int readInt(String input) {
