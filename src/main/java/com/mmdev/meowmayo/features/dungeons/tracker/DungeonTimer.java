@@ -45,4 +45,8 @@ public class DungeonTimer {
         clientMs = 0;
         serverMs = 0;
     }
+
+    public long getLag() {
+        return Math.max(0, clientMs - serverMs);
+    }
 }

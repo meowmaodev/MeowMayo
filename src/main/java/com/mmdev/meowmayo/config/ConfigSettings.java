@@ -106,6 +106,13 @@ public class ConfigSettings {
         add(new FloatSliderSetting("Fake Player Transparency", "How transparent the fake player is", "General", " Etherwarp", 0.8f, 0.0f, 1.0f));
         add(new ToggleSetting("Mimic Dead Message", "Sends a message when a mimic dies", "Dungeons", "General", false));
         add(new ToggleSetting("Price Dead Message", "Sends a message when a prince crypt dies", "Dungeons", "General", false));
+        add(new ToggleSetting("Terminals Breakdown", "Various Terminal Info", "Dungeons", "Terminals", false));
+        add(new ToggleSetting("Pre4 Reminder", "Alerts you when Pre4 is not done | Requires Terminals Breakdown", "Dungeons", "Terminals", false));
+        add(new ToggleSetting("Blood Mob Timer", "Displays a timer for blood mob spawn times", "Dungeons", "Blood Room", false));
+        add(new ToggleSetting("Blood Mob Spawn Overview", "Says how much each mob takes to spawn", "Dungeons", "Blood Room", false));
+        add(new ToggleSetting("Blood Mob Kill Tracker", "Tracks how long each blood mob takes to kill", "Dungeons", "Blood Room", false));
+        add(new ToggleSetting("Dungeon Auto Requeue", "Automatically Requeue into a new run | M7 ONLY", "Dungeons", "General", false));
+        add(new IntSliderSetting("Dungeon Requeue Delay", "Time waited to Requeue into a new run", "Dungeons", "General", 0, 0, 10));
     }
 
     private static int readInt(String input) {

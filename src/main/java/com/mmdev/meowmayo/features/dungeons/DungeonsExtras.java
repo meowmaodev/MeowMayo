@@ -34,6 +34,7 @@ public class DungeonsExtras {
         }
     }
 
+    // i gotta do this idk
     private final String princeTexture = "ewogICJ0aW1lc3RhbXAiIDogMTU5MDE3Njk2NjUxNywKICAicHJvZmlsZUlkIiA6ICJhMmY4MzQ1OTVjODk0YTI3YWRkMzA0OTcxNmNhOTEwYyIsCiAgInByb2ZpbGVOYW1lIiA6ICJiUHVuY2giLAogICJzaWduYXR1cmVSZXF1aXJlZCIgOiB0cnVlLAogICJ0ZXh0dXJlcyIgOiB7CiAgICAiU0tJTiIgOiB7CiAgICAgICJ1cmwiIDogImh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNDk5OTEyM2NmMGE0MTQ3N2Y3MDZmYzZhNTA4OTE0NjNlOGNiNTBkY2JkZDJjODFjNjUyZmNlZjZmZGJkZTIxYyIKICAgIH0KICB9Cn0=";
 
     @SubscribeEvent

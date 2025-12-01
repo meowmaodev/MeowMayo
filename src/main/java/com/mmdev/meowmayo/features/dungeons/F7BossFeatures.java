@@ -2,26 +2,33 @@ package com.mmdev.meowmayo.features.dungeons;
 
 import com.mmdev.meowmayo.config.ConfigSettings;
 import com.mmdev.meowmayo.config.settings.ToggleSetting;
+import com.mmdev.meowmayo.features.dungeons.tracker.DungeonTracker;
 import com.mmdev.meowmayo.utils.*;
 import com.mmdev.meowmayo.utils.events.S02ChatReceivedEvent;
 import com.mmdev.meowmayo.utils.events.S2AParticleReceivedEvent;
 import com.mmdev.meowmayo.utils.events.S32ReceivedEvent;
+import com.mmdev.meowmayo.utils.tracker.Events;
 import net.minecraft.client.Minecraft;
+import net.minecraft.entity.item.EntityArmorStand;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.util.EnumChatFormatting;
+import net.minecraft.world.World;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class F7BossFeatures {
     private ToggleSetting p3Death = (ToggleSetting) ConfigSettings.getSetting("Phase 3 Death Warning");
     private ToggleSetting dragonSpawnTitle = (ToggleSetting) ConfigSettings.getSetting("Dragon Spawn Title");
-    private ToggleSetting splitDragons = (ToggleSetting) ConfigSettings.getSetting("Split Dragon");
+    private static ToggleSetting splitDragons = (ToggleSetting) ConfigSettings.getSetting("Split Dragon");
     private ToggleSetting dragonSpawnTimer = (ToggleSetting) ConfigSettings.getSetting("Dragon Spawn Timer");
-
-    public static int bossPhase = 0;
-    // 1 = maxor, 2 = storm, 3 = terms, 4 = tunnel, 5 = necron, 6 = relics, 7 = dragons
+    private ToggleSetting termBreakdown = (ToggleSetting) ConfigSettings.getSetting("Terminals Breakdown");
+    private ToggleSetting pre4Remind = (ToggleSetting) ConfigSettings.getSetting("Pre4 Reminder");
 
     private static HashMap<String, Integer> prio;
     private static HashMap<String, Integer> noSplitPrio; // who isnt splitting in the big 2025?
@@ -64,6 +71,12 @@ public class F7BossFeatures {
 
     private static int p3TickTimer = 0;
 
+    private static int termPhase = 0;
+    private static boolean termsDone = false;
+    private static boolean gateBoom = false;
+
+    private static boolean pre4Done = false;
+
     private static Character playerClass = null;
 
     @SubscribeEvent
@@ -77,7 +90,7 @@ public class F7BossFeatures {
 
     @SubscribeEvent
     public void onParticleSpawn(S2AParticleReceivedEvent event) {
-        if (bossPhase == 7) {
+        if (DungeonTracker.getPhase() == 8 && DungeonTracker.getTier().equals("M7")) {
             if (splitDragons.getValue()) {
                 if (event.getParticleName().equalsIgnoreCase("ENCHANTMENTTABLE")) {
                     String spawning = DungeonUtils.getDragonStatue(event.getParticleX(), event.getParticleY(), event.getParticleZ());
@@ -143,38 +156,40 @@ public class F7BossFeatures {
 
     @SubscribeEvent
     public void onServerTick(S32ReceivedEvent event) {
-        if (p3Death.getValue()) {
-            if (bossPhase == 3) {
-                if (p3TickTimer == 45) {
-                    PlayerUtils.makeTextAlert("DAMAGE TICK INCOMING!", "note.pling");
-                }
-                if (p3TickTimer > 45) {
-                    Minecraft.getMinecraft().thePlayer.playSound("note.pling", 1.0F, 1.0F);
-                }
-                if (p3TickTimer >= 60) {
-                    PlayerUtils.stopAlert();
-                    PlayerUtils.makeTextTitle("DAMAGE TICK PASSED!", 500);
-                    p3TickTimer = 0;
-                }
-                p3TickTimer++;
-            }
-        }
-
-        if (bossPhase == 7) {
-            for (int i = spawningDragons.size() - 1; i >= 0; i--) {
-                spawningDragons.get(i).time -= 50;
-
-                if (spawningDragons.get(i).time <= 0) {
-                    recentlySpawned.add(new DragonTimer(spawningDragons.get(i).color, 2000));
-                    spawningDragons.remove(i);
+        if (DungeonTracker.getTier().equals("M7") || DungeonTracker.getTier().equals("F7")) {
+            if (p3Death.getValue()) {
+                if (DungeonTracker.getPhase() == 5) {
+                    if (p3TickTimer == 45) {
+                        PlayerUtils.makeTextAlert("DAMAGE TICK INCOMING!", "note.pling");
+                    }
+                    if (p3TickTimer > 45) {
+                        Minecraft.getMinecraft().thePlayer.playSound("note.pling", 1.0F, 1.0F);
+                    }
+                    if (p3TickTimer >= 60) { // 40t cycle
+                        PlayerUtils.stopAlert();
+                        PlayerUtils.makeTextTitle("DAMAGE TICK PASSED!", 500);
+                        p3TickTimer = 0;
+                    }
+                    p3TickTimer++;
                 }
             }
 
-            for (int i = recentlySpawned.size() - 1; i >= 0; i--) {
-                recentlySpawned.get(i).time -= 50;
+            if (DungeonTracker.getPhase() == 8) {
+                for (int i = spawningDragons.size() - 1; i >= 0; i--) {
+                    spawningDragons.get(i).time -= 50;
 
-                if (recentlySpawned.get(i).time <= 0) {
-                    recentlySpawned.remove(i);
+                    if (spawningDragons.get(i).time <= 0) {
+                        recentlySpawned.add(new DragonTimer(spawningDragons.get(i).color, 2000));
+                        spawningDragons.remove(i);
+                    }
+                }
+
+                for (int i = recentlySpawned.size() - 1; i >= 0; i--) {
+                    recentlySpawned.get(i).time -= 50;
+
+                    if (recentlySpawned.get(i).time <= 0) {
+                        recentlySpawned.remove(i);
+                    }
                 }
             }
         }
@@ -182,50 +197,111 @@ public class F7BossFeatures {
 
     @SubscribeEvent
     public void onWorldLoad(WorldEvent.Load event) {
-        bossPhase = 0;
         PlayerUtils.stopAlert();
     }
+
+    Pattern device = Pattern.compile("^(.{2,16}) completed a device! \\((\\d+)/(\\d+)\\)$");
+    Pattern terminal = Pattern.compile("^(.{2,16}) activated a terminal! \\((\\d+)/(\\d+)\\)$");
+    Pattern lever = Pattern.compile("^(.{2,16}) activated a lever! \\((\\d+)/(\\d+)\\)$");
 
     @SubscribeEvent
     public void onChatPacket(S02ChatReceivedEvent event) {
         String msg = event.getUnformattedMessage();
 
-        if (msg.equals("[BOSS] Maxor: WELL! WELL! WELL! LOOK WHO'S HERE!")) {
-            bossPhase = 1;
-        }
+        if (!termBreakdown.getValue()) return;
 
-        if (msg.equals("[BOSS] Storm: Pathetic Maxor, just like expected.")) {
-            bossPhase = 2;
-        }
-
-        if (msg.equals("[BOSS] Goldor: Who dares trespass into my domain?")) {
-            bossPhase = 3;
-            p3TickTimer = 0;
-        }
-
-        if (msg.equals("The Core entrance is opening!")) {
-            bossPhase = 4;
-
-            p3TickTimer = 0;
-            PlayerUtils.stopAlert();
-        }
-
-        if (msg.equals("[BOSS] Necron: You went further than any human before, congratulations.")) {
-            bossPhase = 5;
-        }
-
-        if (msg.equals("[BOSS] Necron: All this, for nothing...")) {
-            bossPhase = 6;
-        }
-
-        if (msg.equals("[BOSS] Wither King: You... again?")) {
-            bossPhase = 7;
-
-            firstDrag = true;
-
-            if (splitDragons.getValue()) {
-                playerClass = DungeonUtils.getPlayerClass();
+        // this detects the actual terminal phases
+        if ((DungeonTracker.getTier().equals("M7") || DungeonTracker.getTier().equals("F7")) && DungeonTracker.getPhase() == 5) { // make this f7 too when thats added to tracker
+            if (msg.equals("The gate has been destroyed!")) {
+                gateBoom = true;
             }
+
+            Matcher mDev = device.matcher(msg);
+            if (mDev.matches()) {
+                int a = Integer.parseInt(mDev.group(2));
+                int b = Integer.parseInt(mDev.group(3));
+
+                if (a == b) {
+                    termsDone = true;
+                }
+
+                EntityPlayer termFinisher = WorldUtils.getPlayerByName(mDev.group(1));
+
+                if (termFinisher != null) {
+                    if (termFinisher.posZ < 98 && termFinisher.posZ > 90 && termFinisher.posX > 104) {
+                        ChatUtils.system(mDev.group(1) + " has completed Simon Says!");
+                    }
+                    if (termFinisher.posX > 55 && termFinisher.posX < 64 && termFinisher.posZ > 135) {
+                        ChatUtils.system(mDev.group(1) + " has completed Lights Device!");
+                    }
+                    if (termFinisher.posZ < 82 && termFinisher.posZ > 71 && termFinisher.posX < 6) {
+                        ChatUtils.system(mDev.group(1) + " has completed Arrow Align Device!");
+                    }
+                    if (termFinisher.posX > 60 && termFinisher.posX < 64 && termFinisher.posZ < 38) {
+                        ChatUtils.system(mDev.group(1) + " has completed Arrow Shooter Device!");
+                        pre4Done = true;
+                    }
+                }
+            }
+
+            Matcher mLev = lever.matcher(msg);
+            if (mLev.matches()) {
+                int a = Integer.parseInt(mLev.group(2));
+                int b = Integer.parseInt(mLev.group(3));
+
+                if (a == b) {
+                    termsDone = true;
+                }
+            }
+
+            Matcher mTerm = terminal.matcher(msg);
+            if (mTerm.matches()) {
+                int a = Integer.parseInt(mTerm.group(2));
+                int b = Integer.parseInt(mTerm.group(3));
+
+                if (a == b) {
+                    termsDone = true;
+                }
+            }
+
+            if (termsDone && gateBoom) {
+                termsDone = false;
+                gateBoom = false;
+                termPhase++;
+                ChatUtils.system("Entering Term Phase: " + termPhase);
+                if (termPhase == 4 && pre4Remind.getValue()) {
+                    if (!pre4Done) {
+                        if (playerClass == 'B') {
+                            ChatUtils.system("PRE4 IS NOT DONE");
+                        }
+                    } else {
+                        ChatUtils.system("PRE4 IS DONE");
+                    }
+                }
+            }
+        }
+    }
+
+    public static void signal(Events event) {
+        switch (event) {
+            case STORM_DEAD:
+                pre4Done = false;
+                gateBoom = false;
+                termsDone = false;
+                termPhase = 1;
+                break;
+            case GOLDOR_DEAD:
+                pre4Done = false;
+                gateBoom = false;
+                termsDone = false;
+                termPhase = 0;
+
+                p3TickTimer = 0;
+                PlayerUtils.stopAlert();
+                break;
+            case RELICS_DOWN:
+                firstDrag = true;
+                playerClass = DungeonUtils.getPlayerClass();
         }
     }
 

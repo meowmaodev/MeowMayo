@@ -20,6 +20,13 @@ public class Phase {
         this.onExit = onExit;
     }
 
+    public Phase(String name, Set<PhaseListener> triggers) {
+        this.name = name;
+        this.triggers = triggers;
+        this.onEnter = () -> {};
+        this.onExit = () -> {};
+    }
+
     public String getName() {
         return name;
     }

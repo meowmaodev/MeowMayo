@@ -13,8 +13,9 @@ public class DungeonTrack {
     static DungeonTracker tracker = new DungeonTracker(timer, listener);
     public static void init() {
         DungeonTiers.init(tracker);
-        tracker.setCurrentTier(DungeonTiers.M7);
-
+        listener.setRunEnd(DungeonTiers.runOver);
+        DungeonTiers.runOver.enable();
+        tracker.setCurrentTier(DungeonTiers.M7); // deefalt
 
         MinecraftForge.EVENT_BUS.register(listener);
         MinecraftForge.EVENT_BUS.register(timer);

@@ -18,8 +18,14 @@ import java.util.Set;
 public class DungeonListener {
     private Set<PhaseListener> activeListeners = new HashSet<>();
 
+    private DungeonRegexListener runEnd;
+
     public void setActiveListeners(Set<PhaseListener> listeners) {
         activeListeners = listeners;
+    }
+
+    public void setRunEnd(DungeonRegexListener runEnd) {
+        this.runEnd = runEnd;
     }
 
     @SubscribeEvent
@@ -33,5 +39,7 @@ public class DungeonListener {
                 ((DungeonRegexListener) listener).onChatMessage(msg);
             }
         }
+
+        runEnd.onChatMessage(msg); // always active
     }
 }

@@ -57,6 +57,8 @@ public class MeowMayo {
         MinecraftForge.EVENT_BUS.register(new ScoreboardUtils());
 
         MinecraftForge.EVENT_BUS.register(new DungeonsExtras());
+//        MinecraftForge.EVENT_BUS.register(new LeapHighlight());
+        MinecraftForge.EVENT_BUS.register(new CampHelper());
         MinecraftForge.EVENT_BUS.register(new F7BossFeatures());
 
         MinecraftForge.EVENT_BUS.register(new BackpackTracker());

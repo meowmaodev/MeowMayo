@@ -26,6 +26,24 @@ public class DungeonUtils {
         return null;
     }
 
+    public static Character getPlayerClass(String ign) {
+        Minecraft mc = Minecraft.getMinecraft();
+
+        if (mc == null || mc.thePlayer.sendQueue == null) return null;
+
+        Collection<NetworkPlayerInfo> tabList = mc.thePlayer.sendQueue.getPlayerInfoMap();
+
+        for (NetworkPlayerInfo networkPlayerInfo : tabList) {
+            if (networkPlayerInfo.getDisplayName() != null) {
+                String line = networkPlayerInfo.getDisplayName().getUnformattedText();
+                if (line.contains(ign)) {
+                    return line.charAt(line.indexOf('(')+1);
+                }
+            }
+        }
+        return null;
+    }
+
     public static String getDragonStatue(double x, double y, double z) {
         if (y < 14 || y > 19) return null;
 

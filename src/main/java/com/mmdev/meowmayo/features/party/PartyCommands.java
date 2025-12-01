@@ -271,6 +271,10 @@ public class PartyCommands {
                     scheduleReset(1000);
                 }
                 break;
+            case "dt":
+            case "downtime":
+                PartyUtils.requestDowntime();
+                break;
             case "ptme":
                 if (partyTransferMeCommand.getValue() && PartyUtils.isLeader()) {
                     delayed = true;
