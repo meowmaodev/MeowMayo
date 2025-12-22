@@ -6,10 +6,18 @@ import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
 
+import java.util.Arrays;
+import java.util.List;
+
 public class ResetKuudraTimeCommand extends CommandBase {
     @Override
     public String getCommandName() {
         return "rskt";
+    }
+
+    @Override
+    public List<String> getCommandAliases() {
+        return Arrays.asList("resetkuudratime");
     }
 
     @Override

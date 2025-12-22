@@ -190,6 +190,10 @@ public class RenderShapeUtils {
         int textWidth = fr.getStringWidth(text);
         fr.drawString(text, -textWidth / 2, -fr.FONT_HEIGHT / 2, 0xFFFFFF);
 
+        GlStateManager.enableTexture2D();
+        GlStateManager.depthMask(true);
+        GlStateManager.color(1f, 1f, 1f, 1f);
+
         GlStateManager.enableDepth();
         GlStateManager.enableLighting();
         GlStateManager.disableBlend();

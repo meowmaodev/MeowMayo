@@ -54,8 +54,8 @@ public class ConfigSettings {
         add(new ToggleSetting("Supplies Overview", "Sends a detailed message after supplies phase containing supplies overview", "Kuudra", "Run Tracker", false));
         add(new ToggleSetting("Fresh Info", "Tracks who freshes and when", "Kuudra", "Run Tracker", false));
         add(new ToggleSetting("Fresh Overview", "Sends a detailed message after build phase containing fresh overview", "Kuudra", "Run Tracker", false));
-        add(new ToggleSetting("Lag Timing", "Sends message in party chat about how much lag occurred in run", "Kuudra", "Run Tracker", false));
-        add(new ToggleSetting("Reset Tracker on Party Change", "Resets session tracker when party changes", "Kuudra", "Run Tracker", false));
+        add(new ToggleSetting("Kuudra Run Lag Timing", "Sends message in party chat about how much lag occurred in run", "Kuudra", "Run Tracker", false));
+        add(new ToggleSetting("Reset Kuudra Tracker on Party Change", "Resets session tracker when party changes", "Kuudra", "Run Tracker", false));
         add(new ToggleSetting("Pre Tracker", "Tracks who misses their pre", "Kuudra", "Run Tracker", false));
         add(new IntSliderSetting("Pre Tracker Leeway", "The amount of extra time given for pre tracking. Default is 8 seconds.", "Kuudra", "Run Tracker", 0, 0, 3));
         add(new ToggleSetting("No Supply", "Annouces when your pre is missing", "Kuudra", "Supplies", false));
@@ -94,25 +94,34 @@ public class ConfigSettings {
         add(new ToggleSetting("Ichor Message", "Sends a message in party chat when you use Ichor Pool", "Kuudra", "", false));
         add(new ToggleSetting("Coinflip Command", "Enables Coinflip Party Command", "Party Commands", "Fun", false));
         add(new ToggleSetting("Dice Command", "Enables Dice Party Command", "Party Commands", "Fun", false));
-        add(new ToggleSetting("Announce Spirit Leap", "Announces when you spirit leap to someone", "Dungeons", "General", false));
-        add(new ToggleSetting("Phase 3 Death Warning", "Warns you when a death tick is about to happen in Terminal Phase", "Dungeons", "F7 Boss", false));
-        add(new ToggleSetting("Dragon Spawn Title", "Displays a title for what dragon to go to.", "Dungeons", "M7 Dragons", false));
-        add(new ToggleSetting("Split Dragon", "Splits Dragons for first spawn. Currently assumes split on all power BMH + AT", "Dungeons", "M7 Dragons", false));
-        add(new ToggleSetting("Dragon Spawn Timer", "Displays a timer for dragon spawn", "Dungeons", "M7 Dragons", false));
+        add(new ToggleSetting("Announce Spirit Leap", "Announces when you spirit leap to someone", "Dungeons", "Spirit Leap", false));
+        add(new ToggleSetting("Phase 3 Death Warning", "Warns you when a death tick is about to happen in Terminal Phase", "Floor 7", "Terminals", false));
+        add(new ToggleSetting("Dragon Spawn Title", "Displays a title for what dragon to go to.", "Floor 7", "Dragons", false));
+        add(new ToggleSetting("Split Dragon", "Splits Dragons for first spawn. Currently assumes split on all power BMH + AT", "Floor 7", "Dragons", false));
+        add(new ToggleSetting("Dragon Spawn Timer", "Displays a timer for dragon spawn", "Floor 7", "Dragons", false));
         add(new ToggleSetting("Ragnarok Buff Message", "Sends a message in party chat when using ragnarok.", "General", "Buff Items", false));
         add(new ToggleSetting("Ragnarok Buff Title", "Creates a title when ragnarok is used.", "General", "Buff Items", false));
         add(new ToggleSetting("Etherwarp Helper", "Highlights the block you will etherwarp to", "General", " Etherwarp", false));
         add(new ToggleSetting("Fake Player Etherwarp", "Renders a fake copy of you on the etherwarp block", "General", " Etherwarp", false));
         add(new FloatSliderSetting("Fake Player Transparency", "How transparent the fake player is", "General", " Etherwarp", 0.8f, 0.0f, 1.0f));
         add(new ToggleSetting("Mimic Dead Message", "Sends a message when a mimic dies", "Dungeons", "General", false));
-        add(new ToggleSetting("Price Dead Message", "Sends a message when a prince crypt dies", "Dungeons", "General", false));
-        add(new ToggleSetting("Terminals Breakdown", "Various Terminal Info", "Dungeons", "Terminals", false));
-        add(new ToggleSetting("Pre4 Reminder", "Alerts you when Pre4 is not done | Requires Terminals Breakdown", "Dungeons", "Terminals", false));
+        add(new ToggleSetting("Prince Dead Message", "Sends a message when a prince crypt dies", "Dungeons", "General", false));
+        add(new ToggleSetting("Terminals Breakdown", "Various Terminal Info", "Floor 7", "Terminals", false));
+        add(new ToggleSetting("Pre4 Reminder", "Alerts you when Pre4 is not done | Requires Terminals Breakdown", "Floor 7", "Terminals", false));
         add(new ToggleSetting("Blood Mob Timer", "Displays a timer for blood mob spawn times", "Dungeons", "Blood Room", false));
         add(new ToggleSetting("Blood Mob Spawn Overview", "Says how much each mob takes to spawn", "Dungeons", "Blood Room", false));
         add(new ToggleSetting("Blood Mob Kill Tracker", "Tracks how long each blood mob takes to kill", "Dungeons", "Blood Room", false));
-        add(new ToggleSetting("Dungeon Auto Requeue", "Automatically Requeue into a new run | M7 ONLY", "Dungeons", "General", false));
+        add(new ToggleSetting("Dungeon Auto Requeue", "Automatically Requeue into a new run", "Dungeons", "General", false));
         add(new IntSliderSetting("Dungeon Requeue Delay", "Time waited to Requeue into a new run", "Dungeons", "General", 0, 0, 10));
+        add(new ToggleSetting("Highlight Door Opener", "Highlights the door opener in spirit leap", "Dungeons", "Spirit Leap", false));
+        add(new ToggleSetting("PY Pad Notifier", "Notifies when to pad on PY", "Floor 7", "Storm", false));
+        add(new ToggleSetting("Average Dungeon Run Time Tracker", "Tracks average dungeon run time per session | /dungeontime to view | Refreshes on game restart - /resetdungeontime to force reset", "Dungeons", "Run Tracker", false));
+        add(new ToggleSetting("Dungeon Run Lag Timing", "Sends message in party chat about how much lag occurred in run", "Dungeons", "Run Tracker", false));
+        add(new ToggleSetting("Reset Dungeon Tracker on Party Change", "Resets session tracker when party changes", "Dungeons", "Run Tracker", false));
+        add(new ToggleSetting("Prince Shard", "Assumes all players have prince shard", "Dungeons", "General", false));
+        add(new ToggleSetting("Livid Solver", "Draws a box around the correct livid (probably)", "Floor 5", "Livid", false));
+        add(new ToggleSetting("Highlight Relic Leap", "Highlights who to leap to in p5", "Floor 7", "Dragons", false));
+        add(new ToggleSetting("Split B.T.T. Message", "Sends message in party chat containing split details and best theoretical time", "Dungeons", "Run Tracker", false));
     }
 
     private static int readInt(String input) {

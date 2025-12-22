@@ -155,6 +155,11 @@ public class CampHelper {
                 }
             }
 
+            if (bm.peek() != null && bm.peek().ticks < -3) {
+                bm.remove(); // catch non spawned mobs?
+                expected.remove();
+            }
+
             // this probably good?
             Iterator<Map.Entry<Integer, mobName>> iteratorN = names.entrySet().iterator();
             while (iteratorN.hasNext()) {

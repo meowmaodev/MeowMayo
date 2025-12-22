@@ -25,8 +25,24 @@ public enum Events {
     DUNGEON_END,
 
     // per floor boss events
+    // fm2
+    SCARF_CRYPTS_DEAD,
+    SCARF_DEAD,
 
-    // m7
+    // fm3
+    GUARDIANS_DEAD,
+    PROFESSOR_1_DEAD,
+    PROFESSOR_DEAD,
+
+    // fm5
+    LIVID_DEAD,
+
+    // fm6
+    TERRACOTTAS_DEAD,
+    GIANTS_DEAD,
+    SADAN_DEAD,
+
+    // fm7
     CRYSTAL_PLACED, // reggie
     MAXOR_DEAD,
     STORM_LIGHTNING,
@@ -34,7 +50,9 @@ public enum Events {
     CORE_OPEN,
     GOLDOR_DEAD,
     NECRON_DEAD,
-    RELICS_DOWN
+    RELICS_DOWN,
+
+    WITHER_KING_DEAD
 
     // Expandable to more instanced things!
     // theoretiaclly this can track anything?

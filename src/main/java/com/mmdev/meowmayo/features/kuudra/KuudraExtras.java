@@ -94,7 +94,7 @@ public class KuudraExtras {
 
             Block block = Minecraft.getMinecraft().theWorld.getBlockState(posBelow).getBlock();
 
-            if (block == Blocks.stained_hardened_clay && Minecraft.getMinecraft().theWorld.getBlockState(posBelow).getBlock().getMetaFromState(Minecraft.getMinecraft().theWorld.getBlockState(posBelow)) == 14) {
+            if (block == Blocks.stained_hardened_clay && block.getMetaFromState(Minecraft.getMinecraft().theWorld.getBlockState(posBelow)) == 14) {
                 PlayerUtils.makeTextAlert("JUMP!", "note.pling", 250);
             }
         }

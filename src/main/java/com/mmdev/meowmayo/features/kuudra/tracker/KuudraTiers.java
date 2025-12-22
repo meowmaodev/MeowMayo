@@ -70,31 +70,10 @@ public class KuudraTiers {
         KuudraRegexListener runSuccess = new KuudraRegexListener(tracker, "^\\w+DEFEAT$", Events.RUN_END_SUCCESS);
         KuudraRegexListener runFail = new KuudraRegexListener(tracker, "^\\w+KUUDRA DOWN!$", Events.RUN_END_FAILURE);
 
-
-        infernal.addPhase(
-                new Phase("Start", new HashSet<>(Arrays.asList(
-                        runStart, suppliesStart
-                )), () -> {}, () -> {})
-        );
-        infernal.addPhase(
-                new Phase("Supplies", new HashSet<>(Arrays.asList(
-                        supplyGrab, buildStart
-                )), () -> {}, () -> {})
-        );
-        infernal.addPhase(
-                new Phase("Build", new HashSet<>(Arrays.asList(
-                        fresh, cannonStart
-                )), () -> {}, () -> {})
-        );
-        infernal.addPhase(
-                new Phase("DPS", new HashSet<>(Arrays.asList(
-                        eatenStart, stunnedStart, stunPingListener, skipStart, finalStart
-                )), () -> {}, () -> {})
-        );
-        infernal.addPhase(
-                new Phase("Final", new HashSet<>(Arrays.asList(
-                        runFail, runSuccess
-                )), () -> {}, () -> {})
-        );
+        infernal.addPhase(new Phase("Start", new HashSet<>(Arrays.asList(runStart, suppliesStart))));
+        infernal.addPhase(new Phase("Supplies", new HashSet<>(Arrays.asList(supplyGrab, buildStart))));
+        infernal.addPhase(new Phase("Build", new HashSet<>(Arrays.asList(fresh, cannonStart))));
+        infernal.addPhase(new Phase("DPS", new HashSet<>(Arrays.asList(eatenStart, stunnedStart, stunPingListener, skipStart, finalStart))));
+        infernal.addPhase(new Phase("Final", new HashSet<>(Arrays.asList(runFail, runSuccess))));
     }
 }

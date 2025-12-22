@@ -7,35 +7,36 @@ import com.mmdev.meowmayo.utils.events.S02ChatReceivedEvent;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
 import net.minecraft.client.entity.EntityOtherPlayerMP;
-import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.entity.item.EntityArmorStand;
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.monster.EntityZombie;
+import net.minecraft.init.Items;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
+import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 public class DungeonsExtras {
-    private ToggleSetting announceLeap = (ToggleSetting) ConfigSettings.getSetting("Announce Spirit Leap");
+    private ToggleSetting announceMimic = (ToggleSetting) ConfigSettings.getSetting("Mimic Dead Message");
+    private ToggleSetting announcePrince = (ToggleSetting) ConfigSettings.getSetting("Prince Dead Message");
+    private ToggleSetting assumePrinceShard = (ToggleSetting) ConfigSettings.getSetting("Prince Shard");
 
-    private Pattern spiritLeap = Pattern.compile("You have teleported to (.+)!");
+    private static final String princeTexture = "ewogICJ0aW1lc3RhbXAiIDogMTU5MDE3Njk2NjUxNywKICAicHJvZmlsZUlkIiA6ICJhMmY4MzQ1OTVjODk0YTI3YWRkMzA0OTcxNmNhOTEwYyIsCiAgInByb2ZpbGVOYW1lIiA6ICJiUHVuY2giLAogICJzaWduYXR1cmVSZXF1aXJlZCIgOiB0cnVlLAogICJ0ZXh0dXJlcyIgOiB7CiAgICAiU0tJTiIgOiB7CiAgICAgICJ1cmwiIDogImh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNDk5OTEyM2NmMGE0MTQ3N2Y3MDZmYzZhNTA4OTE0NjNlOGNiNTBkY2JkZDJjODFjNjUyZmNlZjZmZGJkZTIxYyIKICAgIH0KICB9Cn0=";
+    private static final String mimicTexture = "ewogICJ0aW1lc3RhbXAiIDogMTY3Mjc2NTM1NTU0MCwKICAicHJvZmlsZUlkIiA6ICJhNWVmNzE3YWI0MjA0MTQ4ODlhOTI5ZDA5OTA0MzcwMyIsCiAgInByb2ZpbGVOYW1lIiA6ICJXaW5zdHJlYWtlcnoiLAogICJzaWduYXR1cmVSZXF1aXJlZCIgOiB0cnVlLAogICJ0ZXh0dXJlcyIgOiB7CiAgICAiU0tJTiIgOiB7CiAgICAgICJ1cmwiIDogImh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvZTE5YzEyNTQzYmM3NzkyNjA1ZWY2OGUxZjg3NDlhZThmMmEzODFkOTA4NWQ0ZDRiNzgwYmExMjgyZDM1OTdhMCIsCiAgICAgICJtZXRhZGF0YSIgOiB7CiAgICAgICAgIm1vZGVsIiA6ICJzbGltIgogICAgICB9CiAgICB9CiAgfQp9";
+
+    private static boolean princeDead = false;
+    private static boolean mimicDead = false;
 
     @SubscribeEvent
-    public void onChatPacket(S02ChatReceivedEvent event) {
-        String message = event.getUnformattedMessage();
+    public void onChatReceived(S02ChatReceivedEvent event) {
+        String msg = event.getUnformattedMessage();
 
-        if (announceLeap.getValue()) {
-            Matcher matcher = spiritLeap.matcher(message);
-            if (matcher.matches()) {
-                ChatUtils.partyChat("Leaped to " + matcher.group(1));
-            }
+        if (!princeDead && announcePrince.getValue() && msg.equals("A Prince falls. +1 Bonus Score")) {
+            princeDead = true;
+            ChatUtils.partyChat("Prince Dead!");
         }
     }
-
-    // i gotta do this idk
-    private final String princeTexture = "ewogICJ0aW1lc3RhbXAiIDogMTU5MDE3Njk2NjUxNywKICAicHJvZmlsZUlkIiA6ICJhMmY4MzQ1OTVjODk0YTI3YWRkMzA0OTcxNmNhOTEwYyIsCiAgInByb2ZpbGVOYW1lIiA6ICJiUHVuY2giLAogICJzaWduYXR1cmVSZXF1aXJlZCIgOiB0cnVlLAogICJ0ZXh0dXJlcyIgOiB7CiAgICAiU0tJTiIgOiB7CiAgICAgICJ1cmwiIDogImh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNDk5OTEyM2NmMGE0MTQ3N2Y3MDZmYzZhNTA4OTE0NjNlOGNiNTBkY2JkZDJjODFjNjUyZmNlZjZmZGJkZTIxYyIKICAgIH0KICB9Cn0=";
 
     @SubscribeEvent
     public void onMobDeath(LivingDeathEvent event) {
@@ -43,16 +44,52 @@ public class DungeonsExtras {
 
         if (event.entity.isEntityAlive()) return;
 
-        if (event.entityLiving instanceof EntityOtherPlayerMP) {
-            EntityOtherPlayerMP fake = (EntityOtherPlayerMP) event.entityLiving;
-            GameProfile profile = fake.getGameProfile();
-            if (profile.getProperties().containsKey("textures")) {
-                Property textureProp = profile.getProperties().get("textures").iterator().next();
-                String base64 = textureProp.getValue();
-                if (base64.equals(princeTexture)) {
-                    ChatUtils.system("Prince killed");
+        if (!princeDead && announcePrince.getValue() && assumePrinceShard.getValue()) {
+            if (event.entityLiving instanceof EntityOtherPlayerMP) {
+                EntityOtherPlayerMP fake = (EntityOtherPlayerMP) event.entityLiving;
+                GameProfile profile = fake.getGameProfile();
+                if (profile.getProperties().containsKey("textures")) {
+                    Property textureProp = profile.getProperties().get("textures").iterator().next();
+                    String base64 = textureProp.getValue();
+                    if (base64.equals(princeTexture)) {
+                        ChatUtils.system("Prince killed");
+                        princeDead = true;
+                    }
                 }
             }
         }
+
+        if (!mimicDead && announceMimic.getValue()) {
+            if (event.entityLiving instanceof EntityZombie) {
+                EntityZombie zmb = (EntityZombie) event.entityLiving;
+                ItemStack head = zmb.getEquipmentInSlot(4);
+                if (head != null && head.getItem() == Items.skull) {
+                    NBTTagCompound tag = head.getTagCompound();
+                    if (tag != null && tag.hasKey("SkullOwner")) {
+                        NBTTagCompound skullOwner = tag.getCompoundTag("SkullOwner");
+                        if (skullOwner.hasKey("Properties")) {
+                            NBTTagCompound properties = skullOwner.getCompoundTag("Properties");
+                            if (properties.hasKey("textures")) {
+                                NBTTagList textures = properties.getTagList("textures", 10);
+                                if (textures.tagCount() > 0) {
+                                    String value = textures.getCompoundTagAt(0).getString("Value");
+
+                                    if (value.equals(mimicTexture)) {
+                                        ChatUtils.system("Mimic killed");
+                                        mimicDead = true;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    @SubscribeEvent
+    public void onWorldLoad(WorldEvent.Load event) {
+        princeDead = false;
+        mimicDead = false;
     }
 }

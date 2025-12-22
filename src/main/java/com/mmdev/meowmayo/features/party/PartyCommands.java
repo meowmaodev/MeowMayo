@@ -72,7 +72,7 @@ public class PartyCommands {
 
         String[] args = partyMessage.split(" ");
 
-        switch (args[0]) {
+        switch (args[0].toLowerCase()) {
             case "help":
                 delayed = true;
                 if (args.length == 1) {
@@ -101,7 +101,7 @@ public class PartyCommands {
                                     case "partywarp":
                                         ChatUtils.partyChat("Warp: Warps the party");
                                         scheduleTask(() -> ChatUtils.partyChat("Usage: " + prefix + "Warp"), 1000);
-                                        scheduleTask(() -> ChatUtils.partyChat("Aliases: Warp | PWarp | PartyWarp"), 2000);
+                                        scheduleTask(() -> ChatUtils.partyChat("Aliases: Warp | W | PWarp | PartyWarp"), 2000);
                                         scheduleReset(3000);
                                         break;
                                     case "invite":
@@ -251,6 +251,7 @@ public class PartyCommands {
                 }
                 break;
             case "warp":
+            case "w":
             case "pwarp":
             case "partywarp":
                 if (warpCommand.getValue() && PartyUtils.isLeader()) {

@@ -29,6 +29,8 @@ public class F7BossFeatures {
     private ToggleSetting dragonSpawnTimer = (ToggleSetting) ConfigSettings.getSetting("Dragon Spawn Timer");
     private ToggleSetting termBreakdown = (ToggleSetting) ConfigSettings.getSetting("Terminals Breakdown");
     private ToggleSetting pre4Remind = (ToggleSetting) ConfigSettings.getSetting("Pre4 Reminder");
+    private ToggleSetting PyPad = (ToggleSetting) ConfigSettings.getSetting("PY Pad Notifier");
+    private ToggleSetting highlightRelicLeap = (ToggleSetting) ConfigSettings.getSetting("Highlight Relic Leap");
 
     private static HashMap<String, Integer> prio;
     private static HashMap<String, Integer> noSplitPrio; // who isnt splitting in the big 2025?
@@ -48,6 +50,10 @@ public class F7BossFeatures {
         noSplitPrio.put("Purple", 4);
         noSplitPrio.put("Green", 5);
     }
+
+    private static HashMap<Character, String> relics = new HashMap<>();
+    private boolean grabbedRelic = false; // we use this to track if we picked up just for ease of use
+    private char playerRelic = 'A'; // not possible relic as placeholder?
 
     public static class DragonTimer {
         int time;
@@ -69,7 +75,11 @@ public class F7BossFeatures {
 
     private static boolean firstDrag = false;
 
+    private static int p2TickTimer = 0;
+    private static boolean lightninged = false;
+
     private static int p3TickTimer = 0;
+    private static long p3TotalTimer = 0;
 
     private static int termPhase = 0;
     private static boolean termsDone = false;
@@ -156,62 +166,100 @@ public class F7BossFeatures {
 
     @SubscribeEvent
     public void onServerTick(S32ReceivedEvent event) {
-        if (DungeonTracker.getTier().equals("M7") || DungeonTracker.getTier().equals("F7")) {
+        if (!(DungeonTracker.getTier().equals("M7") || DungeonTracker.getTier().equals("F7"))) return;
+        if (DungeonTracker.getPhase() == 4 && PyPad.getValue()) {
+            if (lightninged) {
+                p2TickTimer++;
+            }
+            if (playerClass == 'M' && (p2TickTimer > 75)) { // technically early but its to give people time to react
+                PlayerUtils.makeTextAlert("PAD!", "note.pling", 500);
+                p2TickTimer = 0;
+                lightninged = false;
+            }
+        }
+        if (DungeonTracker.getPhase() == 5) {
+            p3TotalTimer += 50;
+
             if (p3Death.getValue()) {
-                if (DungeonTracker.getPhase() == 5) {
-                    if (p3TickTimer == 45) {
-                        PlayerUtils.makeTextAlert("DAMAGE TICK INCOMING!", "note.pling");
-                    }
-                    if (p3TickTimer > 45) {
-                        Minecraft.getMinecraft().thePlayer.playSound("note.pling", 1.0F, 1.0F);
-                    }
-                    if (p3TickTimer >= 60) { // 40t cycle
-                        PlayerUtils.stopAlert();
-                        PlayerUtils.makeTextTitle("DAMAGE TICK PASSED!", 500);
-                        p3TickTimer = 0;
-                    }
-                    p3TickTimer++;
+                if (p3TickTimer == 45) {
+                    PlayerUtils.makeTextAlert("DAMAGE TICK INCOMING!", "note.pling");
+                }
+                if (p3TickTimer > 45) {
+                    Minecraft.getMinecraft().thePlayer.playSound("note.pling", 1.0F, 1.0F);
+                }
+                if (p3TickTimer >= 60) { // 40t cycle
+                    PlayerUtils.stopAlert();
+                    PlayerUtils.makeTextTitle("DAMAGE TICK PASSED!", 500);
+                    p3TickTimer = 0;
+                }
+                p3TickTimer++;
+            }
+        }
+
+        if (DungeonTracker.getPhase() == 8) {
+            for (int i = spawningDragons.size() - 1; i >= 0; i--) {
+                spawningDragons.get(i).time -= 50;
+
+                if (spawningDragons.get(i).time <= 0) {
+                    recentlySpawned.add(new DragonTimer(spawningDragons.get(i).color, 2000));
+                    spawningDragons.remove(i);
                 }
             }
 
-            if (DungeonTracker.getPhase() == 8) {
-                for (int i = spawningDragons.size() - 1; i >= 0; i--) {
-                    spawningDragons.get(i).time -= 50;
+            for (int i = recentlySpawned.size() - 1; i >= 0; i--) {
+                recentlySpawned.get(i).time -= 50;
 
-                    if (spawningDragons.get(i).time <= 0) {
-                        recentlySpawned.add(new DragonTimer(spawningDragons.get(i).color, 2000));
-                        spawningDragons.remove(i);
-                    }
-                }
-
-                for (int i = recentlySpawned.size() - 1; i >= 0; i--) {
-                    recentlySpawned.get(i).time -= 50;
-
-                    if (recentlySpawned.get(i).time <= 0) {
-                        recentlySpawned.remove(i);
-                    }
+                if (recentlySpawned.get(i).time <= 0) {
+                    recentlySpawned.remove(i);
                 }
             }
+
         }
     }
 
     @SubscribeEvent
     public void onWorldLoad(WorldEvent.Load event) {
+        p2TickTimer = 0;
+        lightninged = false;
+
+        pre4Done = false;
+        gateBoom = false;
+        termsDone = false;
+        termPhase = 0;
+
+        p3TotalTimer = 0;
+        p3TickTimer = 0;
         PlayerUtils.stopAlert();
+
+        relics.clear();
+        grabbedRelic = false;
+        playerRelic = 'A';
     }
 
     Pattern device = Pattern.compile("^(.{2,16}) completed a device! \\((\\d+)/(\\d+)\\)$");
     Pattern terminal = Pattern.compile("^(.{2,16}) activated a terminal! \\((\\d+)/(\\d+)\\)$");
     Pattern lever = Pattern.compile("^(.{2,16}) activated a lever! \\((\\d+)/(\\d+)\\)$");
 
+    Pattern relic = Pattern.compile("^(.{2,16}) picked the Corrupted (.{3,6}) Relic!$");
+
     @SubscribeEvent
     public void onChatPacket(S02ChatReceivedEvent event) {
         String msg = event.getUnformattedMessage();
 
-        if (!termBreakdown.getValue()) return;
+        if (!(DungeonTracker.getTier().equals("M7") || DungeonTracker.getTier().equals("F7"))) return;
 
-        // this detects the actual terminal phases
-        if ((DungeonTracker.getTier().equals("M7") || DungeonTracker.getTier().equals("F7")) && DungeonTracker.getPhase() == 5) { // make this f7 too when thats added to tracker
+        if (DungeonTracker.getPhase() == 4) {
+            if (
+                    msg.equalsIgnoreCase("[BOSS] Storm: ENERGY HEED MY CALL!")
+                    || msg.equalsIgnoreCase("[BOSS] Storm: THUNDER LET ME BE YOUR CATALYST!")
+            ) {
+                playerClass = DungeonUtils.getPlayerClass();
+                p2TickTimer = 0;
+                lightninged = true;
+            }
+        }
+
+        if (DungeonTracker.getPhase() == 5) {
             if (msg.equals("The gate has been destroyed!")) {
                 gateBoom = true;
             }
@@ -229,16 +277,24 @@ public class F7BossFeatures {
 
                 if (termFinisher != null) {
                     if (termFinisher.posZ < 98 && termFinisher.posZ > 90 && termFinisher.posX > 104) {
-                        ChatUtils.system(mDev.group(1) + " has completed Simon Says!");
+                        if (termBreakdown.getValue()) {
+                            ChatUtils.system(mDev.group(1) + " has completed Simon Says in " + ChatUtils.formatTime(p3TotalTimer/1000.0) + "!");
+                        }
                     }
                     if (termFinisher.posX > 55 && termFinisher.posX < 64 && termFinisher.posZ > 135) {
-                        ChatUtils.system(mDev.group(1) + " has completed Lights Device!");
+                        if (termBreakdown.getValue()) {
+                            ChatUtils.system(mDev.group(1) + " has completed Lights Device!");
+                        }
                     }
                     if (termFinisher.posZ < 82 && termFinisher.posZ > 71 && termFinisher.posX < 6) {
-                        ChatUtils.system(mDev.group(1) + " has completed Arrow Align Device!");
+                        if (termBreakdown.getValue()) {
+                            ChatUtils.system(mDev.group(1) + " has completed Arrow Align Device!");
+                        }
                     }
                     if (termFinisher.posX > 60 && termFinisher.posX < 64 && termFinisher.posZ < 38) {
-                        ChatUtils.system(mDev.group(1) + " has completed Arrow Shooter Device!");
+                        if (termBreakdown.getValue()) {
+                            ChatUtils.system(mDev.group(1) + " has completed Arrow Shooter Device!");
+                        }
                         pre4Done = true;
                     }
                 }
@@ -267,8 +323,17 @@ public class F7BossFeatures {
             if (termsDone && gateBoom) {
                 termsDone = false;
                 gateBoom = false;
+                if (termBreakdown.getValue()) {
+                    ChatUtils.system("Term Phase " + termPhase + " took: " + ChatUtils.formatTime(p3TotalTimer/1000.0));
+                }
+
+                p3TotalTimer = 0;
                 termPhase++;
-                ChatUtils.system("Entering Term Phase: " + termPhase);
+
+                if (termBreakdown.getValue()) {
+                    ChatUtils.system("Entering Term Phase: " + termPhase);
+                }
+
                 if (termPhase == 4 && pre4Remind.getValue()) {
                     if (!pre4Done) {
                         if (playerClass == 'B') {
@@ -280,28 +345,70 @@ public class F7BossFeatures {
                 }
             }
         }
+
+        if (DungeonTracker.getPhase() == 8) {
+            Matcher mRel = relic.matcher(msg);
+            if (mRel.matches()) {
+                String ign = mRel.group(1);
+                char relic = mRel.group(2).charAt(0);
+
+                if (ign.equals(Minecraft.getMinecraft().thePlayer.getName())) {
+                    playerRelic = relic;
+                    grabbedRelic = true;
+                }
+
+                relics.put(relic, ign);
+
+                if (highlightRelicLeap.getValue() && grabbedRelic) {
+                    switch (playerRelic) {
+                        case 'P':
+                        case 'G':
+                            if (relics.containsKey('R')) {
+                                LeapExtras.setHighlightedPlayer(relics.get('R'));
+                            }
+                            break;
+                        case 'B':
+                            if (relics.containsKey('O')) {
+                                LeapExtras.setHighlightedPlayer(relics.get('O'));
+                            }
+                            break;
+                    }
+                }
+            }
+        }
     }
 
     public static void signal(Events event) {
         switch (event) {
             case STORM_DEAD:
+                p2TickTimer = 0;
+                lightninged = false;
+
                 pre4Done = false;
                 gateBoom = false;
                 termsDone = false;
+                p3TotalTimer = 0;
+                p3TickTimer = 0;
                 termPhase = 1;
                 break;
+            case CORE_OPEN:
+                p3TotalTimer = 0;
+                p3TickTimer = 0;
+                PlayerUtils.stopAlert();
             case GOLDOR_DEAD:
                 pre4Done = false;
                 gateBoom = false;
                 termsDone = false;
                 termPhase = 0;
 
+                p3TotalTimer = 0;
                 p3TickTimer = 0;
                 PlayerUtils.stopAlert();
                 break;
             case RELICS_DOWN:
                 firstDrag = true;
                 playerClass = DungeonUtils.getPlayerClass();
+                LeapExtras.clearHighlightedPlayer();
         }
     }
 

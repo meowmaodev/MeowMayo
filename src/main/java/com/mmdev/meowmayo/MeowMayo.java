@@ -1,5 +1,6 @@
 package com.mmdev.meowmayo;
 
+import com.mmdev.meowmayo.features.dungeons.tracker.DungeonStats;
 import com.mmdev.meowmayo.features.kuudra.tracker.KuudraPhases;
 import com.mmdev.meowmayo.utils.PartyUtils;
 import com.mmdev.meowmayo.utils.ScoreboardUtils;
@@ -23,7 +24,7 @@ import com.mmdev.meowmayo.utils.PartyCommandListUtils;
 @Mod(modid = MeowMayo.MODID, version = MeowMayo.VERSION, clientSideOnly = true)
 public class MeowMayo {
     public static final String MODID = "meowmayo";
-    public static final String VERSION = "0.0.1";
+    public static final String VERSION = "1.0.0";
 
     // Initialization
     @Mod.EventHandler
@@ -34,6 +35,7 @@ public class MeowMayo {
         ModConfig.init(event.getSuggestedConfigurationFile().getParentFile());
         PartyCommandListUtils.init(event.getSuggestedConfigurationFile().getParentFile());
         KuudraPhases.init(event.getSuggestedConfigurationFile().getParentFile());
+        DungeonStats.init(event.getSuggestedConfigurationFile().getParentFile());
     }
 
     @Mod.EventHandler
@@ -44,6 +46,8 @@ public class MeowMayo {
         ClientCommandHandler.instance.registerCommand(new StorageCommand());
         ClientCommandHandler.instance.registerCommand(new KuudraTimeCommand());
         ClientCommandHandler.instance.registerCommand(new ResetKuudraTimeCommand());
+        ClientCommandHandler.instance.registerCommand(new DungeonTimeCommand());
+        ClientCommandHandler.instance.registerCommand(new ResetDungeonTimeCommand());
         ClientCommandHandler.instance.registerCommand(new PartyCommandsWhitelistCommand());
         ClientCommandHandler.instance.registerCommand(new PartyCommandsBlacklistCommand());
 
@@ -57,8 +61,9 @@ public class MeowMayo {
         MinecraftForge.EVENT_BUS.register(new ScoreboardUtils());
 
         MinecraftForge.EVENT_BUS.register(new DungeonsExtras());
-//        MinecraftForge.EVENT_BUS.register(new LeapHighlight());
+        MinecraftForge.EVENT_BUS.register(new LeapExtras());
         MinecraftForge.EVENT_BUS.register(new CampHelper());
+        MinecraftForge.EVENT_BUS.register(new F5BossFeatures());
         MinecraftForge.EVENT_BUS.register(new F7BossFeatures());
 
         MinecraftForge.EVENT_BUS.register(new BackpackTracker());
