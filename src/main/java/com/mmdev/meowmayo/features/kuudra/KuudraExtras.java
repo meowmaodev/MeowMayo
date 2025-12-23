@@ -1,6 +1,6 @@
 package com.mmdev.meowmayo.features.kuudra;
 
-import com.mmdev.meowmayo.features.kuudra.tracker.KuudraPhases;
+import com.mmdev.meowmayo.features.kuudra.tracker.KuudraTracker;
 import com.mmdev.meowmayo.utils.events.S02ChatReceivedEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
@@ -58,7 +58,7 @@ public class KuudraExtras {
             }
         }
 
-        if (!lastAlive.getValue() && KuudraPhases.getCurrPhase() >= 6) {
+        if (!lastAlive.getValue() && KuudraTracker.getPhase() >= 3) { // technically this can proc at the TAIL end of pre skip so we just allow it in both :D
             Matcher matcher = killPattern.matcher(msg);
 
             if (matcher.matches()) {
@@ -78,7 +78,7 @@ public class KuudraExtras {
     private int tickCounter = 0;
     @SubscribeEvent
     public void onClientTick(TickEvent.ClientTickEvent event) {
-        if (!(dangerBlocks.getValue() && KuudraPhases.getCurrPhase() == 7)) return;
+        if (!(dangerBlocks.getValue() && KuudraTracker.getPhase() == 4)) return;
 
         tickCounter++;
         if (tickCounter >= 5) { // every quarter second so we dont spam

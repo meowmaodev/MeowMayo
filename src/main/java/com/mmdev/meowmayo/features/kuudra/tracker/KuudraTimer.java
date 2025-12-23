@@ -46,4 +46,13 @@ public class KuudraTimer {
         clientMs = 0;
         serverMs = 0;
     }
+
+    public long getCurrentSplit() {
+        return clientMs;
+    }
+
+
+    public long getCurrentLaglessSplit() {
+        return serverMs;
+    }
 }

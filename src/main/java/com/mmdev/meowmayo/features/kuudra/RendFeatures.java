@@ -2,11 +2,8 @@ package com.mmdev.meowmayo.features.kuudra;
 
 import com.mmdev.meowmayo.config.ConfigSettings;
 import com.mmdev.meowmayo.config.settings.ToggleSetting;
-import com.mmdev.meowmayo.features.kuudra.tracker.KuudraPhases;
-import com.mmdev.meowmayo.utils.ChatUtils;
-import com.mmdev.meowmayo.utils.DelayUtils;
-import com.mmdev.meowmayo.utils.PlayerUtils;
-import com.mmdev.meowmayo.utils.RendUtils;
+import com.mmdev.meowmayo.features.kuudra.tracker.KuudraTracker;
+import com.mmdev.meowmayo.utils.*;
 import com.mmdev.meowmayo.utils.events.S02ChatReceivedEvent;
 import com.mmdev.meowmayo.utils.events.S29ReceivedEvent;
 import com.mmdev.meowmayo.utils.events.S32ReceivedEvent;
@@ -86,7 +83,7 @@ public class RendFeatures {
 
     @SubscribeEvent
     public void onSoundPacket(S29ReceivedEvent event) {
-        if (KuudraPhases.getCurrPhase() < 7) return;
+        if (KuudraTracker.getPhase() < 4) return;
 
         String soundName = event.getSoundName();
 
@@ -97,32 +94,32 @@ public class RendFeatures {
             }
         }
 
-        if (soundName.equals("tile.piston.out")) { // terror armor 10 stack bone tracker, this should go off bone pos tbh
-            if (rendBone.getValue() && throwingBone) {
-                ItemStack heldItem = Minecraft.getMinecraft().thePlayer.getHeldItem();
-
-                if (heldItem == null) return;
-
-                String itemName = heldItem.getDisplayName().toLowerCase();
-
-                if (itemName.contains("breath") || itemName.contains("juju") || itemName.contains("terminator")) return;
-
-                String helm = Minecraft.getMinecraft().thePlayer.getCurrentArmor(3) == null ? "N/A" : Minecraft.getMinecraft().thePlayer.getCurrentArmor(3).getDisplayName();
-
-                if (boneHit == 0) {
-                    boneHit = 1;
-                    ChatUtils.system("§7Front bone hit at §b" + KuudraPhases.getFormattedSplitTime() + " §r| §7Holding - " + heldItem.getDisplayName() + " §r| §7Wearing - " + helm);
-                } else if (boneHit == 1) {
-                    boneHit = 0;
-                    ChatUtils.system("§7Back bone hit at §b" + KuudraPhases.getFormattedSplitTime() + " §r| §7Holding - " + heldItem.getDisplayName() + " §r| §7Wearing - " + helm);
-                    throwingBone = false;
-
-                    if (rendAlert.getValue()) {
-                        PlayerUtils.makeTextAlert("-=-=-=-=- Rend NOW! -=-=-=-=-", "random.anvil_land", 500);
-                    }
-                }
-            }
-        }
+//        if (soundName.equals("tile.piston.out")) { // terror armor 10 stack bone tracker, this should go off bone pos tbh
+//            if (rendBone.getValue() && throwingBone) {
+//                ItemStack heldItem = Minecraft.getMinecraft().thePlayer.getHeldItem();
+//
+//                if (heldItem == null) return;
+//
+//                String itemName = heldItem.getDisplayName().toLowerCase();
+//
+//                if (itemName.contains("breath") || itemName.contains("juju") || itemName.contains("terminator")) return;
+//
+//                String helm = Minecraft.getMinecraft().thePlayer.getCurrentArmor(3) == null ? "N/A" : Minecraft.getMinecraft().thePlayer.getCurrentArmor(3).getDisplayName();
+//
+//                if (boneHit == 0) {
+//                    boneHit = 1;
+//                    ChatUtils.system("§7Front bone hit at §b" + KuudraTracker.getFormattedSplitTime() + " §r| §7Holding - " + heldItem.getDisplayName() + " §r| §7Wearing - " + helm);
+//                } else if (boneHit == 1) {
+//                    boneHit = 0;
+//                    ChatUtils.system("§7Back bone hit at §b" + KuudraTracker.getFormattedSplitTime() + " §r| §7Holding - " + heldItem.getDisplayName() + " §r| §7Wearing - " + helm);
+//                    throwingBone = false;
+//
+//                    if (rendAlert.getValue()) {
+//                        PlayerUtils.makeTextAlert("-=-=-=-=- Rend NOW! -=-=-=-=-", "random.anvil_land", 500);
+//                    }
+//                }
+//            }
+//        }
     }
 
     @SubscribeEvent
@@ -137,7 +134,7 @@ public class RendFeatures {
 
     @SubscribeEvent
     public void onMouseClick(MouseEvent event) {
-        if (KuudraPhases.getCurrPhase() != 7) return;
+        if (KuudraTracker.getPhase() < 4) return;
         if (event.button == 0 && event.buttonstate) {
             if (rendDamage.getValue()) {
                 ItemStack heldItem = Minecraft.getMinecraft().thePlayer.getHeldItem();
@@ -145,7 +142,7 @@ public class RendFeatures {
 
                 if (!heldItem.getDisplayName().toLowerCase().contains("bonemerang")) return;
                 if (!rendCooldown) {
-                    ChatUtils.system("§7Pulled at §b" + KuudraPhases.getFormattedSplitTime());
+                    ChatUtils.system("§7Pulled at §b" + KuudraTracker.getFormattedSplitTime());
                     rendCooldown = true;
                     DelayUtils.scheduleTask(() -> rendCooldown = false, 2000);
                 }
@@ -198,10 +195,10 @@ public class RendFeatures {
     @SubscribeEvent
     public void onTick(TickEvent.ClientTickEvent event) {
         if (event.phase != TickEvent.Phase.END) return;
-        if (KuudraPhases.getCurrPhase() != 7) return;
+        if (KuudraTracker.getPhase() < 4) return;
 
         if (rendDamage.getValue()) {
-            EntityMagmaCube kuudra = KuudraPhases.getKuudra();
+            EntityMagmaCube kuudra = KuudraUtils.getKuudra();
             if (kuudra == null) {
                 currHp = 26000.0;
             } else {
@@ -211,7 +208,7 @@ public class RendFeatures {
             double diff = hp - currHp;
             if (diff > 2100) {
                 String rendMessage = (
-                        "§7Pull number §6" + pull + " §7hit at §b" + KuudraPhases.getFormattedSplitTime() +
+                        "§7Pull number §6" + pull + " §7hit at §b" + KuudraTracker.getFormattedSplitTime() +
                         " §7 for " + RendUtils.getDamageColor(diff) + RendUtils.formatHealth(diff * 9600)
                 );
 
@@ -233,7 +230,7 @@ public class RendFeatures {
             if (bone != null) {
                 EntityPlayerSP player = Minecraft.getMinecraft().thePlayer;
 
-                EntityMagmaCube kuudra = KuudraPhases.getKuudra();
+                EntityMagmaCube kuudra = KuudraUtils.getKuudra();
                 if (kuudra == null) {
                     bone = null;
                     return;
@@ -265,7 +262,7 @@ public class RendFeatures {
                         String itemName = (heldItem != null) ? heldItem.getDisplayName() : "Nothing";
                         String armorName = player.getCurrentArmor(3) != null ? player.getCurrentArmor(3).getDisplayName() : "None";
                         ChatUtils.system(
-                                "§7Front bone hit at §b" + KuudraPhases.getFormattedSplitTime() + " §r| §7Holding - " + itemName + " §r| §7Wearing - " + armorName
+                                "§7Front bone hit at §b" + KuudraTracker.getFormattedSplitTime() + " §r| §7Holding - " + itemName + " §r| §7Wearing - " + armorName
                         );
                         firstHit = true;
                     }
@@ -275,8 +272,12 @@ public class RendFeatures {
                         String itemName = (heldItem != null) ? heldItem.getDisplayName() : "Nothing";
                         String armorName = player.getCurrentArmor(3) != null ? player.getCurrentArmor(3).getDisplayName() : "None";
                         ChatUtils.system(
-                                "§7Back bone hit at §b" + KuudraPhases.getFormattedSplitTime() + " §r| §7Holding - " + itemName + " §r| §7Wearing - " + armorName
+                                "§7Back bone hit at §b" + KuudraTracker.getFormattedSplitTime() + " §r| §7Holding - " + itemName + " §r| §7Wearing - " + armorName
                         );
+
+                        if (rendAlert.getValue()) {
+                            PlayerUtils.makeTextAlert("-=-=-=-=- Rend NOW! -=-=-=-=-", "random.anvil_land", 500);
+                        }
                         secondHit = true;
                     }
                 }

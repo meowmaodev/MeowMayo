@@ -31,7 +31,7 @@ public class DungeonTracker {
     private ToggleSetting dungeonTrack = (ToggleSetting) ConfigSettings.getSetting("Average Dungeon Run Time Tracker");
     private ToggleSetting resetOnParty = (ToggleSetting) ConfigSettings.getSetting("Reset Dungeon Tracker on Party Change");
     private ToggleSetting lagMessage = (ToggleSetting) ConfigSettings.getSetting("Dungeon Run Lag Timing");
-    private ToggleSetting btt = (ToggleSetting) ConfigSettings.getSetting("Split B.T.T. Message");
+    private ToggleSetting btt = (ToggleSetting) ConfigSettings.getSetting("Dungeon B.T.T. Message");
 
     private static Tiers currentTier = null;
     private static int currentPhase = -1;

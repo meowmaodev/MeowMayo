@@ -1,7 +1,7 @@
 package com.mmdev.meowmayo;
 
 import com.mmdev.meowmayo.features.dungeons.tracker.DungeonStats;
-import com.mmdev.meowmayo.features.kuudra.tracker.KuudraPhases;
+import com.mmdev.meowmayo.features.kuudra.tracker.KuudraStats;
 import com.mmdev.meowmayo.utils.PartyUtils;
 import com.mmdev.meowmayo.utils.ScoreboardUtils;
 import net.minecraftforge.fml.common.Mod;
@@ -34,8 +34,9 @@ public class MeowMayo {
         org.lwjgl.opengl.Display.setTitle("MeowMayo");
         ModConfig.init(event.getSuggestedConfigurationFile().getParentFile());
         PartyCommandListUtils.init(event.getSuggestedConfigurationFile().getParentFile());
-        KuudraPhases.init(event.getSuggestedConfigurationFile().getParentFile());
+//        KuudraPhases.init(event.getSuggestedConfigurationFile().getParentFile());
         DungeonStats.init(event.getSuggestedConfigurationFile().getParentFile());
+        KuudraStats.init(event.getSuggestedConfigurationFile().getParentFile());
     }
 
     @Mod.EventHandler
@@ -52,6 +53,7 @@ public class MeowMayo {
         ClientCommandHandler.instance.registerCommand(new PartyCommandsBlacklistCommand());
 
         DungeonTrack.init();
+        KuudraTrack.init();
 
         // Register event handlers
         MinecraftForge.EVENT_BUS.register(new GuiHandler());
@@ -75,7 +77,6 @@ public class MeowMayo {
         MinecraftForge.EVENT_BUS.register(new PartyCommands());
 
         MinecraftForge.EVENT_BUS.register(new KuudraExtras());
-        MinecraftForge.EVENT_BUS.register(new KuudraPhases());
         MinecraftForge.EVENT_BUS.register(new SupplyFeatures());
         MinecraftForge.EVENT_BUS.register(new RendFeatures());
     }

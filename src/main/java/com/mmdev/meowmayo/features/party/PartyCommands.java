@@ -1,6 +1,6 @@
 package com.mmdev.meowmayo.features.party;
 
-import com.mmdev.meowmayo.features.kuudra.tracker.KuudraPhases;
+import com.mmdev.meowmayo.features.kuudra.tracker.KuudraStats;
 import com.mmdev.meowmayo.utils.PartyUtils;
 import com.mmdev.meowmayo.utils.events.S02ChatReceivedEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
@@ -566,9 +566,9 @@ public class PartyCommands {
                         return;
                     }
 
-                    int totalRuns = KuudraPhases.stats.totalRuns;
-                    int totalComps = KuudraPhases.stats.totalComps;
-                    double totalTime = KuudraPhases.stats.totalTime;
+                    int totalRuns = KuudraStats.sessionInfernalStats.totalRuns;
+                    int totalComps = KuudraStats.sessionInfernalStats.totalComps;
+                    double totalTime = KuudraStats.sessionInfernalStats.totalTime;
 
                     if (totalRuns == 0) {
                         ChatUtils.partyChat("I have no available run data for this session!");
@@ -580,8 +580,8 @@ public class PartyCommands {
                     scheduleTask(() -> ChatUtils.partyChat(" | Runs Tracked: " + totalRuns), 1000);
                     scheduleTask(() -> ChatUtils.partyChat(" | Average Run Time: " + ChatUtils.formatTime(Math.round(totalTime / totalComps))), 2000);
                     scheduleTask(() -> ChatUtils.partyChat(" | Total Run Time: " + ChatUtils.formatTime(totalTime)), 3000);
-                    scheduleTask(() -> ChatUtils.partyChat(" | Fastest Run Time: " + ChatUtils.formatTime(KuudraPhases.stats.fastest)), 4000);
-                    scheduleTask(() -> ChatUtils.partyChat(" | Slowest Run Time: " + ChatUtils.formatTime(KuudraPhases.stats.slowest)), 5000);
+                    scheduleTask(() -> ChatUtils.partyChat(" | Fastest Run Time: " + ChatUtils.formatTime(KuudraStats.sessionInfernalStats.fastest)), 4000);
+                    scheduleTask(() -> ChatUtils.partyChat(" | Slowest Run Time: " + ChatUtils.formatTime(KuudraStats.sessionInfernalStats.slowest)), 5000);
                     scheduleReset(6000);
                 }
                 break;

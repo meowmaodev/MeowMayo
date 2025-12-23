@@ -15,8 +15,14 @@ import java.util.Set;
 public class KuudraListener {
     private Set<PhaseListener> activeListeners = new HashSet<>();
 
+    private KuudraRegexListener runEnd;
+
     public void setActiveListeners(Set<PhaseListener> listeners) {
         activeListeners = listeners;
+    }
+
+    public void setRunEnd(KuudraRegexListener listener) {
+        this.runEnd = listener;
     }
 
     @SubscribeEvent
@@ -33,6 +39,8 @@ public class KuudraListener {
                 ((KuudraRegexListener) listener).onChatMessage(msg);
             }
         }
+
+        runEnd.onChatMessage(msg);
     }
 
     @SubscribeEvent

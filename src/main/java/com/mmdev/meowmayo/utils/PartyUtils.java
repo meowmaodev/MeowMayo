@@ -20,7 +20,6 @@ public class PartyUtils {
     private static final Set<String> party = new HashSet<>();
 
     private static boolean leaveFlag = false;
-    private static int leaveCooldown = 0;
 
     private static final String playerName = Minecraft.getMinecraft().getSession().getUsername();
 
@@ -55,10 +54,25 @@ public class PartyUtils {
     private static final Pattern membersPattern = Pattern.compile("^Party Members:(.+)● $");
     private static final Pattern moderatorsPattern = Pattern.compile("^Party Moderators:(.+)● $");
 
-//    @SubscribeEvent
-//    public void onServerJoin(ClientConnectedToServerEvent event) {
-//        getPartyMembers();
-//    }
+    private boolean expectingConnection = false;
+    @SubscribeEvent
+    public void onServerJoin(ClientConnectedToServerEvent event) {
+        expectingConnection = true;
+    }
+
+    // makeshift
+    @SubscribeEvent
+    public void onClientTick(TickEvent.ClientTickEvent event) {
+        if (event.phase != TickEvent.Phase.END) return;
+
+        if (!expectingConnection) return;
+
+        Minecraft mc = Minecraft.getMinecraft();
+        if (mc.theWorld == null || mc.thePlayer == null) return;
+
+        getPartyMembers();
+        expectingConnection = false;
+    }
 
     // ===== Chat Listener =====
     @SubscribeEvent
@@ -76,7 +90,7 @@ public class PartyUtils {
         if (msg.equals("You left the party.")) {
             leaveFlag = true;
             resetParty();
-            leaveCooldown = 20; // 1 second
+            DelayUtils.scheduleTask(() -> {leaveFlag = false;}, 1000);
             return;
         }
 
@@ -177,15 +191,6 @@ public class PartyUtils {
                 String clean = ChatUtils.stripRank(m.trim());
                 party.add(clean);
             }
-        }
-    }
-
-    // timer
-    @SubscribeEvent
-    public void onClientTick(TickEvent.ClientTickEvent event) {
-        if (leaveCooldown > 0) {
-            leaveCooldown--;
-            if (leaveCooldown == 0) leaveFlag = false;
         }
     }
 

@@ -52,7 +52,7 @@ public class DungeonsExtras {
                     Property textureProp = profile.getProperties().get("textures").iterator().next();
                     String base64 = textureProp.getValue();
                     if (base64.equals(princeTexture)) {
-                        ChatUtils.system("Prince killed");
+                        ChatUtils.partyChat("Prince Dead!");
                         princeDead = true;
                     }
                 }
@@ -75,7 +75,7 @@ public class DungeonsExtras {
                                     String value = textures.getCompoundTagAt(0).getString("Value");
 
                                     if (value.equals(mimicTexture)) {
-                                        ChatUtils.system("Mimic killed");
+                                        ChatUtils.partyChat("Mimic killed");
                                         mimicDead = true;
                                     }
                                 }

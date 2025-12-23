@@ -10,7 +10,7 @@ import com.mmdev.meowmayo.config.settings.*;
 
 public class ConfigSettings {
     private static final List<Setting> expected = new ArrayList<>(); // stored settings for validation
-    private static final String[] removed = {}; // removed settings
+    private static final String[] removed = {"Supplies Info", "Fresh Info"}; // removed settings
     private static File configFile;
 
     // Write scheduling
@@ -39,7 +39,7 @@ public class ConfigSettings {
 
     private static void defaults() {
         // new settings must go at the end! removed settings go in `removed` array
-        add(new ToggleSetting("Storage Command", "Allows the usage of a command to open storage", "General", "Storage", false));
+        add(new ToggleSetting("Storage Command", "Allows the usage of a command to open storage /mmos", "General", "Storage", false));
         add(new TextSetting("Allowed Backpacks", "Backpacks to be opened with command | Separate in order with a comma separated list i.e. \"13,9,18\" - opens in order 13, 9, 18", "General", "Storage", ""));
         add(new ToggleSetting("Bonzo's Mask Announcement", "Announces in party chat when Bonzo's Mask is used", "General", "Invincibility Items", false));
         add(new ToggleSetting("Bonzo's Mask Title", "Shows a title on screen when Bonzo's Mask is used", "General", "Invincibility Items", false));
@@ -50,13 +50,11 @@ public class ConfigSettings {
         add(new ToggleSetting("Announce Mana", "Annouces mana used from Endstone Sword Ability", "Kuudra", "", false));
         add(new ToggleSetting("Announce Fresh", "Annouces when user procs the Fresh Tools ability", "Kuudra", "", false));
         add(new ToggleSetting("Average Kuudra Run Time Tracker", "Tracks average kuudra run time per session | /kuudratime to view | Refreshes on game restart - /resetkuudratime to force reset", "Kuudra", "Run Tracker", false));
-        add(new ToggleSetting("Supplies Info", "Tracks who get supplies and when", "Kuudra", "Run Tracker", false));
         add(new ToggleSetting("Supplies Overview", "Sends a detailed message after supplies phase containing supplies overview", "Kuudra", "Run Tracker", false));
-        add(new ToggleSetting("Fresh Info", "Tracks who freshes and when", "Kuudra", "Run Tracker", false));
         add(new ToggleSetting("Fresh Overview", "Sends a detailed message after build phase containing fresh overview", "Kuudra", "Run Tracker", false));
         add(new ToggleSetting("Kuudra Run Lag Timing", "Sends message in party chat about how much lag occurred in run", "Kuudra", "Run Tracker", false));
         add(new ToggleSetting("Reset Kuudra Tracker on Party Change", "Resets session tracker when party changes", "Kuudra", "Run Tracker", false));
-        add(new ToggleSetting("Pre Tracker", "Tracks who misses their pre", "Kuudra", "Run Tracker", false));
+        add(new ToggleSetting("Pre Tracker", "Tracks who misses their pre and informs you", "Kuudra", "Run Tracker", false));
         add(new IntSliderSetting("Pre Tracker Leeway", "The amount of extra time given for pre tracking. Default is 8 seconds.", "Kuudra", "Run Tracker", 0, 0, 3));
         add(new ToggleSetting("No Supply", "Annouces when your pre is missing", "Kuudra", "Supplies", false));
         add(new ToggleSetting("Pearl Timer", "Adds a timer to pickup that tells when to throw pearl", "Kuudra", "Supplies", false));
@@ -89,7 +87,7 @@ public class ConfigSettings {
         add(new ToggleSetting("Master Catacombs Entrance Command", "Enables Master Catacombs Entrance Party Command", "Party Commands", "Catacombs", false));
         add(new ToggleSetting("Kuudra Entrance Command", "Enables Kuudra Entrance Party Command", "Party Commands", "Kuudra", false));
         add(new ToggleSetting("Kuudra Time Stats Command", "Enables Kuudra Time Stats Party Command", "Party Commands", "Kuudra", false));
-        add(new ToggleSetting("Kuudra Auto Requeue", "Automatically Requeue into a new run | INFERNAL KUUDRA ONLY", "Kuudra", "General", false));
+        add(new ToggleSetting("Kuudra Auto Requeue", "Automatically Requeue into a new run", "Kuudra", "General", false));
         add(new IntSliderSetting("Kuudra Requeue Delay", "Time waited to Requeue into a new run", "Kuudra", "General", 0, 0, 10));
         add(new ToggleSetting("Ichor Message", "Sends a message in party chat when you use Ichor Pool", "Kuudra", "", false));
         add(new ToggleSetting("Coinflip Command", "Enables Coinflip Party Command", "Party Commands", "Fun", false));
@@ -104,7 +102,7 @@ public class ConfigSettings {
         add(new ToggleSetting("Etherwarp Helper", "Highlights the block you will etherwarp to", "General", " Etherwarp", false));
         add(new ToggleSetting("Fake Player Etherwarp", "Renders a fake copy of you on the etherwarp block", "General", " Etherwarp", false));
         add(new FloatSliderSetting("Fake Player Transparency", "How transparent the fake player is", "General", " Etherwarp", 0.8f, 0.0f, 1.0f));
-        add(new ToggleSetting("Mimic Dead Message", "Sends a message when a mimic dies", "Dungeons", "General", false));
+        add(new ToggleSetting("Mimic Dead Message", "Sends a message when a mimic dies (idk if this works properly yet)", "Dungeons", "General", false));
         add(new ToggleSetting("Prince Dead Message", "Sends a message when a prince crypt dies", "Dungeons", "General", false));
         add(new ToggleSetting("Terminals Breakdown", "Various Terminal Info", "Floor 7", "Terminals", false));
         add(new ToggleSetting("Pre4 Reminder", "Alerts you when Pre4 is not done | Requires Terminals Breakdown", "Floor 7", "Terminals", false));
@@ -119,9 +117,9 @@ public class ConfigSettings {
         add(new ToggleSetting("Dungeon Run Lag Timing", "Sends message in party chat about how much lag occurred in run", "Dungeons", "Run Tracker", false));
         add(new ToggleSetting("Reset Dungeon Tracker on Party Change", "Resets session tracker when party changes", "Dungeons", "Run Tracker", false));
         add(new ToggleSetting("Prince Shard", "Assumes all players have prince shard", "Dungeons", "General", false));
-        add(new ToggleSetting("Livid Solver", "Draws a box around the correct livid (probably)", "Floor 5", "Livid", false));
+        add(new ToggleSetting("Livid Solver", "Draws a box around the correct livid (unfinished)", "Floor 5", "Livid", false));
         add(new ToggleSetting("Highlight Relic Leap", "Highlights who to leap to in p5", "Floor 7", "Dragons", false));
-        add(new ToggleSetting("Split B.T.T. Message", "Sends message in party chat containing split details and best theoretical time", "Dungeons", "Run Tracker", false));
+        add(new ToggleSetting("Dungeon B.T.T. Message", "Sends message in party chat containing split details and best theoretical time", "Dungeons", "Run Tracker", false));
     }
 
     private static int readInt(String input) {

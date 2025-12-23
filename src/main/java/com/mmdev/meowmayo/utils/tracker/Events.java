@@ -4,6 +4,7 @@ public enum Events {
     // Kuudra Events
     RUN_START,
     SUPPLIES_START,
+    NO_SUPPLY,
     SUPPLY_GRABBED,
     BUILD_START,
     FRESH_PROC,

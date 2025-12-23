@@ -1,6 +1,6 @@
 package com.mmdev.meowmayo.features.kuudra;
 
-import com.mmdev.meowmayo.features.kuudra.tracker.KuudraPhases;
+import com.mmdev.meowmayo.features.kuudra.tracker.KuudraTracker;
 import com.mmdev.meowmayo.utils.SupplyUtils;
 import com.mmdev.meowmayo.config.ConfigSettings;
 import com.mmdev.meowmayo.config.settings.ToggleSetting;
@@ -63,7 +63,7 @@ public class SupplyFeatures {
     public void onClientTick(TickEvent.ClientTickEvent event) {
         if (Minecraft.getMinecraft().thePlayer == null || Minecraft.getMinecraft().theWorld == null) return;
 
-        if (KuudraPhases.getInKuudra() && pickingUp && KuudraPhases.getCurrPhase() < 2) {
+        if (pickingUp && KuudraTracker.getPhase() == 1) {
 
             double X = Minecraft.getMinecraft().thePlayer.posX;
             double Y = Minecraft.getMinecraft().thePlayer.posY;
@@ -132,7 +132,7 @@ public class SupplyFeatures {
 
         if (Minecraft.getMinecraft().thePlayer == null) return;
 
-        if (KuudraPhases.getInKuudra() && msg.equals("[NPC] Elle: Head over to the main platform, I will join you when I get a bite!")) {
+        if (msg.equals("[NPC] Elle: Head over to the main platform, I will join you when I get a bite!")) {
             preLocation = null;
             first = false;
             second = false;
@@ -182,7 +182,7 @@ public class SupplyFeatures {
 
         }
 
-        if (KuudraPhases.getInKuudra() && msg.equals("[NPC] Elle: Not again!")) {
+        if (msg.equals("[NPC] Elle: Not again!")) {
             if (preLocation == null) return;
 
             List<double[]> crates = new ArrayList<>();
@@ -256,7 +256,7 @@ public class SupplyFeatures {
 
     @SubscribeEvent
     public void onRenderWorld(RenderWorldLastEvent event) {
-        if (KuudraPhases.getInKuudra() && pickingUp && KuudraPhases.getCurrPhase() < 2 && waypoint1.getValue()) {
+        if (pickingUp && KuudraTracker.getPhase() == 1 && waypoint1.getValue()) {
             double size = ((double) waypointSize.getValue()) / 100;
             if (pearlFound) {
                 RenderShapeUtils.drawBox(
@@ -282,7 +282,7 @@ public class SupplyFeatures {
     Pattern progressBar = Pattern.compile("\\[\\|+]\\s?(\\d{1,3})%");
     @SubscribeEvent
     public void onPacketReceived(S45ReceivedEvent event) {
-        if (!(waypoint1.getValue() || pearlTimer.getValue()) || !KuudraPhases.getInKuudra() || !(KuudraPhases.getCurrPhase() < 2)) return;
+        if (!(waypoint1.getValue() || pearlTimer.getValue()) || KuudraTracker.getPhase() == 1) return;
         String title = event.getUnformattedTitle();
 
         Matcher matcher = progressBar.matcher(title);
@@ -295,7 +295,7 @@ public class SupplyFeatures {
                 isPre = false;
                 if (waypoint1.getValue()) {
                     firstAt = SupplyUtils.getPreLocation(missing).getLocation();
-                    if (waypoint2.getValue() && KuudraPhases.getUnformattedLagSplitTime() < 7.0) {
+                    if (waypoint2.getValue() && KuudraTracker.getUnformattedLagSplitTime() < 7.0) {
                         isPre = true;
                         secondAt = SupplyUtils.getSecondLocation().getLocation();
                     }
