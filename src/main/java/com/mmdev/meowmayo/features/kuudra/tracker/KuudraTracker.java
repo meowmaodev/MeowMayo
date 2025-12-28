@@ -117,7 +117,7 @@ public class KuudraTracker {
     }
 
     public void startRun() {
-        this.currentPhase = 0;
+        currentPhase = 0;
 
         int numPhases = currentTier.getTierCount();
         rt.clear();
@@ -137,6 +137,10 @@ public class KuudraTracker {
     }
 
     public void endRun() {
+        if (runActive || runPrimed) {
+        currentTier.getPhases().get(currentPhase).exitPhase();
+        }
+
         runActive = false;
         runPrimed = false;
         currentPhase = -1;

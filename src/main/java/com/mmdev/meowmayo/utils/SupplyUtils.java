@@ -36,8 +36,8 @@ public class SupplyUtils {
     public enum PreLocation {
         TRIANGLE(-94, 79, -106),
         X(-106, 79, -113),
-        EQUALS(-98, 79, -99),
-        SLASH(-106, 79, -99),
+        SLASH(-98, 79, -99),
+        EQUALS(-106, 79, -99),
         SHOP(-98, 79, -113),
         XCANNON(-110, 79, -106);
 
@@ -223,5 +223,35 @@ public class SupplyUtils {
             return SecondLocation.SHOP;
         }
         return null;
+    }
+
+    public static int getSupplyTime(int tali, String tier) {
+        double amount = 1.0;
+        switch (tali) {
+            case 1:
+                amount = 0.9;
+                break;
+            case 2:
+                amount = 0.8;
+                break;
+            case 3:
+                amount = 0.7;
+                break;
+        }
+
+        switch (tier) {
+            case "Basic":
+                return (int) (60 * amount);
+            case "Hot":
+                return (int) (80 * amount);
+            case "Burning":
+                return (int) (100 * amount);
+            case "Fiery":
+                return (int) (120 * amount);
+            case "Infernal":
+                return (int) (140 * amount);
+            default:
+                return (int) (140 * amount);
+        }
     }
 }

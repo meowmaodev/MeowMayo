@@ -146,6 +146,10 @@ public class DungeonTracker {
     }
 
     public void endRun() {
+        if (runActive || runPrimed) {
+            currentTier.getPhases().get(currentPhase).exitPhase();
+        }
+
         runActive = false;
         runPrimed = false;
         currentPhase = -1;

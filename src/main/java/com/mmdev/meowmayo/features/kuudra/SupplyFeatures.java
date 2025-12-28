@@ -1,5 +1,6 @@
 package com.mmdev.meowmayo.features.kuudra;
 
+import com.mmdev.meowmayo.config.settings.IntSliderSetting;
 import com.mmdev.meowmayo.features.kuudra.tracker.KuudraTracker;
 import com.mmdev.meowmayo.utils.SupplyUtils;
 import com.mmdev.meowmayo.config.ConfigSettings;
@@ -27,11 +28,13 @@ import java.util.regex.Pattern;
 import java.util.regex.Matcher;
 
 public class SupplyFeatures {
-    private final ToggleSetting waypoint1 = (ToggleSetting) ConfigSettings.getSetting("Pearl Waypoint");
-    private final ToggleSetting waypoint2 = (ToggleSetting) ConfigSettings.getSetting("Second Pearl Waypoint");
-    private final FloatSliderSetting waypointSize = (FloatSliderSetting) ConfigSettings.getSetting("Pearl Waypoint Size");
-    private final ToggleSetting noSupply = (ToggleSetting) ConfigSettings.getSetting("No Supply");
-    private final ToggleSetting pearlTimer = (ToggleSetting) ConfigSettings.getSetting("Pearl Timer");
+
+    private ToggleSetting waypoint1 = (ToggleSetting) ConfigSettings.getSetting("Pearl Waypoint");
+    private ToggleSetting waypoint2 = (ToggleSetting) ConfigSettings.getSetting("Second Pearl Waypoint");
+    private FloatSliderSetting waypointSize = (FloatSliderSetting) ConfigSettings.getSetting("Pearl Waypoint Size");
+    private ToggleSetting noSupply = (ToggleSetting) ConfigSettings.getSetting("No Supply");
+    private ToggleSetting pearlTimer = (ToggleSetting) ConfigSettings.getSetting("Pearl Timer");
+    private IntSliderSetting talisman = (IntSliderSetting) ConfigSettings.getSetting("Kuudra Talisman Tier");
 
     private static SupplyUtils.CrateLocation preLocation;
 
@@ -282,7 +285,7 @@ public class SupplyFeatures {
     Pattern progressBar = Pattern.compile("\\[\\|+]\\s?(\\d{1,3})%");
     @SubscribeEvent
     public void onPacketReceived(S45ReceivedEvent event) {
-        if (!(waypoint1.getValue() || pearlTimer.getValue()) || KuudraTracker.getPhase() == 1) return;
+        if (!(waypoint1.getValue() || pearlTimer.getValue()) || KuudraTracker.getPhase() != 1) return;
         String title = event.getUnformattedTitle();
 
         Matcher matcher = progressBar.matcher(title);
@@ -314,9 +317,9 @@ public class SupplyFeatures {
 
         ticks++;
 
-        time = 130 - ticks;
+        time = SupplyUtils.getSupplyTime(talisman.getValue(), KuudraTracker.getTier()) - ticks;
 
-        if (ticks > 135) {
+        if (ticks > SupplyUtils.getSupplyTime(talisman.getValue(), KuudraTracker.getTier()) + 5) {
             endGrab();
         }
     }

@@ -14,6 +14,7 @@ public class KuudraRegexListenerCI extends ChatMatchListener {
 
     public KuudraRegexListenerCI(KuudraTracker tracker, String regex, Events event)  {
         super(regex, event);
+        this.event = event;
         this.tracker = tracker;
         this.pattern = Pattern.compile(regex, Pattern.CASE_INSENSITIVE);
     }

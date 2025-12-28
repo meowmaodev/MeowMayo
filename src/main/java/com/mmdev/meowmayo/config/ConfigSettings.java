@@ -120,6 +120,7 @@ public class ConfigSettings {
         add(new ToggleSetting("Livid Solver", "Draws a box around the correct livid (unfinished)", "Floor 5", "Livid", false));
         add(new ToggleSetting("Highlight Relic Leap", "Highlights who to leap to in p5", "Floor 7", "Dragons", false));
         add(new ToggleSetting("Dungeon B.T.T. Message", "Sends message in party chat containing split details and best theoretical time", "Dungeons", "Run Tracker", false));
+        add(new IntSliderSetting("Kuudra Talisman Tier", "T0 = No Talisman, T1 = Kuudra Kidney, T2 = Kuudra Lung, T3 = Kuudra Heart", "Kuudra", "Supplies", 0, 0, 3));
     }
 
     private static int readInt(String input) {

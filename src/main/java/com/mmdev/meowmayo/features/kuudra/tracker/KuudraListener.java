@@ -4,6 +4,7 @@ import com.mmdev.meowmayo.features.kuudra.tracker.listener.KuudraChatListener;
 import com.mmdev.meowmayo.features.kuudra.tracker.listener.KuudraRegexListener;
 import com.mmdev.meowmayo.features.kuudra.tracker.listener.KuudraRegexListenerCI;
 import com.mmdev.meowmayo.features.kuudra.tracker.listener.KuudraTickListener;
+import com.mmdev.meowmayo.utils.ChatUtils;
 import com.mmdev.meowmayo.utils.events.S02ChatReceivedEvent;
 import com.mmdev.meowmayo.utils.events.S32ReceivedEvent;
 import com.mmdev.meowmayo.utils.tracker.PhaseListener;

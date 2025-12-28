@@ -500,7 +500,7 @@ public class PartyCommands {
             case "tier1":
                 if (kuudraEntranceCommand.getValue() && PartyUtils.isLeader()) {
                     delayed = true;
-                    ChatUtils.partyChat("joindungeon kuudra_basic");
+                    ChatUtils.command("joindungeon kuudra_basic");
                     scheduleReset(1000);
                 }
                 break;
@@ -510,7 +510,7 @@ public class PartyCommands {
             case "tier2":
                 if (kuudraEntranceCommand.getValue() && PartyUtils.isLeader()) {
                     delayed = true;
-                    ChatUtils.partyChat("joindungeon kuudra_hot");
+                    ChatUtils.command("joindungeon kuudra_hot");
                     scheduleReset(1000);
                 }
                 break;
@@ -520,7 +520,7 @@ public class PartyCommands {
             case "tier3":
                 if (kuudraEntranceCommand.getValue() && PartyUtils.isLeader()) {
                     delayed = true;
-                    ChatUtils.partyChat("joindungeon kuudra_burning");
+                    ChatUtils.command("joindungeon kuudra_burning");
                     scheduleReset(1000);
                 }
                 break;
@@ -530,7 +530,7 @@ public class PartyCommands {
             case "tier4":
                 if (kuudraEntranceCommand.getValue() && PartyUtils.isLeader()) {
                     delayed = true;
-                    ChatUtils.partyChat("joindungeon kuudra_fiery");
+                    ChatUtils.command("joindungeon kuudra_fiery");
                     scheduleReset(1000);
                 }
                 break;
@@ -540,7 +540,7 @@ public class PartyCommands {
             case "tier5":
                 if (kuudraEntranceCommand.getValue() && PartyUtils.isLeader()) {
                     delayed = true;
-                    ChatUtils.partyChat("joindungeon kuudra_infernal");
+                    ChatUtils.command("joindungeon kuudra_infernal");
                     scheduleReset(1000);
                 }
                 break;

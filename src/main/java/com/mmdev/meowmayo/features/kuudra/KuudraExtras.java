@@ -58,7 +58,7 @@ public class KuudraExtras {
             }
         }
 
-        if (!lastAlive.getValue() && KuudraTracker.getPhase() >= 3) { // technically this can proc at the TAIL end of pre skip so we just allow it in both :D
+        if (!lastAlive.getValue() && KuudraTracker.getPhase() >= 4) { // technically this can proc at the TAIL end of pre skip so we just allow it in both :D
             Matcher matcher = killPattern.matcher(msg);
 
             if (matcher.matches()) {
@@ -78,7 +78,7 @@ public class KuudraExtras {
     private int tickCounter = 0;
     @SubscribeEvent
     public void onClientTick(TickEvent.ClientTickEvent event) {
-        if (!(dangerBlocks.getValue() && KuudraTracker.getPhase() == 4)) return;
+        if (!(dangerBlocks.getValue() && KuudraTracker.getPhase() == 5)) return;
 
         tickCounter++;
         if (tickCounter >= 5) { // every quarter second so we dont spam

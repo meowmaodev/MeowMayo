@@ -11,6 +11,7 @@ public class KuudraTickListener extends TickListener {
 
     public KuudraTickListener(KuudraTracker tracker, Events event, Runnable onTick) {
         super(event, onTick);
+        this.event = event;
         this.tracker = tracker;
     }
 }
