@@ -25,23 +25,25 @@ public enum Events {
     BOSS_ENTER, // this is technically off the first boss spawn message so
     DUNGEON_END,
 
+    DUNGEON_BOSS_DEAD,
+
     // per floor boss events
+    // fm1
+
     // fm2
     SCARF_CRYPTS_DEAD,
-    SCARF_DEAD,
 
     // fm3
     GUARDIANS_DEAD,
     PROFESSOR_1_DEAD,
-    PROFESSOR_DEAD,
+
+    // fm4
 
     // fm5
-    LIVID_DEAD,
 
     // fm6
     TERRACOTTAS_DEAD,
     GIANTS_DEAD,
-    SADAN_DEAD,
 
     // fm7
     CRYSTAL_PLACED, // reggie
@@ -52,8 +54,6 @@ public enum Events {
     GOLDOR_DEAD,
     NECRON_DEAD,
     RELICS_DOWN,
-
-    WITHER_KING_DEAD
 
     // Expandable to more instanced things!
     // theoretiaclly this can track anything?

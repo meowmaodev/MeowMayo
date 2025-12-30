@@ -141,6 +141,9 @@ public class KuudraTracker {
         currentTier.getPhases().get(currentPhase).exitPhase();
         }
 
+        freshes.clear();
+        supplies.clear();
+
         runActive = false;
         runPrimed = false;
         currentPhase = -1;

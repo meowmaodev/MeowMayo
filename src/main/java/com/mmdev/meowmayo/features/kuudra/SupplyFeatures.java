@@ -297,10 +297,12 @@ public class SupplyFeatures {
             if (percentage == 0 && !pickingUp) {
                 isPre = false;
                 if (waypoint1.getValue()) {
-                    firstAt = SupplyUtils.getPreLocation(missing).getLocation();
+                    SupplyUtils.PreLocation pl = SupplyUtils.getPreLocation(missing);
+                    firstAt = pl == null ? new double[]{0.0, 0.0, 0.0} : pl.getLocation();
                     if (waypoint2.getValue() && KuudraTracker.getUnformattedLagSplitTime() < 7.0) {
                         isPre = true;
-                        secondAt = SupplyUtils.getSecondLocation().getLocation();
+                        SupplyUtils.SecondLocation sl = SupplyUtils.getSecondLocation();
+                        secondAt = sl == null ? new double[]{0.0, 0.0, 0.0} : sl.getLocation();
                     }
                 }
                 pickingUp = true;

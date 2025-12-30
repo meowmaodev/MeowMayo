@@ -71,6 +71,10 @@ public class F5BossFeatures {
                 ChatUtils.system("Searching for Livid!");
                 active = true;
             }
+
+            if (msg.equalsIgnoreCase("[BOSS] Livid: My shadows are everywhere, THEY WILL FIND YOU!!")) {
+                active = false;
+            }
         }
     }
 
@@ -126,10 +130,5 @@ public class F5BossFeatures {
         if (!active) return;
         if (livid == null) return;
         RenderShapeUtils.drawBox(livid.posX, livid.posY, livid.posZ, 0.8, 2.0, 0.8, 0F, 1F, 1F, 1F, false, event.partialTicks);
-    }
-
-
-    public static void signalEnd() {
-        active = false;
     }
 }

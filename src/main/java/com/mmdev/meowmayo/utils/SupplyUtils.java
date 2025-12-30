@@ -241,17 +241,17 @@ public class SupplyUtils {
 
         switch (tier) {
             case "Basic":
-                return (int) (60 * amount);
+                return MathUtils.roundUpToFive(60 * amount);
             case "Hot":
-                return (int) (80 * amount);
+                return MathUtils.roundUpToFive(80 * amount);
             case "Burning":
-                return (int) (100 * amount);
+                return MathUtils.roundUpToFive(100 * amount);
             case "Fiery":
-                return (int) (120 * amount);
+                return MathUtils.roundUpToFive(120 * amount);
             case "Infernal":
-                return (int) (140 * amount);
+                return MathUtils.roundUpToFive(140 * amount);
             default:
-                return (int) (140 * amount);
+                return MathUtils.roundUpToFive(140 * amount);
         }
     }
 }

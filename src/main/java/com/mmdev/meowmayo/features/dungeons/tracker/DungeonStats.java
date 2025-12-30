@@ -13,6 +13,77 @@ import java.util.List;
 
 public class DungeonStats {
     // Developers Note: This can be converted to use a single static data class, BUT im rushing to get this finished so i will impl that later, for now you get code vomit
+    public static class F1Stats extends Stats {
+        F1Stats() {
+            this.slowestSplits = new double[4];
+            this.slowestLagSplits = new double[4];
+            this.fastestSplits = new double[4];
+            this.fastestLagSplits = new double[4];
+            this.compSplitTimes = new double[4];
+            this.compLagTimes = new double[4];
+
+            this.bestSplits = new double[4];
+            Arrays.fill(bestSplits, Double.MAX_VALUE);
+        }
+
+        @Override
+        public void addSuccess(
+                long startTime,
+                List<Long> rt,
+                List<Long> lt
+        ) {
+            if (rt.size() != 4 || lt.size() != 4) {
+                ChatUtils.system("Error Adding Run Time. Misformatted Splits!");
+            }
+
+            double totalRunTime = (System.currentTimeMillis() - startTime) / 1000.0;
+
+            this.totalRuns++;
+            this.totalComps++;
+
+            this.totalTime += totalRunTime;
+            this.totalCompTime += totalRunTime;
+
+            double[] runSplits = new double[] {
+                    (rt.get(0) - startTime) / 1000.0,
+                    (rt.get(1) - rt.get(0)) / 1000.0,
+                    (rt.get(2) - rt.get(1)) / 1000.0,
+                    (rt.get(3) - rt.get(2)) / 1000.0
+            };
+
+            long totalLagTime = 0;
+            double[] lagSplits = new double[4];
+
+            for (int i = 0; i < 6; i++) {
+                this.compSplitTimes[i] += runSplits[i];
+                this.compLagTimes[i] += (lt.get(i)/1000.0);
+
+                lagSplits[i] = (lt.get(i)/1000.0);
+                totalLagTime += lt.get(i);
+
+                if (runSplits[i] < this.bestSplits[i]) {
+                    this.bestSplits[i] = runSplits[i]; // new BEST!
+                }
+            }
+
+            this.totalLag += (totalLagTime / 1000.0);
+
+            if (totalRunTime > this.slowest || this.slowest == -1.0) {
+                this.slowest = totalRunTime;
+                this.slowestLag = (totalLagTime / 1000.0);
+                this.slowestSplits = runSplits.clone();
+                this.slowestLagSplits = lagSplits.clone();
+            }
+
+            if (totalRunTime < this.fastest || this.fastest == -1.0) {
+                this.fastest = totalRunTime;
+                this.fastestLag = (totalLagTime / 1000.0);
+                this.fastestSplits = runSplits.clone();
+                this.fastestLagSplits = lagSplits.clone();
+            }
+        }
+    }
+
     public static class F2Stats extends Stats {
         F2Stats() {
             this.slowestSplits = new double[5];
@@ -127,6 +198,77 @@ public class DungeonStats {
 
             long totalLagTime = 0;
             double[] lagSplits = new double[6];
+
+            for (int i = 0; i < 6; i++) {
+                this.compSplitTimes[i] += runSplits[i];
+                this.compLagTimes[i] += (lt.get(i)/1000.0);
+
+                lagSplits[i] = (lt.get(i)/1000.0);
+                totalLagTime += lt.get(i);
+
+                if (runSplits[i] < this.bestSplits[i]) {
+                    this.bestSplits[i] = runSplits[i]; // new BEST!
+                }
+            }
+
+            this.totalLag += (totalLagTime / 1000.0);
+
+            if (totalRunTime > this.slowest || this.slowest == -1.0) {
+                this.slowest = totalRunTime;
+                this.slowestLag = (totalLagTime / 1000.0);
+                this.slowestSplits = runSplits.clone();
+                this.slowestLagSplits = lagSplits.clone();
+            }
+
+            if (totalRunTime < this.fastest || this.fastest == -1.0) {
+                this.fastest = totalRunTime;
+                this.fastestLag = (totalLagTime / 1000.0);
+                this.fastestSplits = runSplits.clone();
+                this.fastestLagSplits = lagSplits.clone();
+            }
+        }
+    }
+
+    public static class F4Stats extends Stats {
+        F4Stats() {
+            this.slowestSplits = new double[4];
+            this.slowestLagSplits = new double[4];
+            this.fastestSplits = new double[4];
+            this.fastestLagSplits = new double[4];
+            this.compSplitTimes = new double[4];
+            this.compLagTimes = new double[4];
+
+            this.bestSplits = new double[4];
+            Arrays.fill(bestSplits, Double.MAX_VALUE);
+        }
+
+        @Override
+        public void addSuccess(
+                long startTime,
+                List<Long> rt,
+                List<Long> lt
+        ) {
+            if (rt.size() != 4 || lt.size() != 4) {
+                ChatUtils.system("Error Adding Run Time. Misformatted Splits!");
+            }
+
+            double totalRunTime = (System.currentTimeMillis() - startTime) / 1000.0;
+
+            this.totalRuns++;
+            this.totalComps++;
+
+            this.totalTime += totalRunTime;
+            this.totalCompTime += totalRunTime;
+
+            double[] runSplits = new double[] {
+                    (rt.get(0) - startTime) / 1000.0,
+                    (rt.get(1) - rt.get(0)) / 1000.0,
+                    (rt.get(2) - rt.get(1)) / 1000.0,
+                    (rt.get(3) - rt.get(2)) / 1000.0
+            };
+
+            long totalLagTime = 0;
+            double[] lagSplits = new double[4];
 
             for (int i = 0; i < 6; i++) {
                 this.compSplitTimes[i] += runSplits[i];
@@ -377,6 +519,77 @@ public class DungeonStats {
         }
     }
 
+    public static class M1Stats extends Stats {
+        M1Stats() {
+            this.slowestSplits = new double[4];
+            this.slowestLagSplits = new double[4];
+            this.fastestSplits = new double[4];
+            this.fastestLagSplits = new double[4];
+            this.compSplitTimes = new double[4];
+            this.compLagTimes = new double[4];
+
+            this.bestSplits = new double[4];
+            Arrays.fill(bestSplits, Double.MAX_VALUE);
+        }
+
+        @Override
+        public void addSuccess(
+                long startTime,
+                List<Long> rt,
+                List<Long> lt
+        ) {
+            if (rt.size() != 4 || lt.size() != 4) {
+                ChatUtils.system("Error Adding Run Time. Misformatted Splits!");
+            }
+
+            double totalRunTime = (System.currentTimeMillis() - startTime) / 1000.0;
+
+            this.totalRuns++;
+            this.totalComps++;
+
+            this.totalTime += totalRunTime;
+            this.totalCompTime += totalRunTime;
+
+            double[] runSplits = new double[] {
+                    (rt.get(0) - startTime) / 1000.0,
+                    (rt.get(1) - rt.get(0)) / 1000.0,
+                    (rt.get(2) - rt.get(1)) / 1000.0,
+                    (rt.get(3) - rt.get(2)) / 1000.0
+            };
+
+            long totalLagTime = 0;
+            double[] lagSplits = new double[4];
+
+            for (int i = 0; i < 6; i++) {
+                this.compSplitTimes[i] += runSplits[i];
+                this.compLagTimes[i] += (lt.get(i)/1000.0);
+
+                lagSplits[i] = (lt.get(i)/1000.0);
+                totalLagTime += lt.get(i);
+
+                if (runSplits[i] < this.bestSplits[i]) {
+                    this.bestSplits[i] = runSplits[i]; // new BEST!
+                }
+            }
+
+            this.totalLag += (totalLagTime / 1000.0);
+
+            if (totalRunTime > this.slowest || this.slowest == -1.0) {
+                this.slowest = totalRunTime;
+                this.slowestLag = (totalLagTime / 1000.0);
+                this.slowestSplits = runSplits.clone();
+                this.slowestLagSplits = lagSplits.clone();
+            }
+
+            if (totalRunTime < this.fastest || this.fastest == -1.0) {
+                this.fastest = totalRunTime;
+                this.fastestLag = (totalLagTime / 1000.0);
+                this.fastestSplits = runSplits.clone();
+                this.fastestLagSplits = lagSplits.clone();
+            }
+        }
+    }
+
     public static class M2Stats extends Stats {
         M2Stats() {
             this.slowestSplits = new double[5];
@@ -491,6 +704,77 @@ public class DungeonStats {
 
             long totalLagTime = 0;
             double[] lagSplits = new double[6];
+
+            for (int i = 0; i < 6; i++) {
+                this.compSplitTimes[i] += runSplits[i];
+                this.compLagTimes[i] += (lt.get(i)/1000.0);
+
+                lagSplits[i] = (lt.get(i)/1000.0);
+                totalLagTime += lt.get(i);
+
+                if (runSplits[i] < this.bestSplits[i]) {
+                    this.bestSplits[i] = runSplits[i]; // new BEST!
+                }
+            }
+
+            this.totalLag += (totalLagTime / 1000.0);
+
+            if (totalRunTime > this.slowest || this.slowest == -1.0) {
+                this.slowest = totalRunTime;
+                this.slowestLag = (totalLagTime / 1000.0);
+                this.slowestSplits = runSplits.clone();
+                this.slowestLagSplits = lagSplits.clone();
+            }
+
+            if (totalRunTime < this.fastest || this.fastest == -1.0) {
+                this.fastest = totalRunTime;
+                this.fastestLag = (totalLagTime / 1000.0);
+                this.fastestSplits = runSplits.clone();
+                this.fastestLagSplits = lagSplits.clone();
+            }
+        }
+    }
+
+    public static class M4Stats extends Stats {
+        M4Stats() {
+            this.slowestSplits = new double[4];
+            this.slowestLagSplits = new double[4];
+            this.fastestSplits = new double[4];
+            this.fastestLagSplits = new double[4];
+            this.compSplitTimes = new double[4];
+            this.compLagTimes = new double[4];
+
+            this.bestSplits = new double[4];
+            Arrays.fill(bestSplits, Double.MAX_VALUE);
+        }
+
+        @Override
+        public void addSuccess(
+                long startTime,
+                List<Long> rt,
+                List<Long> lt
+        ) {
+            if (rt.size() != 4 || lt.size() != 4) {
+                ChatUtils.system("Error Adding Run Time. Misformatted Splits!");
+            }
+
+            double totalRunTime = (System.currentTimeMillis() - startTime) / 1000.0;
+
+            this.totalRuns++;
+            this.totalComps++;
+
+            this.totalTime += totalRunTime;
+            this.totalCompTime += totalRunTime;
+
+            double[] runSplits = new double[] {
+                    (rt.get(0) - startTime) / 1000.0,
+                    (rt.get(1) - rt.get(0)) / 1000.0,
+                    (rt.get(2) - rt.get(1)) / 1000.0,
+                    (rt.get(3) - rt.get(2)) / 1000.0
+            };
+
+            long totalLagTime = 0;
+            double[] lagSplits = new double[4];
 
             for (int i = 0; i < 6; i++) {
                 this.compSplitTimes[i] += runSplits[i];
@@ -744,20 +1028,28 @@ public class DungeonStats {
 
     public static double getRemaining(String floor, int phase) {
         switch (floor) {
+            case "F1":
+                return globalF1Stats.getRemaining(phase);
             case "F2":
                 return globalF2Stats.getRemaining(phase);
             case "F3":
                 return globalF3Stats.getRemaining(phase);
+            case "F4":
+                return globalF4Stats.getRemaining(phase);
             case "F5":
                 return globalF5Stats.getRemaining(phase);
             case "F6":
                 return globalF6Stats.getRemaining(phase);
             case "F7":
                 return globalF7Stats.getRemaining(phase);
+            case "M1":
+                return globalM1Stats.getRemaining(phase);
             case "M2":
                 return globalM2Stats.getRemaining(phase);
             case "M3":
                 return globalM3Stats.getRemaining(phase);
+            case "M4":
+                return globalM4Stats.getRemaining(phase);
             case "M5":
                 return globalM5Stats.getRemaining(phase);
             case "M6":
@@ -770,11 +1062,17 @@ public class DungeonStats {
 
     public static void saveConfig(String floor) {
         switch (floor) {
+            case "F1":
+                save(globalF1Stats, "DTSF1Stats.dat");
+                break;
             case "F2":
                 save(globalF2Stats, "DTSF2Stats.dat");
                 break;
             case "F3":
                 save(globalF3Stats, "DTSF3Stats.dat");
+                break;
+            case "F4":
+                save(globalF4Stats, "DTSF4Stats.dat");
                 break;
             case "F5":
                 save(globalF5Stats, "DTSF5Stats.dat");
@@ -785,11 +1083,17 @@ public class DungeonStats {
             case "F7":
                 save(globalF7Stats, "DTSF7Stats.dat");
                 break;
+            case "M1":
+                save(globalM1Stats, "DTSM1Stats.dat");
+                break;
             case "M2":
                 save(globalM2Stats, "DTSM2Stats.dat");
                 break;
             case "M3":
                 save(globalM3Stats, "DTSM3Stats.dat");
+                break;
+            case "M4":
+                save(globalM4Stats, "DTSM4Stats.dat");
                 break;
             case "M5":
                 save(globalM5Stats, "DTSM5Stats.dat");
@@ -819,11 +1123,17 @@ public class DungeonStats {
 
     public static File configFile;
 
+    public static F1Stats sessionF1Stats;
+    public static F1Stats globalF1Stats;
+
     public static F2Stats sessionF2Stats;
     public static F2Stats globalF2Stats;
 
     public static F3Stats sessionF3Stats;
     public static F3Stats globalF3Stats;
+
+    public static F4Stats sessionF4Stats;
+    public static F4Stats globalF4Stats;
 
     public static F5Stats sessionF5Stats;
     public static F5Stats globalF5Stats;
@@ -834,11 +1144,17 @@ public class DungeonStats {
     public static F7Stats sessionF7Stats;
     public static F7Stats globalF7Stats;
 
+    public static M1Stats sessionM1Stats;
+    public static M1Stats globalM1Stats;
+
     public static M2Stats sessionM2Stats;
     public static M2Stats globalM2Stats;
 
     public static M3Stats sessionM3Stats;
     public static M3Stats globalM3Stats;
+
+    public static M4Stats sessionM4Stats;
+    public static M4Stats globalM4Stats;
 
     public static M5Stats sessionM5Stats;
     public static M5Stats globalM5Stats;
@@ -851,6 +1167,29 @@ public class DungeonStats {
 
     public static void init(File file) {
         configFile = file;
+
+        File f1Stats = new File(configFile, "DTSF1Stats.dat");
+
+        sessionF1Stats = new F1Stats();
+        globalF1Stats = new F1Stats();
+
+        if (!f1Stats.exists()) {
+            globalF1Stats.reset();
+            save(globalF1Stats, "DTSF1Stats.dat");
+        } else {
+            try (ObjectInputStream in = new ObjectInputStream(Files.newInputStream(f1Stats.toPath()))) {
+                Object obj = in.readObject();
+                if (obj instanceof F1Stats) {
+                    globalF1Stats = (F1Stats) obj;
+                } else {
+                    globalF1Stats.reset();
+                    save(globalF1Stats, "DTSF1Stats.dat");
+                }
+            } catch (Exception e) {
+                globalF1Stats.reset();
+                save(globalF1Stats, "DTSF1Stats.dat");
+            }
+        }
 
         //F2
         File f2Stats = new File(configFile, "DTSF2Stats.dat");
@@ -897,6 +1236,30 @@ public class DungeonStats {
             } catch (Exception e) {
                 globalF3Stats.reset();
                 save(globalF3Stats, "DTSF3Stats.dat");
+            }
+        }
+
+        //F4
+        File f4Stats = new File(configFile, "DTSF4Stats.dat");
+
+        sessionF4Stats = new F4Stats();
+        globalF4Stats = new F4Stats();
+
+        if (!f4Stats.exists()) {
+            globalF4Stats.reset();
+            save(globalF4Stats, "DTSF4Stats.dat");
+        } else {
+            try (ObjectInputStream in = new ObjectInputStream(Files.newInputStream(f4Stats.toPath()))) {
+                Object obj = in.readObject();
+                if (obj instanceof F4Stats) {
+                    globalF4Stats = (F4Stats) obj;
+                } else {
+                    globalF4Stats.reset();
+                    save(globalF4Stats, "DTSF4Stats.dat");
+                }
+            } catch (Exception e) {
+                globalF4Stats.reset();
+                save(globalF4Stats, "DTSF4Stats.dat");
             }
         }
 
@@ -972,6 +1335,30 @@ public class DungeonStats {
             }
         }
 
+        // M1
+        File m1Stats = new File(configFile, "DTSM1Stats.dat");
+
+        sessionM1Stats = new M1Stats();
+        globalM1Stats = new M1Stats();
+
+        if (!m1Stats.exists()) {
+            globalM1Stats.reset();
+            save(globalM1Stats, "DTSM1Stats.dat");
+        } else {
+            try (ObjectInputStream in = new ObjectInputStream(Files.newInputStream(m1Stats.toPath()))) {
+                Object obj = in.readObject();
+                if (obj instanceof M1Stats) {
+                    globalM1Stats = (M1Stats) obj;
+                } else {
+                    globalM1Stats.reset();
+                    save(globalM1Stats, "DTSM1Stats.dat");
+                }
+            } catch (Exception e) {
+                globalM1Stats.reset();
+                save(globalM1Stats, "DTSM1Stats.dat");
+            }
+        }
+
         // M2
         File m2Stats = new File(configFile, "DTSM2Stats.dat");
 
@@ -1017,6 +1404,30 @@ public class DungeonStats {
             } catch (Exception e) {
                 globalM3Stats.reset();
                 save(globalM3Stats, "DTSM3Stats.dat");
+            }
+        }
+
+        // M4
+        File m4Stats = new File(configFile, "DTSM4Stats.dat");
+
+        sessionM4Stats = new M4Stats();
+        globalM4Stats = new M4Stats();
+
+        if (!m4Stats.exists()) {
+            globalM4Stats.reset();
+            save(globalM4Stats, "DTSM4Stats.dat");
+        } else {
+            try (ObjectInputStream in = new ObjectInputStream(Files.newInputStream(m4Stats.toPath()))) {
+                Object obj = in.readObject();
+                if (obj instanceof M4Stats) {
+                    globalM4Stats = (M4Stats) obj;
+                } else {
+                    globalM4Stats.reset();
+                    save(globalM4Stats, "DTSM4Stats.dat");
+                }
+            } catch (Exception e) {
+                globalM4Stats.reset();
+                save(globalM4Stats, "DTSM4Stats.dat");
             }
         }
 

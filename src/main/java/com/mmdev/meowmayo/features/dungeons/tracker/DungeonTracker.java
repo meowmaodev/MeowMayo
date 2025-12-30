@@ -74,12 +74,20 @@ public class DungeonTracker {
 
                 if (matcher.matches()) {
                     switch (matcher.group(1)) {
+                        case "F1":
+                            setCurrentTier(DungeonTiers.F1);
+                            prepRun();
+                            break;
                         case "F2":
                             setCurrentTier(DungeonTiers.F2);
                             prepRun();
                             break;
                         case "F3":
                             setCurrentTier(DungeonTiers.F3);
+                            prepRun();
+                            break;
+                        case "F4":
+                            setCurrentTier(DungeonTiers.F4);
                             prepRun();
                             break;
                         case "F5":
@@ -94,12 +102,20 @@ public class DungeonTracker {
                             setCurrentTier(DungeonTiers.F7);
                             prepRun();
                             break;
+                        case "M1":
+                            setCurrentTier(DungeonTiers.M1);
+                            prepRun();
+                            break;
                         case "M2":
                             setCurrentTier(DungeonTiers.M2);
                             prepRun();
                             break;
                         case "M3":
                             setCurrentTier(DungeonTiers.M3);
+                            prepRun();
+                            break;
+                        case "M4":
+                            setCurrentTier(DungeonTiers.M4);
                             prepRun();
                             break;
                         case "M5":
@@ -170,6 +186,8 @@ public class DungeonTracker {
     public void signal(Events event) {
         if (!runActive && !runPrimed) return;
 
+        double bttAmount;
+
         switch (event) {
             case DUNGEON_START:
                 startRun();
@@ -177,117 +195,120 @@ public class DungeonTracker {
             case BLOOD_OPEN:
                 LeapExtras.clearHighlightedPlayer();
                 advancePhase();
+                bttAmount = DungeonStats.getRemaining(currentTier.getTierName(), currentPhase);
                 if (dungeonTrack.getValue())
-                    ChatUtils.system("Blood Rush Took: " + ChatUtils.formatTime((rt.get(0) - startTime) / 1000.0) + " (Lag: " + ChatUtils.formatTime((lt.get(0)) / 1000.0) + ") | Best Time: " + ChatUtils.formatTime(((rt.get(0) - startTime) / 1000.0) + (DungeonStats.getRemaining(currentTier.getTierName(), currentPhase))));
+                    ChatUtils.system("Blood Rush Took: " + ChatUtils.formatTime((rt.get(0) - startTime) / 1000.0) + " (Lag: " + ChatUtils.formatTime((lt.get(0)) / 1000.0) + ") | Best Time: " + (bttAmount == 0.0 ? "Unknown" : ChatUtils.formatTime(((rt.get(0) - startTime) / 1000.0) + (DungeonStats.getRemaining(currentTier.getTierName(), currentPhase)))));
                 if (btt.getValue())
-                    ChatUtils.partyChat("Best Theoretical Time: " + ChatUtils.formatTime(((rt.get(0) - startTime) / 1000.0) + (DungeonStats.getRemaining(currentTier.getTierName(), currentPhase))));
+                    ChatUtils.partyChat("Best Theoretical Time: " + (bttAmount == 0.0 ? "Unknown" : ChatUtils.formatTime(((rt.get(0) - startTime) / 1000.0) + (DungeonStats.getRemaining(currentTier.getTierName(), currentPhase)))));
                 break;
             case BLOOD_DONE:
                 advancePhase();
+                bttAmount = DungeonStats.getRemaining(currentTier.getTierName(), currentPhase);
                 if (dungeonTrack.getValue())
-                    ChatUtils.system("Blood Camp Took: " + ChatUtils.formatTime((rt.get(1) - rt.get(0))/1000.0) + " (Lag: " + ChatUtils.formatTime((lt.get(1))/1000.0) + ") | Best Time: " + ChatUtils.formatTime(((rt.get(1) - startTime) / 1000.0) + (DungeonStats.getRemaining(currentTier.getTierName(), currentPhase))));
+                    ChatUtils.system("Blood Camp Took: " + ChatUtils.formatTime((rt.get(1) - rt.get(0))/1000.0) + " (Lag: " + ChatUtils.formatTime((lt.get(1))/1000.0) + ") | Best Time: " + (bttAmount == 0.0 ? "Unknown" : ChatUtils.formatTime(((rt.get(1) - startTime) / 1000.0) + (DungeonStats.getRemaining(currentTier.getTierName(), currentPhase)))));
                 if (btt.getValue())
-                    ChatUtils.partyChat("Best Theoretical Time: " + ChatUtils.formatTime(((rt.get(1) - startTime) / 1000.0) + (DungeonStats.getRemaining(currentTier.getTierName(), currentPhase))));
+                    ChatUtils.partyChat("Best Theoretical Time: " + (bttAmount == 0.0 ? "Unknown" : ChatUtils.formatTime(((rt.get(1) - startTime) / 1000.0) + (DungeonStats.getRemaining(currentTier.getTierName(), currentPhase)))));
                 break;
             case BOSS_ENTER:
                 advancePhase();
+                bttAmount = DungeonStats.getRemaining(currentTier.getTierName(), currentPhase);
                 if (dungeonTrack.getValue())
-                    ChatUtils.system("Boss Enter Took: " + ChatUtils.formatTime((rt.get(2) - rt.get(1))/1000.0) + " (Lag: " + ChatUtils.formatTime((lt.get(2))/1000.0) + ") | Best Time: " + ChatUtils.formatTime(((rt.get(2) - startTime) / 1000.0) + (DungeonStats.getRemaining(currentTier.getTierName(), currentPhase))));
+                    ChatUtils.system("Boss Enter Took: " + ChatUtils.formatTime((rt.get(2) - rt.get(1))/1000.0) + " (Lag: " + ChatUtils.formatTime((lt.get(2))/1000.0) + ") | Best Time: " + (bttAmount == 0.0 ? "Unknown" : ChatUtils.formatTime(((rt.get(2) - startTime) / 1000.0) + (DungeonStats.getRemaining(currentTier.getTierName(), currentPhase)))));
                 if (btt.getValue())
-                    ChatUtils.partyChat("Best Theoretical Time: " + ChatUtils.formatTime(((rt.get(2) - startTime) / 1000.0) + (DungeonStats.getRemaining(currentTier.getTierName(), currentPhase))));
+                    ChatUtils.partyChat("Best Theoretical Time: " + (bttAmount == 0.0 ? "Unknown" : ChatUtils.formatTime(((rt.get(2) - startTime) / 1000.0) + (DungeonStats.getRemaining(currentTier.getTierName(), currentPhase)))));
                 break;
             case SCARF_CRYPTS_DEAD:
                 advancePhase();
+                bttAmount = DungeonStats.getRemaining(currentTier.getTierName(), currentPhase);
                 if (dungeonTrack.getValue())
-                    ChatUtils.system("Scarf Undead Took: " + ChatUtils.formatTime((rt.get(3) - rt.get(2))/1000.0) + " (Lag: " + ChatUtils.formatTime((lt.get(3))/1000.0) + ") | Best Time: " + ChatUtils.formatTime(((rt.get(3) - startTime) / 1000.0) + (DungeonStats.getRemaining(currentTier.getTierName(), currentPhase))));
+                    ChatUtils.system("Scarf Undead Took: " + ChatUtils.formatTime((rt.get(3) - rt.get(2))/1000.0) + " (Lag: " + ChatUtils.formatTime((lt.get(3))/1000.0) + ") | Best Time: " + (bttAmount == 0.0 ? "Unknown" : ChatUtils.formatTime(((rt.get(3) - startTime) / 1000.0) + (DungeonStats.getRemaining(currentTier.getTierName(), currentPhase)))));
                 if (btt.getValue())
-                    ChatUtils.partyChat("Best Theoretical Time: " + ChatUtils.formatTime(((rt.get(3) - startTime) / 1000.0) + (DungeonStats.getRemaining(currentTier.getTierName(), currentPhase))));
+                    ChatUtils.partyChat("Best Theoretical Time: " + (bttAmount == 0.0 ? "Unknown" : ChatUtils.formatTime(((rt.get(3) - startTime) / 1000.0) + (DungeonStats.getRemaining(currentTier.getTierName(), currentPhase)))));
                 break;
             case GUARDIANS_DEAD:
                 advancePhase();
+                bttAmount = DungeonStats.getRemaining(currentTier.getTierName(), currentPhase);
                 if (dungeonTrack.getValue())
-                    ChatUtils.system("Guardians Took: " + ChatUtils.formatTime((rt.get(3) - rt.get(2))/1000.0) + " (Lag: " + ChatUtils.formatTime(((rt.get(3) - startTime) / 1000.0) + (DungeonStats.getRemaining(currentTier.getTierName(), currentPhase))));
+                    ChatUtils.system("Guardians Took: " + ChatUtils.formatTime((rt.get(3) - rt.get(2))/1000.0) + " (Lag: " + ChatUtils.formatTime((lt.get(3))/ 1000.0) + ") | Best Time: " + (bttAmount == 0.0 ? "Unknown" : ChatUtils.formatTime(((rt.get(3) - startTime) / 1000.0) + (DungeonStats.getRemaining(currentTier.getTierName(), currentPhase)))));
                 if (btt.getValue())
-                    ChatUtils.partyChat("Best Theoretical Time: " + ChatUtils.formatTime(((rt.get(3) - startTime) / 1000.0) + (DungeonStats.getRemaining(currentTier.getTierName(), currentPhase))));
+                    ChatUtils.partyChat("Best Theoretical Time: " + (bttAmount == 0.0 ? "Unknown" : ChatUtils.formatTime(((rt.get(3) - startTime) / 1000.0) + (DungeonStats.getRemaining(currentTier.getTierName(), currentPhase)))));
                 break;
             case PROFESSOR_1_DEAD:
                 advancePhase();
+                bttAmount = DungeonStats.getRemaining(currentTier.getTierName(), currentPhase);
                 if (dungeonTrack.getValue())
-                    ChatUtils.system("Human Professor Took: " + ChatUtils.formatTime((rt.get(4) - rt.get(3))/1000.0) + " (Lag: " + ChatUtils.formatTime((lt.get(4))/1000.0) + ") | Best Time: " + ChatUtils.formatTime(((rt.get(4) - startTime) / 1000.0) + (DungeonStats.getRemaining(currentTier.getTierName(), currentPhase))));
+                    ChatUtils.system("Human Professor Took: " + ChatUtils.formatTime((rt.get(4) - rt.get(3))/1000.0) + " (Lag: " + ChatUtils.formatTime((lt.get(4))/1000.0) + ") | Best Time: " + (bttAmount == 0.0 ? "Unknown" : ChatUtils.formatTime(((rt.get(4) - startTime) / 1000.0) + (DungeonStats.getRemaining(currentTier.getTierName(), currentPhase)))));
                 if (btt.getValue())
-                    ChatUtils.partyChat("Best Theoretical Time: " + ChatUtils.formatTime(((rt.get(4) - startTime) / 1000.0) + (DungeonStats.getRemaining(currentTier.getTierName(), currentPhase))));
+                    ChatUtils.partyChat("Best Theoretical Time: " + (bttAmount == 0.0 ? "Unknown" : ChatUtils.formatTime(((rt.get(4) - startTime) / 1000.0) + (DungeonStats.getRemaining(currentTier.getTierName(), currentPhase)))));
                 break;
             case TERRACOTTAS_DEAD:
                 advancePhase();
+                bttAmount = DungeonStats.getRemaining(currentTier.getTierName(), currentPhase);
                 if (dungeonTrack.getValue())
-                    ChatUtils.system("Terracottas Took: " + ChatUtils.formatTime((rt.get(3) - rt.get(2))/1000.0) + " (Lag: " + ChatUtils.formatTime((lt.get(3))/1000.0) + ") | Best Time: " + ChatUtils.formatTime(((rt.get(3) - startTime) / 1000.0) + (DungeonStats.getRemaining(currentTier.getTierName(), currentPhase))));
+                    ChatUtils.system("Terracottas Took: " + ChatUtils.formatTime((rt.get(3) - rt.get(2))/1000.0) + " (Lag: " + ChatUtils.formatTime((lt.get(3))/1000.0) + ") | Best Time: " + (bttAmount == 0.0 ? "Unknown" : ChatUtils.formatTime(((rt.get(3) - startTime) / 1000.0) + (DungeonStats.getRemaining(currentTier.getTierName(), currentPhase)))));
                 if (btt.getValue())
-                    ChatUtils.partyChat("Best Theoretical Time: " + ChatUtils.formatTime(((rt.get(3) - startTime) / 1000.0) + (DungeonStats.getRemaining(currentTier.getTierName(), currentPhase))));
+                    ChatUtils.partyChat("Best Theoretical Time: " + (bttAmount == 0.0 ? "Unknown" : ChatUtils.formatTime(((rt.get(3) - startTime) / 1000.0) + (DungeonStats.getRemaining(currentTier.getTierName(), currentPhase)))));
                 break;
             case GIANTS_DEAD:
                 advancePhase();
+                bttAmount = DungeonStats.getRemaining(currentTier.getTierName(), currentPhase);
                 if (dungeonTrack.getValue())
-                    ChatUtils.system("Giants Took: " + ChatUtils.formatTime((rt.get(4) - rt.get(3))/1000.0) + " (Lag: " + ChatUtils.formatTime((lt.get(4))/1000.0) + ") | Best Time: " + ChatUtils.formatTime(((rt.get(4) - startTime) / 1000.0) + (DungeonStats.getRemaining(currentTier.getTierName(), currentPhase))));
+                    ChatUtils.system("Giants Took: " + ChatUtils.formatTime((rt.get(4) - rt.get(3))/1000.0) + " (Lag: " + ChatUtils.formatTime((lt.get(4))/1000.0) + ") | Best Time: " + (bttAmount == 0.0 ? "Unknown" : ChatUtils.formatTime(((rt.get(4) - startTime) / 1000.0) + (DungeonStats.getRemaining(currentTier.getTierName(), currentPhase)))));
                 if (btt.getValue())
-                    ChatUtils.partyChat("Best Theoretical Time: " + ChatUtils.formatTime(((rt.get(4) - startTime) / 1000.0) + (DungeonStats.getRemaining(currentTier.getTierName(), currentPhase))));
+                    ChatUtils.partyChat("Best Theoretical Time: " + (bttAmount == 0.0 ? "Unknown" : ChatUtils.formatTime(((rt.get(4) - startTime) / 1000.0) + (DungeonStats.getRemaining(currentTier.getTierName(), currentPhase)))));
                 break;
             case CRYSTAL_PLACED:
 //                ChatUtils.system("The Beam is Charging Up!");
                 break;
             case MAXOR_DEAD:
                 advancePhase();
+                bttAmount = DungeonStats.getRemaining(currentTier.getTierName(), currentPhase);
                 if (dungeonTrack.getValue())
-                    ChatUtils.system("Maxor Took: " + ChatUtils.formatTime((rt.get(3) - rt.get(2))/1000.0) + " (Lag: " + ChatUtils.formatTime((lt.get(3))/1000.0) + ") | Best Time: " + ChatUtils.formatTime(((rt.get(3) - startTime) / 1000.0) + (DungeonStats.getRemaining(currentTier.getTierName(), currentPhase))));
+                    ChatUtils.system("Maxor Took: " + ChatUtils.formatTime((rt.get(3) - rt.get(2))/1000.0) + " (Lag: " + ChatUtils.formatTime((lt.get(3))/1000.0) + ") | Best Time: " + (bttAmount == 0.0 ? "Unknown" : ChatUtils.formatTime(((rt.get(3) - startTime) / 1000.0) + (DungeonStats.getRemaining(currentTier.getTierName(), currentPhase)))));
                 if (btt.getValue())
-                    ChatUtils.partyChat("Best Theoretical Time: " + ChatUtils.formatTime(((rt.get(3) - startTime) / 1000.0) + (DungeonStats.getRemaining(currentTier.getTierName(), currentPhase))));
+                    ChatUtils.partyChat("Best Theoretical Time: " + (bttAmount == 0.0 ? "Unknown" : ChatUtils.formatTime(((rt.get(3) - startTime) / 1000.0) + (DungeonStats.getRemaining(currentTier.getTierName(), currentPhase)))));
                 break;
             case STORM_LIGHTNING:
                 break;
             case STORM_DEAD:
                 F7BossFeatures.signal(Events.STORM_DEAD);
                 advancePhase();
+                bttAmount = DungeonStats.getRemaining(currentTier.getTierName(), currentPhase);
                 if (dungeonTrack.getValue())
-                    ChatUtils.system("Storm Took: " + ChatUtils.formatTime((rt.get(4) - rt.get(3))/1000.0) + " (Lag: " + ChatUtils.formatTime((lt.get(4))/1000.0) + ") | Best Time: " + ChatUtils.formatTime(((rt.get(4) - startTime) / 1000.0) + (DungeonStats.getRemaining(currentTier.getTierName(), currentPhase))));
+                    ChatUtils.system("Storm Took: " + ChatUtils.formatTime((rt.get(4) - rt.get(3))/1000.0) + " (Lag: " + ChatUtils.formatTime((lt.get(4))/1000.0) + ") | Best Time: " + (bttAmount == 0.0 ? "Unknown" : ChatUtils.formatTime(((rt.get(4) - startTime) / 1000.0) + (DungeonStats.getRemaining(currentTier.getTierName(), currentPhase)))));
                 if (btt.getValue())
-                    ChatUtils.partyChat("Best Theoretical Time: " + ChatUtils.formatTime(((rt.get(4) - startTime) / 1000.0) + (DungeonStats.getRemaining(currentTier.getTierName(), currentPhase))));
+                    ChatUtils.partyChat("Best Theoretical Time: " + (bttAmount == 0.0 ? "Unknown" : ChatUtils.formatTime(((rt.get(4) - startTime) / 1000.0) + (DungeonStats.getRemaining(currentTier.getTierName(), currentPhase)))));
                 break;
             case CORE_OPEN:
                 F7BossFeatures.signal(Events.CORE_OPEN);
                 advancePhase();
+                bttAmount = DungeonStats.getRemaining(currentTier.getTierName(), currentPhase);
                 if (dungeonTrack.getValue())
-                    ChatUtils.system("Terminals Took: " + ChatUtils.formatTime((rt.get(5) - rt.get(4))/1000.0) + " (Lag: " + ChatUtils.formatTime((lt.get(5))/1000.0) + ") | Best Time: " + ChatUtils.formatTime(((rt.get(5) - startTime) / 1000.0) + (DungeonStats.getRemaining(currentTier.getTierName(), currentPhase))));
+                    ChatUtils.system("Terminals Took: " + ChatUtils.formatTime((rt.get(5) - rt.get(4))/1000.0) + " (Lag: " + ChatUtils.formatTime((lt.get(5))/1000.0) + ") | Best Time: " + (bttAmount == 0.0 ? "Unknown" : ChatUtils.formatTime(((rt.get(5) - startTime) / 1000.0) + (DungeonStats.getRemaining(currentTier.getTierName(), currentPhase)))));
                 if (btt.getValue())
-                    ChatUtils.partyChat("Best Theoretical Time: " + ChatUtils.formatTime(((rt.get(5) - startTime) / 1000.0) + (DungeonStats.getRemaining(currentTier.getTierName(), currentPhase))));
+                    ChatUtils.partyChat("Best Theoretical Time: " + (bttAmount == 0.0 ? "Unknown" : ChatUtils.formatTime(((rt.get(5) - startTime) / 1000.0) + (DungeonStats.getRemaining(currentTier.getTierName(), currentPhase)))));
                 break;
             case GOLDOR_DEAD:
                 F7BossFeatures.signal(Events.GOLDOR_DEAD);
                 advancePhase();
+                bttAmount = DungeonStats.getRemaining(currentTier.getTierName(), currentPhase);
                 if (dungeonTrack.getValue())
-                    ChatUtils.system("Goldor Kill Took: " + ChatUtils.formatTime((rt.get(6) - rt.get(5))/1000.0) + " (Lag: " + ChatUtils.formatTime((lt.get(6))/1000.0) + ") | Best Time: " + ChatUtils.formatTime(((rt.get(6) - startTime) / 1000.0) + (DungeonStats.getRemaining(currentTier.getTierName(), currentPhase))));
+                    ChatUtils.system("Goldor Kill Took: " + ChatUtils.formatTime((rt.get(6) - rt.get(5))/1000.0) + " (Lag: " + ChatUtils.formatTime((lt.get(6))/1000.0) + ") | Best Time: " + (bttAmount == 0.0 ? "Unknown" : ChatUtils.formatTime(((rt.get(6) - startTime) / 1000.0) + (DungeonStats.getRemaining(currentTier.getTierName(), currentPhase)))));
                 if (btt.getValue())
-                    ChatUtils.partyChat("Best Theoretical Time: " + ChatUtils.formatTime(((rt.get(6) - startTime) / 1000.0) + (DungeonStats.getRemaining(currentTier.getTierName(), currentPhase))));
+                    ChatUtils.partyChat("Best Theoretical Time: " + (bttAmount == 0.0 ? "Unknown" : ChatUtils.formatTime(((rt.get(6) - startTime) / 1000.0) + (DungeonStats.getRemaining(currentTier.getTierName(), currentPhase)))));
                 break;
             case NECRON_DEAD:
-                if (currentTier.getTierName().equals("F7")) {
-                    bossDead = true;
-                } else {
+                if (currentTier.getTierName().equals("M7")) {
                     advancePhase();
+                    bttAmount = DungeonStats.getRemaining(currentTier.getTierName(), currentPhase);
                     if (dungeonTrack.getValue())
-                        ChatUtils.system("Necron Took: " + ChatUtils.formatTime((rt.get(7) - rt.get(6)) / 1000.0) + " (Lag: " + ChatUtils.formatTime((lt.get(7)) / 1000.0) + ") | Best Time: " + ChatUtils.formatTime(((rt.get(7) - startTime) / 1000.0) + (DungeonStats.getRemaining(currentTier.getTierName(), currentPhase))));
+                        ChatUtils.system("Necron Took: " + ChatUtils.formatTime((rt.get(7) - rt.get(6)) / 1000.0) + " (Lag: " + ChatUtils.formatTime((lt.get(7)) / 1000.0) + ") | Best Time: " + (bttAmount == 0.0 ? "Unknown" : ChatUtils.formatTime(((rt.get(7) - startTime) / 1000.0) + (DungeonStats.getRemaining(currentTier.getTierName(), currentPhase)))));
                     if (btt.getValue())
-                        ChatUtils.partyChat("Best Theoretical Time: " + ChatUtils.formatTime(((rt.get(7) - startTime) / 1000.0) + (DungeonStats.getRemaining(currentTier.getTierName(), currentPhase))));
+                        ChatUtils.partyChat("Best Theoretical Time: " + (bttAmount == 0.0 ? "Unknown" : ChatUtils.formatTime(((rt.get(7) - startTime) / 1000.0) + (DungeonStats.getRemaining(currentTier.getTierName(), currentPhase)))));
                 }
                 break;
             case RELICS_DOWN:
                 F7BossFeatures.signal(Events.RELICS_DOWN);
-                break;
-            case LIVID_DEAD:
-                F5BossFeatures.signalEnd();
-            case SCARF_DEAD:
-            case PROFESSOR_DEAD:
-            case SADAN_DEAD:
-            case WITHER_KING_DEAD:
-                bossDead = true;
                 break;
         }
     }
@@ -296,6 +317,10 @@ public class DungeonTracker {
         if (!runActive && !runPrimed) return;
 
         switch (event) {
+            case DUNGEON_BOSS_DEAD:
+//                ChatUtils.system("Boss Killed!");
+                bossDead = true;
+                break;
             case WITHER_DOOR:
                 if (dungeonTrack.getValue())
                     ChatUtils.system("A Wither Door has been opened!");
@@ -308,6 +333,42 @@ public class DungeonTracker {
                     dt.split(rt, lt, currentPhase);
 
                     switch (currentTier.getTierName()) {
+                        case "F1":
+                            DungeonStats.sessionF1Stats.addSuccess(startTime, rt, lt);
+                            DungeonStats.globalF1Stats.addSuccess(startTime, rt, lt);
+                            DungeonStats.saveConfig("F1");
+
+                            if (dungeonTrack.getValue()) {
+                                long totalLag = 0;
+                                for (long lag : lt) {
+                                    totalLag += lag;
+                                }
+
+                                double runTime = ((System.currentTimeMillis() - startTime) / 1000.0);
+
+                                double sumOfBest = 0.0;
+
+                                for (double time : DungeonStats.globalF1Stats.bestSplits) {
+                                    sumOfBest += time;
+                                }
+
+                                ChatUtils.system(ChatUtils.formatTime(totalLag/1000.0) + " Lost to server lag | No lag time: " + ChatUtils.formatTime(runTime - (totalLag / 1000.0)));
+                                ChatUtils.system("§fTotal Run Time: §a§l" + ChatUtils.formatTime(runTime) + " §r| " + ChatUtils.formatTime(runTime - sumOfBest) + " behind sum of best\n" +
+                                        "§2||§r§f Blood Rush took §a§l" + ChatUtils.formatTime((rt.get(0) - startTime) / 1000.0) + "§r§f to complete\n" +
+                                        "§2||==§r§f Lost §c§l" + ChatUtils.formatTime(lt.get(0) / 1000.0) + "§r§f to lag\n" +
+                                        "§2||§r§f Blood Camp took §a§l" + ChatUtils.formatTime((rt.get(1) - rt.get(0)) / 1000.0) + "§r§f to complete\n" +
+                                        "§2||==§r§f Lost §c§l" + ChatUtils.formatTime(lt.get(1) / 1000.0) + "§r§f to lag\n" +
+                                        "§2||§r§f Portal took §a§l" + ChatUtils.formatTime((rt.get(2) - rt.get(1)) / 1000.0) + "§r§f to enter\n" +
+                                        "§2||==§r§f Lost §c§l" + ChatUtils.formatTime(lt.get(2) / 1000.0) + "§r§f to lag\n" +
+                                        "§2||§r§f Bonzo took §a§l" + ChatUtils.formatTime((rt.get(3) - rt.get(2)) / 1000.0) + "§r§f to kill\n" +
+                                        "§2||==§r§f Lost §c§l" + ChatUtils.formatTime(lt.get(3) / 1000.0) + "§r§f to lag\n"
+                                );
+
+                                if (lagMessage.getValue()) {
+                                    ChatUtils.partyChat(ChatUtils.formatTime(totalLag/1000.0) + " Lost to server lag | No lag time: " + ChatUtils.formatTime(((System.currentTimeMillis() - startTime) / 1000.0) - (totalLag / 1000.0)));
+                                }
+                            }
+                            break;
                         case "F2":
                             DungeonStats.sessionF2Stats.addSuccess(startTime, rt, lt);
                             DungeonStats.globalF2Stats.addSuccess(startTime, rt, lt);
@@ -378,6 +439,42 @@ public class DungeonTracker {
                                         "§2||§r§f Human Professor took §a§l" + ChatUtils.formatTime((rt.get(4) - rt.get(3)) / 1000.0) + "§r§f to kill\n" +
                                         "§2||==§r§f Lost §c§l" + ChatUtils.formatTime(lt.get(4) / 1000.0) + "§r§f to lag\n" +
                                         "§2||§r§f Guardian Professor took §a§l" + ChatUtils.formatTime((rt.get(5) - rt.get(4)) / 1000.0) + "§r§f to kill\n"
+                                );
+
+                                if (lagMessage.getValue()) {
+                                    ChatUtils.partyChat(ChatUtils.formatTime(totalLag/1000.0) + " Lost to server lag | No lag time: " + ChatUtils.formatTime(((System.currentTimeMillis() - startTime) / 1000.0) - (totalLag / 1000.0)));
+                                }
+                            }
+                            break;
+                        case "F4":
+                            DungeonStats.sessionF4Stats.addSuccess(startTime, rt, lt);
+                            DungeonStats.globalF4Stats.addSuccess(startTime, rt, lt);
+                            DungeonStats.saveConfig("F4");
+
+                            if (dungeonTrack.getValue()) {
+                                long totalLag = 0;
+                                for (long lag : lt) {
+                                    totalLag += lag;
+                                }
+
+                                double runTime = ((System.currentTimeMillis() - startTime) / 1000.0);
+
+                                double sumOfBest = 0.0;
+
+                                for (double time : DungeonStats.globalF4Stats.bestSplits) {
+                                    sumOfBest += time;
+                                }
+
+                                ChatUtils.system(ChatUtils.formatTime(totalLag/1000.0) + " Lost to server lag | No lag time: " + ChatUtils.formatTime(runTime - (totalLag / 1000.0)));
+                                ChatUtils.system("§fTotal Run Time: §a§l" + ChatUtils.formatTime(runTime) + " §r| " + ChatUtils.formatTime(runTime - sumOfBest) + " behind sum of best\n" +
+                                        "§2||§r§f Blood Rush took §a§l" + ChatUtils.formatTime((rt.get(0) - startTime) / 1000.0) + "§r§f to complete\n" +
+                                        "§2||==§r§f Lost §c§l" + ChatUtils.formatTime(lt.get(0) / 1000.0) + "§r§f to lag\n" +
+                                        "§2||§r§f Blood Camp took §a§l" + ChatUtils.formatTime((rt.get(1) - rt.get(0)) / 1000.0) + "§r§f to complete\n" +
+                                        "§2||==§r§f Lost §c§l" + ChatUtils.formatTime(lt.get(1) / 1000.0) + "§r§f to lag\n" +
+                                        "§2||§r§f Portal took §a§l" + ChatUtils.formatTime((rt.get(2) - rt.get(1)) / 1000.0) + "§r§f to enter\n" +
+                                        "§2||==§r§f Lost §c§l" + ChatUtils.formatTime(lt.get(2) / 1000.0) + "§r§f to lag\n" +
+                                        "§2||§r§f Thorn took §a§l" + ChatUtils.formatTime((rt.get(3) - rt.get(2)) / 1000.0) + "§r§f to kill\n" +
+                                        "§2||==§r§f Lost §c§l" + ChatUtils.formatTime(lt.get(3) / 1000.0) + "§r§f to lag\n"
                                 );
 
                                 if (lagMessage.getValue()) {
@@ -505,6 +602,42 @@ public class DungeonTracker {
                                 }
                             }
                             break;
+                        case "M1":
+                            DungeonStats.sessionM1Stats.addSuccess(startTime, rt, lt);
+                            DungeonStats.globalM1Stats.addSuccess(startTime, rt, lt);
+                            DungeonStats.saveConfig("M1");
+
+                            if (dungeonTrack.getValue()) {
+                                long totalLag = 0;
+                                for (long lag : lt) {
+                                    totalLag += lag;
+                                }
+
+                                double runTime = ((System.currentTimeMillis() - startTime) / 1000.0);
+
+                                double sumOfBest = 0.0;
+
+                                for (double time : DungeonStats.globalM1Stats.bestSplits) {
+                                    sumOfBest += time;
+                                }
+
+                                ChatUtils.system(ChatUtils.formatTime(totalLag/1000.0) + " Lost to server lag | No lag time: " + ChatUtils.formatTime(runTime - (totalLag / 1000.0)));
+                                ChatUtils.system("§fTotal Run Time: §a§l" + ChatUtils.formatTime(runTime) + " §r| " + ChatUtils.formatTime(runTime - sumOfBest) + " behind sum of best\n" +
+                                        "§2||§r§f Blood Rush took §a§l" + ChatUtils.formatTime((rt.get(0) - startTime) / 1000.0) + "§r§f to complete\n" +
+                                        "§2||==§r§f Lost §c§l" + ChatUtils.formatTime(lt.get(0) / 1000.0) + "§r§f to lag\n" +
+                                        "§2||§r§f Blood Camp took §a§l" + ChatUtils.formatTime((rt.get(1) - rt.get(0)) / 1000.0) + "§r§f to complete\n" +
+                                        "§2||==§r§f Lost §c§l" + ChatUtils.formatTime(lt.get(1) / 1000.0) + "§r§f to lag\n" +
+                                        "§2||§r§f Portal took §a§l" + ChatUtils.formatTime((rt.get(2) - rt.get(1)) / 1000.0) + "§r§f to enter\n" +
+                                        "§2||==§r§f Lost §c§l" + ChatUtils.formatTime(lt.get(2) / 1000.0) + "§r§f to lag\n" +
+                                        "§2||§r§f Bonzo took §a§l" + ChatUtils.formatTime((rt.get(3) - rt.get(2)) / 1000.0) + "§r§f to kill\n" +
+                                        "§2||==§r§f Lost §c§l" + ChatUtils.formatTime(lt.get(3) / 1000.0) + "§r§f to lag\n"
+                                );
+
+                                if (lagMessage.getValue()) {
+                                    ChatUtils.partyChat(ChatUtils.formatTime(totalLag/1000.0) + " Lost to server lag | No lag time: " + ChatUtils.formatTime(((System.currentTimeMillis() - startTime) / 1000.0) - (totalLag / 1000.0)));
+                                }
+                            }
+                            break;
                         case "M2":
                             DungeonStats.sessionM2Stats.addSuccess(startTime, rt, lt);
                             DungeonStats.globalM2Stats.addSuccess(startTime, rt, lt);
@@ -575,6 +708,42 @@ public class DungeonTracker {
                                         "§2||§r§f Human Professor took §a§l" + ChatUtils.formatTime((rt.get(4) - rt.get(3)) / 1000.0) + "§r§f to kill\n" +
                                         "§2||==§r§f Lost §c§l" + ChatUtils.formatTime(lt.get(4) / 1000.0) + "§r§f to lag\n" +
                                         "§2||§r§f Guardian Professor took §a§l" + ChatUtils.formatTime((rt.get(5) - rt.get(4)) / 1000.0) + "§r§f to kill\n"
+                                );
+
+                                if (lagMessage.getValue()) {
+                                    ChatUtils.partyChat(ChatUtils.formatTime(totalLag/1000.0) + " Lost to server lag | No lag time: " + ChatUtils.formatTime(((System.currentTimeMillis() - startTime) / 1000.0) - (totalLag / 1000.0)));
+                                }
+                            }
+                            break;
+                        case "M4":
+                            DungeonStats.sessionM4Stats.addSuccess(startTime, rt, lt);
+                            DungeonStats.globalM4Stats.addSuccess(startTime, rt, lt);
+                            DungeonStats.saveConfig("M4");
+
+                            if (dungeonTrack.getValue()) {
+                                long totalLag = 0;
+                                for (long lag : lt) {
+                                    totalLag += lag;
+                                }
+
+                                double runTime = ((System.currentTimeMillis() - startTime) / 1000.0);
+
+                                double sumOfBest = 0.0;
+
+                                for (double time : DungeonStats.globalM4Stats.bestSplits) {
+                                    sumOfBest += time;
+                                }
+
+                                ChatUtils.system(ChatUtils.formatTime(totalLag/1000.0) + " Lost to server lag | No lag time: " + ChatUtils.formatTime(runTime - (totalLag / 1000.0)));
+                                ChatUtils.system("§fTotal Run Time: §a§l" + ChatUtils.formatTime(runTime) + " §r| " + ChatUtils.formatTime(runTime - sumOfBest) + " behind sum of best\n" +
+                                        "§2||§r§f Blood Rush took §a§l" + ChatUtils.formatTime((rt.get(0) - startTime) / 1000.0) + "§r§f to complete\n" +
+                                        "§2||==§r§f Lost §c§l" + ChatUtils.formatTime(lt.get(0) / 1000.0) + "§r§f to lag\n" +
+                                        "§2||§r§f Blood Camp took §a§l" + ChatUtils.formatTime((rt.get(1) - rt.get(0)) / 1000.0) + "§r§f to complete\n" +
+                                        "§2||==§r§f Lost §c§l" + ChatUtils.formatTime(lt.get(1) / 1000.0) + "§r§f to lag\n" +
+                                        "§2||§r§f Portal took §a§l" + ChatUtils.formatTime((rt.get(2) - rt.get(1)) / 1000.0) + "§r§f to enter\n" +
+                                        "§2||==§r§f Lost §c§l" + ChatUtils.formatTime(lt.get(2) / 1000.0) + "§r§f to lag\n" +
+                                        "§2||§r§f Thorn took §a§l" + ChatUtils.formatTime((rt.get(3) - rt.get(2)) / 1000.0) + "§r§f to kill\n" +
+                                        "§2||==§r§f Lost §c§l" + ChatUtils.formatTime(lt.get(3) / 1000.0) + "§r§f to lag\n"
                                 );
 
                                 if (lagMessage.getValue()) {
@@ -707,6 +876,10 @@ public class DungeonTracker {
                     }
                 } else {
                     switch (currentTier.getTierName()) {
+                        case "F1":
+                            DungeonStats.sessionF1Stats.addFailure(startTime);
+                            DungeonStats.globalF1Stats.addFailure(startTime);
+                            break;
                         case "F2":
                             DungeonStats.sessionF2Stats.addFailure(startTime);
                             DungeonStats.globalF2Stats.addFailure(startTime);
@@ -714,6 +887,10 @@ public class DungeonTracker {
                         case "F3":
                             DungeonStats.sessionF3Stats.addFailure(startTime);
                             DungeonStats.globalF3Stats.addFailure(startTime);
+                            break;
+                        case "F4":
+                            DungeonStats.sessionF4Stats.addFailure(startTime);
+                            DungeonStats.globalF4Stats.addFailure(startTime);
                             break;
                         case "F5":
                             DungeonStats.sessionF5Stats.addFailure(startTime);
@@ -727,6 +904,10 @@ public class DungeonTracker {
                             DungeonStats.sessionF7Stats.addFailure(startTime);
                             DungeonStats.globalF7Stats.addFailure(startTime);
                             break;
+                        case "M1":
+                            DungeonStats.sessionM1Stats.addFailure(startTime);
+                            DungeonStats.globalM1Stats.addFailure(startTime);
+                            break;
                         case "M2":
                             DungeonStats.sessionM2Stats.addFailure(startTime);
                             DungeonStats.globalM2Stats.addFailure(startTime);
@@ -734,6 +915,10 @@ public class DungeonTracker {
                         case "M3":
                             DungeonStats.sessionM3Stats.addFailure(startTime);
                             DungeonStats.globalM3Stats.addFailure(startTime);
+                            break;
+                        case "M4":
+                            DungeonStats.sessionM4Stats.addFailure(startTime);
+                            DungeonStats.globalM4Stats.addFailure(startTime);
                             break;
                         case "M5":
                             DungeonStats.sessionM5Stats.addFailure(startTime);
@@ -758,11 +943,17 @@ public class DungeonTracker {
                         PartyUtils.useDowntimeFlag();
                     } else {
                         switch (currentTier.getTierName()) {
+                            case "F1":
+                                DelayUtils.scheduleTask(() -> ChatUtils.command("joindungeon catacombs_floor_one"), autoRequeueDelay.getValue() * 1000);
+                                break;
                             case "F2":
                                 DelayUtils.scheduleTask(() -> ChatUtils.command("joindungeon catacombs_floor_two"), autoRequeueDelay.getValue() * 1000);
                                 break;
                             case "F3":
                                 DelayUtils.scheduleTask(() -> ChatUtils.command("joindungeon catacombs_floor_three"), autoRequeueDelay.getValue() * 1000);
+                                break;
+                            case "F4":
+                                DelayUtils.scheduleTask(() -> ChatUtils.command("joindungeon catacombs_floor_four"), autoRequeueDelay.getValue() * 1000);
                                 break;
                             case "F5":
                                 DelayUtils.scheduleTask(() -> ChatUtils.command("joindungeon catacombs_floor_five"), autoRequeueDelay.getValue() * 1000);
@@ -773,11 +964,17 @@ public class DungeonTracker {
                             case "F7":
                                 DelayUtils.scheduleTask(() -> ChatUtils.command("joindungeon catacombs_floor_seven"), autoRequeueDelay.getValue() * 1000);
                                 break;
+                            case "M1":
+                                DelayUtils.scheduleTask(() -> ChatUtils.command("joindungeon master_catacombs_floor_one"), autoRequeueDelay.getValue() * 1000);
+                                break;
                             case "M2":
                                 DelayUtils.scheduleTask(() -> ChatUtils.command("joindungeon master_catacombs_floor_two"), autoRequeueDelay.getValue() * 1000);
                                 break;
                             case "M3":
                                 DelayUtils.scheduleTask(() -> ChatUtils.command("joindungeon master_catacombs_floor_three"), autoRequeueDelay.getValue() * 1000);
+                                break;
+                            case "M4":
+                                DelayUtils.scheduleTask(() -> ChatUtils.command("joindungeon master_catacombs_floor_four"), autoRequeueDelay.getValue() * 1000);
                                 break;
                             case "M5":
                                 DelayUtils.scheduleTask(() -> ChatUtils.command("joindungeon master_catacombs_floor_five"), autoRequeueDelay.getValue() * 1000);
@@ -804,13 +1001,17 @@ public class DungeonTracker {
 
         if (resetOnParty.getValue()) {
             if (PartyUtils.getDungeonFlag()) {
+                DungeonStats.sessionF1Stats.reset();
                 DungeonStats.sessionF2Stats.reset();
                 DungeonStats.sessionF3Stats.reset();
+                DungeonStats.sessionF4Stats.reset();
                 DungeonStats.sessionF5Stats.reset();
                 DungeonStats.sessionF6Stats.reset();
                 DungeonStats.sessionF7Stats.reset();
+                DungeonStats.sessionM1Stats.reset();
                 DungeonStats.sessionM2Stats.reset();
                 DungeonStats.sessionM3Stats.reset();
+                DungeonStats.sessionM4Stats.reset();
                 DungeonStats.sessionM5Stats.reset();
                 DungeonStats.sessionM6Stats.reset();
                 DungeonStats.sessionM7Stats.reset();

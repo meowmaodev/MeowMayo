@@ -71,8 +71,8 @@ public class KuudraTiers {
                 if (Minecraft.getMinecraft().thePlayer.posY <= 10.0) tracker.signal(Events.SKIP_DONE);
         });
 
-        runOver = new KuudraRegexListener(tracker, "^\\w+DEFEAT$", Events.RUN_END_FAILURE);
-        KuudraRegexListener runSuccess = new KuudraRegexListener(tracker, "^\\w+KUUDRA DOWN!$", Events.RUN_END_SUCCESS);
+        runOver = new KuudraRegexListener(tracker, "^\\s*DEFEAT$", Events.RUN_END_FAILURE);
+        KuudraRegexListener runSuccess = new KuudraRegexListener(tracker, "^\\s*KUUDRA DOWN!$", Events.RUN_END_SUCCESS);
 
         basic.addPhase(new Phase("Start", new HashSet<>(Arrays.asList(runStart, suppliesStart))));
         basic.addPhase(new Phase("Supplies", new HashSet<>(Arrays.asList(noSupply, supplyGrab, buildStart))));

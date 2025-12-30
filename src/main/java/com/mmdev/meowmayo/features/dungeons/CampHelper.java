@@ -4,6 +4,8 @@ import com.mmdev.meowmayo.config.ConfigSettings;
 import com.mmdev.meowmayo.config.settings.ToggleSetting;
 import com.mmdev.meowmayo.features.dungeons.tracker.DungeonTracker;
 import com.mmdev.meowmayo.utils.ChatUtils;
+import com.mmdev.meowmayo.utils.DelayUtils;
+import com.mmdev.meowmayo.utils.MathUtils;
 import com.mmdev.meowmayo.utils.RenderShapeUtils;
 import com.mmdev.meowmayo.utils.events.S02ChatReceivedEvent;
 import com.mmdev.meowmayo.utils.events.S0FMobSpawnEvent;
@@ -22,6 +24,7 @@ import net.minecraft.util.EnumChatFormatting;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import scala.Int;
 
 import java.util.*;
 
@@ -29,6 +32,7 @@ public class CampHelper {
     ToggleSetting mobTimer = (ToggleSetting) ConfigSettings.getSetting("Blood Mob Timer");
     ToggleSetting mobSpawn = (ToggleSetting) ConfigSettings.getSetting("Blood Mob Spawn Overview");
     ToggleSetting mobKill = (ToggleSetting) ConfigSettings.getSetting("Blood Mob Kill Tracker");
+    ToggleSetting ovMessage = (ToggleSetting) ConfigSettings.getSetting("Blood Camp Overview Message");
     // meow
     // meow
     // meow
@@ -43,8 +47,11 @@ public class CampHelper {
     private static Set<Integer> spawning = new HashSet<>();
 
     private static int totalMobs = 0;
+    private static ArrayList<Integer> ttKills = new ArrayList<>();
+    private static ArrayList<Long> rtKills = new ArrayList<>();
     private static int totalTicks = 0;
     private static long rt = 0;
+    private static int ots = 0;
 
     private static boolean slowSpawn = false;
 
@@ -170,7 +177,12 @@ public class CampHelper {
                         long killTime = System.currentTimeMillis() - mob.realTime;
                         ChatUtils.system(mob.name + " took " + (killTime) + "ms to kill (" + mob.ticks + " ticks)");
                         totalMobs++;
+                        ttKills.add(mob.ticks);
                         totalTicks += mob.ticks;
+                        if (mob.ticks <= 1) {
+                            ots++;
+                        }
+                        rtKills.add(killTime);
                         rt += killTime;
                     }
                     iteratorN.remove();
@@ -191,8 +203,28 @@ public class CampHelper {
         if (msg.equals("[BOSS] The Watcher: Let's see how you can handle this.")) {
             slowSpawn = false;
         }
-        if (mobKill.getValue() && msg.equals("[BOSS] The Watcher: You have proven yourself. You may pass.") && totalMobs > 0) {
-            ChatUtils.system("Average Mob Kill Time: " + (rt / totalMobs) + "ms (" + (totalTicks/totalMobs) + " ticks)");
+        if (msg.equals("[BOSS] The Watcher: You have proven yourself. You may pass.") && totalMobs > 0) {
+            double rtStd = Math.round(MathUtils.calculateStandardDeviationL(rtKills) * 100.0) / 100.0;
+            double ttStd = Math.round(MathUtils.calculateStandardDeviationI(ttKills) * 100.0) / 100.0;
+
+            if (mobKill.getValue()) {
+                ChatUtils.system(
+                        "Blood Camp Overview:\n§2| §r" + totalMobs + " blood mob kills tracked.\n§2| §r" +
+                        ots + " one-tick kills detected. " + ((int) ((ots/(double)totalMobs) * 100)) + "% one-tick rate\n§2| §r" +
+                        "Average Kill Time: " + (rt / totalMobs) + "ms (" + (totalTicks / totalMobs) + " ticks)\n§2| §r" +
+                        "Standard Deviation: " + rtStd + "ms (" + ttStd + " ticks)"
+                );
+            }
+            if (ovMessage.getValue()) {
+                DelayUtils.scheduleTask(() -> {
+                    ChatUtils.partyChat(
+                            totalMobs + " blood mob kills tracked. " + ots + " one-tick kills detected. " +
+                            ((int) ((ots/(double)totalMobs) * 100)) + "% one-tick rate |" +
+                            " Average Kill Time: " + (rt / totalMobs) + "ms (" + (totalTicks / totalMobs) + " ticks)" +
+                            " St Dev: " + rtStd + "ms (" + ttStd + " ticks)."
+                    );
+                }, 1000);
+            }
         }
     }
 
@@ -200,8 +232,11 @@ public class CampHelper {
     public void onWorldLoad(WorldEvent.Load event) {
         slowSpawn = false;
         totalMobs = 0;
+        ttKills.clear();
         totalTicks = 0;
+        rtKills.clear();
         rt = 0;
+        ots = 0;
         consume.clear();
         expected.clear();
         names.clear();

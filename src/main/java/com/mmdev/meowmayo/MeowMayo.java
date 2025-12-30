@@ -2,8 +2,11 @@ package com.mmdev.meowmayo;
 
 import com.mmdev.meowmayo.features.dungeons.tracker.DungeonStats;
 import com.mmdev.meowmayo.features.kuudra.tracker.KuudraStats;
+import com.mmdev.meowmayo.keybinds.KeyInputHandler;
+import com.mmdev.meowmayo.keybinds.ModKeybinds;
 import com.mmdev.meowmayo.utils.PartyUtils;
 import com.mmdev.meowmayo.utils.ScoreboardUtils;
+import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
@@ -34,13 +37,16 @@ public class MeowMayo {
         org.lwjgl.opengl.Display.setTitle("MeowMayo");
         ModConfig.init(event.getSuggestedConfigurationFile().getParentFile());
         PartyCommandListUtils.init(event.getSuggestedConfigurationFile().getParentFile());
-//        KuudraPhases.init(event.getSuggestedConfigurationFile().getParentFile());
         DungeonStats.init(event.getSuggestedConfigurationFile().getParentFile());
         KuudraStats.init(event.getSuggestedConfigurationFile().getParentFile());
     }
 
     @Mod.EventHandler
     public void init(FMLInitializationEvent event) {
+        ModKeybinds.init();
+
+        MinecraftForge.EVENT_BUS.register(new KeyInputHandler());
+
         // Register commands
         ClientCommandHandler.instance.registerCommand(new SettingsCommand());
         ClientCommandHandler.instance.registerCommand(new GetPearlsCommand());
