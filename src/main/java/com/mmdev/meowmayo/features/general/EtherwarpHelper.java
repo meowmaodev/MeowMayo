@@ -132,7 +132,7 @@ public class EtherwarpHelper {
             Minecraft mc = Minecraft.getMinecraft();
             float partialTicks = event.partialTicks;
 
-            RenderShapeUtils.drawFilledBox(hitBlock.getX() + 0.5, hitBlock.getY() + 0.5, hitBlock.getZ() + 0.5, 1, 1, 1, 0f, 0f, 1f, 1f, true, partialTicks);
+            RenderShapeUtils.drawFilledBox(hitBlock.getX() + 0.5, hitBlock.getY() + 0.5, hitBlock.getZ() + 0.5, 1.05, 1.05, 1.05, 0f, 0f, 1f, 1f, false, partialTicks);
 
             if (fakePlayer.getValue()) {
                 EntityOtherPlayerMP fakePlayer = new EntityOtherPlayerMP(

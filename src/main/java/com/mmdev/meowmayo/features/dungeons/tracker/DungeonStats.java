@@ -54,7 +54,7 @@ public class DungeonStats {
             long totalLagTime = 0;
             double[] lagSplits = new double[4];
 
-            for (int i = 0; i < 6; i++) {
+            for (int i = 0; i < 4; i++) {
                 this.compSplitTimes[i] += runSplits[i];
                 this.compLagTimes[i] += (lt.get(i)/1000.0);
 
@@ -270,7 +270,7 @@ public class DungeonStats {
             long totalLagTime = 0;
             double[] lagSplits = new double[4];
 
-            for (int i = 0; i < 6; i++) {
+            for (int i = 0; i < 4; i++) {
                 this.compSplitTimes[i] += runSplits[i];
                 this.compLagTimes[i] += (lt.get(i)/1000.0);
 
@@ -341,7 +341,7 @@ public class DungeonStats {
             long totalLagTime = 0;
             double[] lagSplits = new double[4];
 
-            for (int i = 0; i < 6; i++) {
+            for (int i = 0; i < 4; i++) {
                 this.compSplitTimes[i] += runSplits[i];
                 this.compLagTimes[i] += (lt.get(i)/1000.0);
 
@@ -560,7 +560,7 @@ public class DungeonStats {
             long totalLagTime = 0;
             double[] lagSplits = new double[4];
 
-            for (int i = 0; i < 6; i++) {
+            for (int i = 0; i < 4; i++) {
                 this.compSplitTimes[i] += runSplits[i];
                 this.compLagTimes[i] += (lt.get(i)/1000.0);
 
@@ -776,7 +776,7 @@ public class DungeonStats {
             long totalLagTime = 0;
             double[] lagSplits = new double[4];
 
-            for (int i = 0; i < 6; i++) {
+            for (int i = 0; i < 4; i++) {
                 this.compSplitTimes[i] += runSplits[i];
                 this.compLagTimes[i] += (lt.get(i)/1000.0);
 
@@ -847,7 +847,7 @@ public class DungeonStats {
             long totalLagTime = 0;
             double[] lagSplits = new double[4];
 
-            for (int i = 0; i < 6; i++) {
+            for (int i = 0; i < 4; i++) {
                 this.compSplitTimes[i] += runSplits[i];
                 this.compLagTimes[i] += (lt.get(i)/1000.0);
 

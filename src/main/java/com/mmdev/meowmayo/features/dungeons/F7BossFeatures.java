@@ -9,13 +9,17 @@ import com.mmdev.meowmayo.utils.events.S2AParticleReceivedEvent;
 import com.mmdev.meowmayo.utils.events.S32ReceivedEvent;
 import com.mmdev.meowmayo.utils.tracker.Events;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.ScaledResolution;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.EntityArmorStand;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.world.World;
+import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import org.lwjgl.opengl.GL11;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -31,6 +35,7 @@ public class F7BossFeatures {
     private ToggleSetting pre4Remind = (ToggleSetting) ConfigSettings.getSetting("Pre4 Reminder");
     private ToggleSetting PyPad = (ToggleSetting) ConfigSettings.getSetting("PY Pad Notifier");
     private ToggleSetting highlightRelicLeap = (ToggleSetting) ConfigSettings.getSetting("Highlight Relic Leap");
+    private ToggleSetting recore = (ToggleSetting) ConfigSettings.getSetting("Recore Notifier");
 
     private static HashMap<String, Integer> prio;
     private static HashMap<String, Integer> noSplitPrio; // who isnt splitting in the big 2025?
@@ -79,6 +84,8 @@ public class F7BossFeatures {
     private static boolean lightninged = false;
 
     private static int p3TickTimer = 0;
+    private static String deathTickText = null;
+
     private static long p3TotalTimer = 0;
 
     private static int termPhase = 0;
@@ -86,6 +93,8 @@ public class F7BossFeatures {
     private static boolean gateBoom = false;
 
     private static boolean pre4Done = false;
+
+    private static boolean recored = false;
 
     private static Character playerClass = null;
 
@@ -181,18 +190,37 @@ public class F7BossFeatures {
             p3TotalTimer += 50;
 
             if (p3Death.getValue()) {
+                if (p3TickTimer == 15) {
+                    deathTickText = null;
+                }
                 if (p3TickTimer == 45) {
-                    PlayerUtils.makeTextAlert("DAMAGE TICK INCOMING!", "note.pling");
+                    deathTickText = "DAMAGE TICK INCOMING!";
+                    Minecraft.getMinecraft().thePlayer.playSound("note.pling", 1.0F, 1.0F);
                 }
                 if (p3TickTimer > 45) {
                     Minecraft.getMinecraft().thePlayer.playSound("note.pling", 1.0F, 1.0F);
                 }
-                if (p3TickTimer >= 60) { // 40t cycle
-                    PlayerUtils.stopAlert();
-                    PlayerUtils.makeTextTitle("DAMAGE TICK PASSED!", 500);
+                if (p3TickTimer >= 60) {
+                    deathTickText = "DAMAGE TICK PASSED!";
                     p3TickTimer = 0;
                 }
                 p3TickTimer++;
+            }
+
+            if (!recored && recore.getValue()) {
+                int total = 0;
+
+                for (Entity e: Minecraft.getMinecraft().theWorld.getLoadedEntityList()) {
+                    if (e instanceof EntityPlayer) {
+                        if (e.posZ < 54) {
+                            total += 1;
+
+                            if (total >= 5) {
+                                PlayerUtils.makeTextAlert("RECORE NOW!", "random.anvil_use", 1000);
+                            }
+                        }
+                    }
+                }
             }
         }
 
@@ -218,6 +246,30 @@ public class F7BossFeatures {
     }
 
     @SubscribeEvent
+    public void onRenderOverlay(RenderGameOverlayEvent.Text event) {
+        if (deathTickText == null) return;
+
+        ScaledResolution sr = new ScaledResolution(Minecraft.getMinecraft());
+        int screenWidth = sr.getScaledWidth();
+        int screenHeight = sr.getScaledHeight();
+
+        float scale = 2.0f; // 2x bigger text
+        int textWidth = Minecraft.getMinecraft().fontRendererObj.getStringWidth(deathTickText);
+
+        GL11.glPushMatrix();
+        GL11.glScalef(scale, scale, 1.0f);
+
+        Minecraft.getMinecraft().fontRendererObj.drawStringWithShadow(
+                deathTickText,
+                (int)((screenWidth / 2 - (textWidth * scale) / 2) / scale),
+                (int)((screenHeight / 2) / scale),
+                0xFFFFFF
+        );
+
+        GL11.glPopMatrix();
+    }
+
+    @SubscribeEvent
     public void onWorldLoad(WorldEvent.Load event) {
         p2TickTimer = 0;
         lightninged = false;
@@ -227,8 +279,12 @@ public class F7BossFeatures {
         termsDone = false;
         termPhase = 0;
 
+        recored = false;
+
         p3TotalTimer = 0;
         p3TickTimer = 0;
+
+        deathTickText = null;
         PlayerUtils.stopAlert();
 
         relics.clear();
@@ -394,6 +450,8 @@ public class F7BossFeatures {
             case CORE_OPEN:
                 p3TotalTimer = 0;
                 p3TickTimer = 0;
+
+                deathTickText = null;
                 PlayerUtils.stopAlert();
             case GOLDOR_DEAD:
                 pre4Done = false;
@@ -401,8 +459,12 @@ public class F7BossFeatures {
                 termsDone = false;
                 termPhase = 0;
 
+                recored = false;
+
                 p3TotalTimer = 0;
                 p3TickTimer = 0;
+
+                deathTickText = null;
                 PlayerUtils.stopAlert();
                 break;
             case RELICS_DOWN:

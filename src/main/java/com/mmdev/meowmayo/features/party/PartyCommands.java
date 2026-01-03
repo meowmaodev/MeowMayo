@@ -1,8 +1,14 @@
 package com.mmdev.meowmayo.features.party;
 
+import com.mmdev.meowmayo.features.dungeons.tracker.DungeonStats;
+import com.mmdev.meowmayo.features.dungeons.tracker.DungeonTracker;
 import com.mmdev.meowmayo.features.kuudra.tracker.KuudraStats;
+import com.mmdev.meowmayo.features.kuudra.tracker.KuudraTracker;
 import com.mmdev.meowmayo.utils.PartyUtils;
 import com.mmdev.meowmayo.utils.events.S02ChatReceivedEvent;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.entity.EntityPlayerSP;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 import java.util.Random;
@@ -30,8 +36,11 @@ public class PartyCommands {
     private ToggleSetting partyTransferMeCommand = (ToggleSetting) ConfigSettings.getSetting("Party Transfer Me Command");
     private ToggleSetting partyTransferMeWhitelist = (ToggleSetting) ConfigSettings.getSetting("Party Transfer Me Whitelist");
     private ToggleSetting selloutCommand = (ToggleSetting) ConfigSettings.getSetting("Sellout Command");
+    private ToggleSetting coordinatesCommand = (ToggleSetting) ConfigSettings.getSetting("Coordinates Command");
 
     // Catacombs Commands
+    private ToggleSetting dungeonTimeStatsCommand = (ToggleSetting) ConfigSettings.getSetting("Dungeon Time Stats Command");
+    private ToggleSetting dungeonTrack = (ToggleSetting) ConfigSettings.getSetting("Average Dungeon Run Time Tracker");
     private ToggleSetting catacombsEntranceCommand = (ToggleSetting) ConfigSettings.getSetting("Catacombs Entrance Command");
     private ToggleSetting masterCatacombsEntranceCommand = (ToggleSetting) ConfigSettings.getSetting("Master Catacombs Entrance Command");
 
@@ -51,6 +60,8 @@ public class PartyCommands {
     @SubscribeEvent
     public void onChatPacket(S02ChatReceivedEvent event) {
         String message = event.getUnformattedMessage().toLowerCase();
+
+        if (!partyCommands.getValue()) return;
 
         String prefix = partyCommandsPrefix.getValue().toLowerCase();
         if (!message.startsWith("party >")) {
@@ -74,171 +85,180 @@ public class PartyCommands {
 
         switch (args[0].toLowerCase()) {
             case "help":
-                delayed = true;
-                if (args.length == 1) {
-                    ChatUtils.partyChat("MeowMayo Party Commands Help Menu - Current Prefix: " + prefix);
-                    scheduleTask(() -> ChatUtils.partyChat("Use " + prefix + "help <general|catacombs|kuudra|fun>"), 1000);
-                    scheduleReset(2000);
-                } else {
-                    switch (args[1]) {
-                        case "general":
-                            if (args.length == 2) {
-                                ChatUtils.partyChat("MeowMayo Party Commands | General:");
-                                scheduleTask(() -> ChatUtils.partyChat("Use " + prefix + "help general (Command) for more info"), 1000);
-                                scheduleTask(() -> ChatUtils.partyChat("Available Commands: AllInvite | Warp | Invite | PT | PTME"), 2000);
-                                scheduleReset(3000);
-                            } else {
-                                switch (args[2]) {
-                                    case "allinv":
-                                    case "allinvite":
-                                        ChatUtils.partyChat("AllInvite: Toggles All Invite");
-                                        scheduleTask(() -> ChatUtils.partyChat("Usage: " + prefix + "AllInvite"), 1000);
-                                        scheduleTask(() -> ChatUtils.partyChat("Aliases: AllInvite | AllInv"), 2000);
-                                        scheduleReset(3000);
-                                        break;
-                                    case "warp":
-                                    case "pwarp":
-                                    case "partywarp":
-                                        ChatUtils.partyChat("Warp: Warps the party");
-                                        scheduleTask(() -> ChatUtils.partyChat("Usage: " + prefix + "Warp"), 1000);
-                                        scheduleTask(() -> ChatUtils.partyChat("Aliases: Warp | W | PWarp | PartyWarp"), 2000);
-                                        scheduleReset(3000);
-                                        break;
-                                    case "invite":
-                                    case "party":
-                                        ChatUtils.partyChat("Invite: Invites a player to the party");
-                                        scheduleTask(() -> ChatUtils.partyChat("Usage: " + prefix + "Invite (player)"), 1000);
-                                        scheduleTask(() -> ChatUtils.partyChat("Aliases: Invite | Party"), 2000);
-                                        scheduleReset(3000);
-                                        break;
-                                    case "ptme":
-                                        ChatUtils.partyChat("PTME: Transfers Party to the user");
-                                        scheduleTask(() -> ChatUtils.partyChat("Usage: " + prefix + "PTME"), 1000);
-                                        if (partyTransferMeWhitelist.getValue()) {
-                                            scheduleTask(() -> ChatUtils.partyChat("Whitelisted Users Only"), 2000);
-                                            scheduleTask(() -> ChatUtils.partyChat("Aliases: PTME"), 3000);
-                                            scheduleReset(4000);
+                if (partyHelpCommand.getValue()) {
+                    delayed = true;
+                    if (args.length == 1) {
+                        ChatUtils.partyChat("MeowMayo Party Commands Help Menu - Current Prefix: " + prefix);
+                        scheduleTask(() -> ChatUtils.partyChat("Use " + prefix + "help <general|catacombs|kuudra|fun>"), 1000);
+                        scheduleReset(2000);
+                    } else {
+                        switch (args[1]) {
+                            case "general":
+                                if (args.length == 2) {
+                                    ChatUtils.partyChat("MeowMayo Party Commands | General:");
+                                    scheduleTask(() -> ChatUtils.partyChat("Use " + prefix + "help general (Command) for more info"), 1000);
+                                    scheduleTask(() -> ChatUtils.partyChat("Available Commands: AllInvite | Warp | Invite | PT | PTME | Coordinates"), 2000);
+                                    scheduleReset(3000);
+                                } else {
+                                    switch (args[2]) {
+                                        case "allinv":
+                                        case "allinvite":
+                                            ChatUtils.partyChat("AllInvite: Toggles All Invite");
+                                            scheduleTask(() -> ChatUtils.partyChat("Usage: " + prefix + "AllInvite"), 1000);
+                                            scheduleTask(() -> ChatUtils.partyChat("Aliases: AllInvite | AllInv"), 2000);
+                                            scheduleReset(3000);
                                             break;
-                                        }
-                                        scheduleTask(() -> ChatUtils.partyChat("Aliases: PTME"), 2000);
-                                        scheduleReset(3000);
-                                        break;
-                                    case "pt":
-                                    case "partytransfer":
-                                    case "ptransfer":
-                                    case "transfer":
-                                        ChatUtils.partyChat("PT: Transfers Party to the specified user");
-                                        scheduleTask(() -> ChatUtils.partyChat("Usage: " + prefix + "PT (player)"), 1000);
-                                        if (partyTransferWhitelist.getValue()) {
-                                            scheduleTask(() -> ChatUtils.partyChat("Whitelisted Users Only"), 2000);
-                                            scheduleTask(() -> ChatUtils.partyChat("Aliases: PT | PartyTransfer | PTransfer | Transfer"), 3000);
-                                            scheduleReset(4000);
+                                        case "warp":
+                                        case "pwarp":
+                                        case "partywarp":
+                                            ChatUtils.partyChat("Warp: Warps the party");
+                                            scheduleTask(() -> ChatUtils.partyChat("Usage: " + prefix + "Warp"), 1000);
+                                            scheduleTask(() -> ChatUtils.partyChat("Aliases: Warp | W | PWarp | PartyWarp"), 2000);
+                                            scheduleReset(3000);
                                             break;
-                                        }
-                                        scheduleTask(() -> ChatUtils.partyChat("Aliases: PT | PartyTransfer | PTransfer | Transfer"), 2000);
-                                        scheduleReset(3000);
-                                        break;
-                                    default:
-                                        ChatUtils.partyChat("MeowMayo Party Commands | General:");
-                                        scheduleTask(() -> ChatUtils.partyChat("Use " + prefix + "help general (Command) for more info"), 1000);
-                                        scheduleTask(() -> ChatUtils.partyChat("Available Commands: AllInvite | Warp | Invite | PT | PTME"), 2000);
-                                        scheduleReset(3000);
-                                        break;
+                                        case "invite":
+                                        case "party":
+                                            ChatUtils.partyChat("Invite: Invites a player to the party");
+                                            scheduleTask(() -> ChatUtils.partyChat("Usage: " + prefix + "Invite (player)"), 1000);
+                                            scheduleTask(() -> ChatUtils.partyChat("Aliases: Invite | Party"), 2000);
+                                            scheduleReset(3000);
+                                            break;
+                                        case "ptme":
+                                            ChatUtils.partyChat("PTME: Transfers Party to the user");
+                                            scheduleTask(() -> ChatUtils.partyChat("Usage: " + prefix + "PTME"), 1000);
+                                            if (partyTransferMeWhitelist.getValue()) {
+                                                scheduleTask(() -> ChatUtils.partyChat("Whitelisted Users Only"), 2000);
+                                                scheduleTask(() -> ChatUtils.partyChat("Aliases: PTME"), 3000);
+                                                scheduleReset(4000);
+                                                break;
+                                            }
+                                            scheduleTask(() -> ChatUtils.partyChat("Aliases: PTME"), 2000);
+                                            scheduleReset(3000);
+                                            break;
+                                        case "pt":
+                                        case "partytransfer":
+                                        case "ptransfer":
+                                        case "transfer":
+                                            ChatUtils.partyChat("PT: Transfers Party to the specified user");
+                                            scheduleTask(() -> ChatUtils.partyChat("Usage: " + prefix + "PT (player)"), 1000);
+                                            if (partyTransferWhitelist.getValue()) {
+                                                scheduleTask(() -> ChatUtils.partyChat("Whitelisted Users Only"), 2000);
+                                                scheduleTask(() -> ChatUtils.partyChat("Aliases: PT | PartyTransfer | PTransfer | Transfer"), 3000);
+                                                scheduleReset(4000);
+                                                break;
+                                            }
+                                            scheduleTask(() -> ChatUtils.partyChat("Aliases: PT | PartyTransfer | PTransfer | Transfer"), 2000);
+                                            scheduleReset(3000);
+                                            break;
+                                        case "coords":
+                                        case "coordinates":
+                                            ChatUtils.partyChat("Coordinates: Sends player Coordinates");
+                                            scheduleTask(() -> ChatUtils.partyChat("Usage: " + prefix + "Coordinates"), 1000);
+                                            scheduleTask(() -> ChatUtils.partyChat("Aliases: Coordinates | Coords"), 2000);
+                                            scheduleReset(3000);
+                                            break;
+                                        default:
+                                            ChatUtils.partyChat("MeowMayo Party Commands | General:");
+                                            scheduleTask(() -> ChatUtils.partyChat("Use " + prefix + "help general (Command) for more info"), 1000);
+                                            scheduleTask(() -> ChatUtils.partyChat("Available Commands: AllInvite | Warp | Invite | PT | PTME | Coordinates"), 2000);
+                                            scheduleReset(3000);
+                                            break;
+                                    }
                                 }
-                            }
-                            break;
-                        case "catacombs":
-                            if (args.length == 2) {
-                                ChatUtils.partyChat("MeowMayo Party Commands | Catacombs:");
-                                scheduleTask(() -> ChatUtils.partyChat("Use " + prefix + "help catacombs (Command) for more info"), 1000);
-                                scheduleTask(() -> ChatUtils.partyChat("Available Commands: Floor | Master"), 2000);
-                                scheduleReset(3000);
-                            } else {
-                                switch (args[2]) {
-                                    case "floor":
-                                    case "f":
-                                        ChatUtils.partyChat("Floor: Enters the given normal mode dungeon floor");
-                                        scheduleTask(() -> ChatUtils.partyChat("Usage: " + prefix + "Floor(Catacombs Floor)"), 1000);
-                                        scheduleTask(() -> ChatUtils.partyChat("Aliases: Floor | F"), 2000);
-                                        scheduleReset(3000);
-                                        break;
-                                    case "master":
-                                    case "m":
-                                        ChatUtils.partyChat("Master: Enters the given master mode dungeon floor");
-                                        scheduleTask(() -> ChatUtils.partyChat("Usage: " + prefix + "Master(Master Catacombs Floor)"), 1000);
-                                        scheduleTask(() -> ChatUtils.partyChat("Aliases: Master | M"), 2000);
-                                        scheduleReset(3000);
-                                        break;
-                                    default:
-                                        ChatUtils.partyChat("MeowMayo Party Commands | Catacombs:");
-                                        scheduleTask(() -> ChatUtils.partyChat("Use " + prefix + "help catacombs (Command) for more info"), 1000);
-                                        scheduleTask(() -> ChatUtils.partyChat("Available Commands: Floor | Master"), 2000);
-                                        scheduleReset(3000);
-                                        break;
+                                break;
+                            case "catacombs":
+                                if (args.length == 2) {
+                                    ChatUtils.partyChat("MeowMayo Party Commands | Catacombs:");
+                                    scheduleTask(() -> ChatUtils.partyChat("Use " + prefix + "help catacombs (Command) for more info"), 1000);
+                                    scheduleTask(() -> ChatUtils.partyChat("Available Commands: Floor | Master"), 2000);
+                                    scheduleReset(3000);
+                                } else {
+                                    switch (args[2]) {
+                                        case "floor":
+                                        case "f":
+                                            ChatUtils.partyChat("Floor: Enters the given normal mode dungeon floor");
+                                            scheduleTask(() -> ChatUtils.partyChat("Usage: " + prefix + "Floor(Catacombs Floor)"), 1000);
+                                            scheduleTask(() -> ChatUtils.partyChat("Aliases: Floor | F"), 2000);
+                                            scheduleReset(3000);
+                                            break;
+                                        case "master":
+                                        case "m":
+                                            ChatUtils.partyChat("Master: Enters the given master mode dungeon floor");
+                                            scheduleTask(() -> ChatUtils.partyChat("Usage: " + prefix + "Master(Master Catacombs Floor)"), 1000);
+                                            scheduleTask(() -> ChatUtils.partyChat("Aliases: Master | M"), 2000);
+                                            scheduleReset(3000);
+                                            break;
+                                        default:
+                                            ChatUtils.partyChat("MeowMayo Party Commands | Catacombs:");
+                                            scheduleTask(() -> ChatUtils.partyChat("Use " + prefix + "help catacombs (Command) for more info"), 1000);
+                                            scheduleTask(() -> ChatUtils.partyChat("Available Commands: Floor | Master"), 2000);
+                                            scheduleReset(3000);
+                                            break;
+                                    }
                                 }
-                            }
-                            break;
-                        case "kuudra":
-                            if (args.length == 2) {
-                                ChatUtils.partyChat("MeowMayo Party Commands | Kuudra:");
-                                scheduleTask(() -> ChatUtils.partyChat("Use " + prefix + "help kuudra (Command) for more info"), 1000);
-                                scheduleTask(() -> ChatUtils.partyChat("Available Commands: tier"), 2000);
-                                scheduleReset(3000);
-                            } else {
-                                switch (args[2]) {
-                                    case "tier":
-                                    case "t":
-                                        ChatUtils.partyChat("Tier: Enters the given kuudra tier");
-                                        scheduleTask(() -> ChatUtils.partyChat("Usage: " + prefix + "Tier(Kuudra Tier)"), 1000);
-                                        scheduleTask(() -> ChatUtils.partyChat("Aliases: Tier | T"), 2000);
-                                        scheduleReset(3000);
-                                        break;
-                                    default:
-                                        ChatUtils.partyChat("MeowMayo Party Commands | Kuudra:");
-                                        scheduleTask(() -> ChatUtils.partyChat("Use " + prefix + "help kuudra (Command) for more info"), 1000);
-                                        scheduleTask(() -> ChatUtils.partyChat("Available Commands: tier"), 2000);
-                                        scheduleReset(3000);
-                                        break;
+                                break;
+                            case "kuudra":
+                                if (args.length == 2) {
+                                    ChatUtils.partyChat("MeowMayo Party Commands | Kuudra:");
+                                    scheduleTask(() -> ChatUtils.partyChat("Use " + prefix + "help kuudra (Command) for more info"), 1000);
+                                    scheduleTask(() -> ChatUtils.partyChat("Available Commands: tier"), 2000);
+                                    scheduleReset(3000);
+                                } else {
+                                    switch (args[2]) {
+                                        case "tier":
+                                        case "t":
+                                            ChatUtils.partyChat("Tier: Enters the given kuudra tier");
+                                            scheduleTask(() -> ChatUtils.partyChat("Usage: " + prefix + "Tier(Kuudra Tier)"), 1000);
+                                            scheduleTask(() -> ChatUtils.partyChat("Aliases: Tier | T"), 2000);
+                                            scheduleReset(3000);
+                                            break;
+                                        default:
+                                            ChatUtils.partyChat("MeowMayo Party Commands | Kuudra:");
+                                            scheduleTask(() -> ChatUtils.partyChat("Use " + prefix + "help kuudra (Command) for more info"), 1000);
+                                            scheduleTask(() -> ChatUtils.partyChat("Available Commands: tier"), 2000);
+                                            scheduleReset(3000);
+                                            break;
+                                    }
                                 }
-                            }
-                            break;
-                        case "fun":
-                            if (args.length == 2) {
-                                ChatUtils.partyChat("MeowMayo Party Commands | Fun:");
-                                scheduleTask(() -> ChatUtils.partyChat("Use " + prefix + "help fun (Command) for more info"), 1000);
-                                scheduleTask(() -> ChatUtils.partyChat("Available Commands: CoinFlip | Dice"), 2000);
-                                scheduleReset(3000);
-                            } else {
-                                switch (args[2]) {
-                                    case "cf":
-                                    case "coinflip":
-                                        ChatUtils.partyChat("CoinFlip: Flips a Coin");
-                                        scheduleTask(() -> ChatUtils.partyChat("Usage: " + prefix + "CoinFlip"), 1000);
-                                        scheduleTask(() -> ChatUtils.partyChat("Aliases: CoinFlip | CF"), 2000);
-                                        scheduleReset(3000);
-                                        break;
-                                    case "dice":
-                                    case "d":
-                                    case "roll":
-                                        ChatUtils.partyChat("Dice: Rolls a Dice");
-                                        scheduleTask(() -> ChatUtils.partyChat("Usage: " + prefix + "Dice (Sides)"), 1000);
-                                        scheduleTask(() -> ChatUtils.partyChat("Aliases: Dice | D | Roll"), 2000);
-                                        scheduleReset(3000);
-                                        break;
-                                    default:
-                                        ChatUtils.partyChat("MeowMayo Party Commands | Fun:");
-                                        scheduleTask(() -> ChatUtils.partyChat("Use " + prefix + "help fun (Command) for more info"), 1000);
-                                        scheduleTask(() -> ChatUtils.partyChat("Available Commands: CoinFlip | Dice"), 2000);
-                                        scheduleReset(3000);
-                                        break;
+                                break;
+                            case "fun":
+                                if (args.length == 2) {
+                                    ChatUtils.partyChat("MeowMayo Party Commands | Fun:");
+                                    scheduleTask(() -> ChatUtils.partyChat("Use " + prefix + "help fun (Command) for more info"), 1000);
+                                    scheduleTask(() -> ChatUtils.partyChat("Available Commands: CoinFlip | Dice"), 2000);
+                                    scheduleReset(3000);
+                                } else {
+                                    switch (args[2]) {
+                                        case "cf":
+                                        case "coinflip":
+                                            ChatUtils.partyChat("CoinFlip: Flips a Coin");
+                                            scheduleTask(() -> ChatUtils.partyChat("Usage: " + prefix + "CoinFlip"), 1000);
+                                            scheduleTask(() -> ChatUtils.partyChat("Aliases: CoinFlip | CF"), 2000);
+                                            scheduleReset(3000);
+                                            break;
+                                        case "dice":
+                                        case "d":
+                                        case "roll":
+                                            ChatUtils.partyChat("Dice: Rolls a Dice");
+                                            scheduleTask(() -> ChatUtils.partyChat("Usage: " + prefix + "Dice (Sides)"), 1000);
+                                            scheduleTask(() -> ChatUtils.partyChat("Aliases: Dice | D | Roll"), 2000);
+                                            scheduleReset(3000);
+                                            break;
+                                        default:
+                                            ChatUtils.partyChat("MeowMayo Party Commands | Fun:");
+                                            scheduleTask(() -> ChatUtils.partyChat("Use " + prefix + "help fun (Command) for more info"), 1000);
+                                            scheduleTask(() -> ChatUtils.partyChat("Available Commands: CoinFlip | Dice"), 2000);
+                                            scheduleReset(3000);
+                                            break;
+                                    }
                                 }
-                            }
-                            break;
-                        default:
-                            ChatUtils.partyChat("MeowMayo Party Commands Help Menu - Current Prefix: " + prefix);
-                            scheduleTask(() -> ChatUtils.partyChat("Use " + prefix + "help <general|catacombs|kuudra|fun>"), 1000);
-                            scheduleReset(2000);
-                            break;
+                                break;
+                            default:
+                                ChatUtils.partyChat("MeowMayo Party Commands Help Menu - Current Prefix: " + prefix);
+                                scheduleTask(() -> ChatUtils.partyChat("Use " + prefix + "help <general|catacombs|kuudra|fun>"), 1000);
+                                scheduleReset(2000);
+                                break;
+                        }
                     }
                 }
                 break;
@@ -262,7 +282,7 @@ public class PartyCommands {
                 break;
             case "invite":
             case "party":
-                if (warpCommand.getValue()) {
+                if (inviteCommand.getValue()) {
                     delayed = true;
                     if (args.length == 1) {
                         ChatUtils.partyChat("Please input a player to invite");
@@ -273,7 +293,7 @@ public class PartyCommands {
                 }
                 break;
             case "dt":
-            case "downtime":
+            case "downtime": // enabled by default (assuming party commands is on!)
                 PartyUtils.requestDowntime();
                 break;
             case "ptme":
@@ -308,6 +328,15 @@ public class PartyCommands {
                         }
                         ChatUtils.command("p transfer " + args[1]);
                     }
+                    scheduleReset(1000);
+                }
+                break;
+            case "coords":
+            case "coordinates":
+                if (coordinatesCommand.getValue()) {
+                    delayed = true;
+                    EntityPlayerSP player = Minecraft.getMinecraft().thePlayer;
+                    ChatUtils.partyChat("X: " + ((int) player.posX) + ", Y: " + ((int) player.posY) + ", Z: " + ((int) player.posZ));
                     scheduleReset(1000);
                 }
                 break;
@@ -495,6 +524,291 @@ public class PartyCommands {
                     scheduleReset(1000);
                 }
                 break;
+            case "dungeontimestats":
+            case "dts":
+            case "dtstats":
+                if (dungeonTimeStatsCommand.getValue()) {
+                    delayed = true;
+
+                    if (!dungeonTrack.getValue()) {
+                        ChatUtils.partyChat("I am currently not tracking run data!");
+                        scheduleReset(1000);
+                        return;
+                    }
+
+                    int totalRuns, totalComps;
+                    double totalTime;
+
+                    switch (DungeonTracker.getTier()) {
+                        case "F1":
+                            totalRuns = DungeonStats.sessionF1Stats.totalRuns;
+                            totalComps = DungeonStats.sessionF1Stats.totalComps;
+                            totalTime = DungeonStats.sessionF1Stats.totalTime;
+
+                            if (totalRuns == 0) {
+                                ChatUtils.partyChat("I have no available run data for this session!");
+                                scheduleReset(1000);
+                                return;
+                            }
+
+                            ChatUtils.partyChat("MeowMayo > F1 Session Stats:");
+                            scheduleTask(() -> ChatUtils.partyChat(" | Runs Tracked: " + totalRuns), 1000);
+                            scheduleTask(() -> ChatUtils.partyChat(" | Average Run Time: " + ChatUtils.formatTime(Math.round(totalTime / totalComps))), 2000);
+                            scheduleTask(() -> ChatUtils.partyChat(" | Total Run Time: " + ChatUtils.formatTime(totalTime)), 3000);
+                            scheduleTask(() -> ChatUtils.partyChat(" | Fastest Run Time: " + ChatUtils.formatTime(DungeonStats.sessionF1Stats.fastest)), 4000);
+                            scheduleTask(() -> ChatUtils.partyChat(" | Slowest Run Time: " + ChatUtils.formatTime(DungeonStats.sessionF1Stats.slowest)), 5000);
+                            scheduleReset(6000);
+                            break;
+                        case "F2":
+                            totalRuns = DungeonStats.sessionF2Stats.totalRuns;
+                            totalComps = DungeonStats.sessionF2Stats.totalComps;
+                            totalTime = DungeonStats.sessionF2Stats.totalTime;
+
+                            if (totalRuns == 0) {
+                                ChatUtils.partyChat("I have no available run data for this session!");
+                                scheduleReset(1000);
+                                return;
+                            }
+
+                            ChatUtils.partyChat("MeowMayo > F2 Session Stats:");
+                            scheduleTask(() -> ChatUtils.partyChat(" | Runs Tracked: " + totalRuns), 1000);
+                            scheduleTask(() -> ChatUtils.partyChat(" | Average Run Time: " + ChatUtils.formatTime(Math.round(totalTime / totalComps))), 2000);
+                            scheduleTask(() -> ChatUtils.partyChat(" | Total Run Time: " + ChatUtils.formatTime(totalTime)), 3000);
+                            scheduleTask(() -> ChatUtils.partyChat(" | Fastest Run Time: " + ChatUtils.formatTime(DungeonStats.sessionF2Stats.fastest)), 4000);
+                            scheduleTask(() -> ChatUtils.partyChat(" | Slowest Run Time: " + ChatUtils.formatTime(DungeonStats.sessionF2Stats.slowest)), 5000);
+                            scheduleReset(6000);
+                            break;
+                        case "F3":
+                            totalRuns = DungeonStats.sessionF3Stats.totalRuns;
+                            totalComps = DungeonStats.sessionF3Stats.totalComps;
+                            totalTime = DungeonStats.sessionF3Stats.totalTime;
+
+                            if (totalRuns == 0) {
+                                ChatUtils.partyChat("I have no available run data for this session!");
+                                scheduleReset(1000);
+                                return;
+                            }
+
+                            ChatUtils.partyChat("MeowMayo > F3 Session Stats:");
+                            scheduleTask(() -> ChatUtils.partyChat(" | Runs Tracked: " + totalRuns), 1000);
+                            scheduleTask(() -> ChatUtils.partyChat(" | Average Run Time: " + ChatUtils.formatTime(Math.round(totalTime / totalComps))), 2000);
+                            scheduleTask(() -> ChatUtils.partyChat(" | Total Run Time: " + ChatUtils.formatTime(totalTime)), 3000);
+                            scheduleTask(() -> ChatUtils.partyChat(" | Fastest Run Time: " + ChatUtils.formatTime(DungeonStats.sessionF3Stats.fastest)), 4000);
+                            scheduleTask(() -> ChatUtils.partyChat(" | Slowest Run Time: " + ChatUtils.formatTime(DungeonStats.sessionF3Stats.slowest)), 5000);
+                            scheduleReset(6000);
+                            break;
+                        case "F4":
+                            totalRuns = DungeonStats.sessionF4Stats.totalRuns;
+                            totalComps = DungeonStats.sessionF4Stats.totalComps;
+                            totalTime = DungeonStats.sessionF4Stats.totalTime;
+
+                            if (totalRuns == 0) {
+                                ChatUtils.partyChat("I have no available run data for this session!");
+                                scheduleReset(1000);
+                                return;
+                            }
+
+                            ChatUtils.partyChat("MeowMayo > F4 Session Stats:");
+                            scheduleTask(() -> ChatUtils.partyChat(" | Runs Tracked: " + totalRuns), 1000);
+                            scheduleTask(() -> ChatUtils.partyChat(" | Average Run Time: " + ChatUtils.formatTime(Math.round(totalTime / totalComps))), 2000);
+                            scheduleTask(() -> ChatUtils.partyChat(" | Total Run Time: " + ChatUtils.formatTime(totalTime)), 3000);
+                            scheduleTask(() -> ChatUtils.partyChat(" | Fastest Run Time: " + ChatUtils.formatTime(DungeonStats.sessionF4Stats.fastest)), 4000);
+                            scheduleTask(() -> ChatUtils.partyChat(" | Slowest Run Time: " + ChatUtils.formatTime(DungeonStats.sessionF4Stats.slowest)), 5000);
+                            scheduleReset(6000);
+                            break;
+                        case "F5":
+                            totalRuns = DungeonStats.sessionF5Stats.totalRuns;
+                            totalComps = DungeonStats.sessionF5Stats.totalComps;
+                            totalTime = DungeonStats.sessionF5Stats.totalTime;
+
+                            if (totalRuns == 0) {
+                                ChatUtils.partyChat("I have no available run data for this session!");
+                                scheduleReset(1000);
+                                return;
+                            }
+
+                            ChatUtils.partyChat("MeowMayo > F5 Session Stats:");
+                            scheduleTask(() -> ChatUtils.partyChat(" | Runs Tracked: " + totalRuns), 1000);
+                            scheduleTask(() -> ChatUtils.partyChat(" | Average Run Time: " + ChatUtils.formatTime(Math.round(totalTime / totalComps))), 2000);
+                            scheduleTask(() -> ChatUtils.partyChat(" | Total Run Time: " + ChatUtils.formatTime(totalTime)), 3000);
+                            scheduleTask(() -> ChatUtils.partyChat(" | Fastest Run Time: " + ChatUtils.formatTime(DungeonStats.sessionF5Stats.fastest)), 4000);
+                            scheduleTask(() -> ChatUtils.partyChat(" | Slowest Run Time: " + ChatUtils.formatTime(DungeonStats.sessionF5Stats.slowest)), 5000);
+                            scheduleReset(6000);
+                            break;
+                        case "F6":
+                            totalRuns = DungeonStats.sessionF6Stats.totalRuns;
+                            totalComps = DungeonStats.sessionF6Stats.totalComps;
+                            totalTime = DungeonStats.sessionF6Stats.totalTime;
+
+                            if (totalRuns == 0) {
+                                ChatUtils.partyChat("I have no available run data for this session!");
+                                scheduleReset(1000);
+                                return;
+                            }
+
+                            ChatUtils.partyChat("MeowMayo > F6 Session Stats:");
+                            scheduleTask(() -> ChatUtils.partyChat(" | Runs Tracked: " + totalRuns), 1000);
+                            scheduleTask(() -> ChatUtils.partyChat(" | Average Run Time: " + ChatUtils.formatTime(Math.round(totalTime / totalComps))), 2000);
+                            scheduleTask(() -> ChatUtils.partyChat(" | Total Run Time: " + ChatUtils.formatTime(totalTime)), 3000);
+                            scheduleTask(() -> ChatUtils.partyChat(" | Fastest Run Time: " + ChatUtils.formatTime(DungeonStats.sessionF6Stats.fastest)), 4000);
+                            scheduleTask(() -> ChatUtils.partyChat(" | Slowest Run Time: " + ChatUtils.formatTime(DungeonStats.sessionF6Stats.slowest)), 5000);
+                            scheduleReset(6000);
+                            break;
+                        case "F7":
+                            totalRuns = DungeonStats.sessionF7Stats.totalRuns;
+                            totalComps = DungeonStats.sessionF7Stats.totalComps;
+                            totalTime = DungeonStats.sessionF7Stats.totalTime;
+
+                            if (totalRuns == 0) {
+                                ChatUtils.partyChat("I have no available run data for this session!");
+                                scheduleReset(1000);
+                                return;
+                            }
+
+                            ChatUtils.partyChat("MeowMayo > F7 Session Stats:");
+                            scheduleTask(() -> ChatUtils.partyChat(" | Runs Tracked: " + totalRuns), 1000);
+                            scheduleTask(() -> ChatUtils.partyChat(" | Average Run Time: " + ChatUtils.formatTime(Math.round(totalTime / totalComps))), 2000);
+                            scheduleTask(() -> ChatUtils.partyChat(" | Total Run Time: " + ChatUtils.formatTime(totalTime)), 3000);
+                            scheduleTask(() -> ChatUtils.partyChat(" | Fastest Run Time: " + ChatUtils.formatTime(DungeonStats.sessionF7Stats.fastest)), 4000);
+                            scheduleTask(() -> ChatUtils.partyChat(" | Slowest Run Time: " + ChatUtils.formatTime(DungeonStats.sessionF7Stats.slowest)), 5000);
+                            scheduleReset(6000);
+                            break;
+                        case "M1":
+                            totalRuns = DungeonStats.sessionM1Stats.totalRuns;
+                            totalComps = DungeonStats.sessionM1Stats.totalComps;
+                            totalTime = DungeonStats.sessionM1Stats.totalTime;
+
+                            if (totalRuns == 0) {
+                                ChatUtils.partyChat("I have no available run data for this session!");
+                                scheduleReset(1000);
+                                return;
+                            }
+
+                            ChatUtils.partyChat("MeowMayo > M1 Session Stats:");
+                            scheduleTask(() -> ChatUtils.partyChat(" | Runs Tracked: " + totalRuns), 1000);
+                            scheduleTask(() -> ChatUtils.partyChat(" | Average Run Time: " + ChatUtils.formatTime(Math.round(totalTime / totalComps))), 2000);
+                            scheduleTask(() -> ChatUtils.partyChat(" | Total Run Time: " + ChatUtils.formatTime(totalTime)), 3000);
+                            scheduleTask(() -> ChatUtils.partyChat(" | Fastest Run Time: " + ChatUtils.formatTime(DungeonStats.sessionM1Stats.fastest)), 4000);
+                            scheduleTask(() -> ChatUtils.partyChat(" | Slowest Run Time: " + ChatUtils.formatTime(DungeonStats.sessionM1Stats.slowest)), 5000);
+                            scheduleReset(6000);
+                            break;
+                        case "M2":
+                            totalRuns = DungeonStats.sessionM2Stats.totalRuns;
+                            totalComps = DungeonStats.sessionM2Stats.totalComps;
+                            totalTime = DungeonStats.sessionM2Stats.totalTime;
+
+                            if (totalRuns == 0) {
+                                ChatUtils.partyChat("I have no available run data for this session!");
+                                scheduleReset(1000);
+                                return;
+                            }
+
+                            ChatUtils.partyChat("MeowMayo > M2 Session Stats:");
+                            scheduleTask(() -> ChatUtils.partyChat(" | Runs Tracked: " + totalRuns), 1000);
+                            scheduleTask(() -> ChatUtils.partyChat(" | Average Run Time: " + ChatUtils.formatTime(Math.round(totalTime / totalComps))), 2000);
+                            scheduleTask(() -> ChatUtils.partyChat(" | Total Run Time: " + ChatUtils.formatTime(totalTime)), 3000);
+                            scheduleTask(() -> ChatUtils.partyChat(" | Fastest Run Time: " + ChatUtils.formatTime(DungeonStats.sessionM2Stats.fastest)), 4000);
+                            scheduleTask(() -> ChatUtils.partyChat(" | Slowest Run Time: " + ChatUtils.formatTime(DungeonStats.sessionM2Stats.slowest)), 5000);
+                            scheduleReset(6000);
+                            break;
+                        case "M3":
+                            totalRuns = DungeonStats.sessionM3Stats.totalRuns;
+                            totalComps = DungeonStats.sessionM3Stats.totalComps;
+                            totalTime = DungeonStats.sessionM3Stats.totalTime;
+
+                            if (totalRuns == 0) {
+                                ChatUtils.partyChat("I have no available run data for this session!");
+                                scheduleReset(1000);
+                                return;
+                            }
+
+                            ChatUtils.partyChat("MeowMayo > M3 Session Stats:");
+                            scheduleTask(() -> ChatUtils.partyChat(" | Runs Tracked: " + totalRuns), 1000);
+                            scheduleTask(() -> ChatUtils.partyChat(" | Average Run Time: " + ChatUtils.formatTime(Math.round(totalTime / totalComps))), 2000);
+                            scheduleTask(() -> ChatUtils.partyChat(" | Total Run Time: " + ChatUtils.formatTime(totalTime)), 3000);
+                            scheduleTask(() -> ChatUtils.partyChat(" | Fastest Run Time: " + ChatUtils.formatTime(DungeonStats.sessionM3Stats.fastest)), 4000);
+                            scheduleTask(() -> ChatUtils.partyChat(" | Slowest Run Time: " + ChatUtils.formatTime(DungeonStats.sessionM3Stats.slowest)), 5000);
+                            scheduleReset(6000);
+                            break;
+                        case "M4":
+                            totalRuns = DungeonStats.sessionM4Stats.totalRuns;
+                            totalComps = DungeonStats.sessionM4Stats.totalComps;
+                            totalTime = DungeonStats.sessionM4Stats.totalTime;
+
+                            if (totalRuns == 0) {
+                                ChatUtils.partyChat("I have no available run data for this session!");
+                                scheduleReset(1000);
+                                return;
+                            }
+
+                            ChatUtils.partyChat("MeowMayo > M4 Session Stats:");
+                            scheduleTask(() -> ChatUtils.partyChat(" | Runs Tracked: " + totalRuns), 1000);
+                            scheduleTask(() -> ChatUtils.partyChat(" | Average Run Time: " + ChatUtils.formatTime(Math.round(totalTime / totalComps))), 2000);
+                            scheduleTask(() -> ChatUtils.partyChat(" | Total Run Time: " + ChatUtils.formatTime(totalTime)), 3000);
+                            scheduleTask(() -> ChatUtils.partyChat(" | Fastest Run Time: " + ChatUtils.formatTime(DungeonStats.sessionM4Stats.fastest)), 4000);
+                            scheduleTask(() -> ChatUtils.partyChat(" | Slowest Run Time: " + ChatUtils.formatTime(DungeonStats.sessionM4Stats.slowest)), 5000);
+                            scheduleReset(6000);
+                            break;
+                        case "M5":
+                            totalRuns = DungeonStats.sessionM5Stats.totalRuns;
+                            totalComps = DungeonStats.sessionM5Stats.totalComps;
+                            totalTime = DungeonStats.sessionM5Stats.totalTime;
+
+                            if (totalRuns == 0) {
+                                ChatUtils.partyChat("I have no available run data for this session!");
+                                scheduleReset(1000);
+                                return;
+                            }
+
+                            ChatUtils.partyChat("MeowMayo > M5 Session Stats:");
+                            scheduleTask(() -> ChatUtils.partyChat(" | Runs Tracked: " + totalRuns), 1000);
+                            scheduleTask(() -> ChatUtils.partyChat(" | Average Run Time: " + ChatUtils.formatTime(Math.round(totalTime / totalComps))), 2000);
+                            scheduleTask(() -> ChatUtils.partyChat(" | Total Run Time: " + ChatUtils.formatTime(totalTime)), 3000);
+                            scheduleTask(() -> ChatUtils.partyChat(" | Fastest Run Time: " + ChatUtils.formatTime(DungeonStats.sessionM5Stats.fastest)), 4000);
+                            scheduleTask(() -> ChatUtils.partyChat(" | Slowest Run Time: " + ChatUtils.formatTime(DungeonStats.sessionM5Stats.slowest)), 5000);
+                            scheduleReset(6000);
+                            break;
+                        case "M6":
+                            totalRuns = DungeonStats.sessionM6Stats.totalRuns;
+                            totalComps = DungeonStats.sessionM6Stats.totalComps;
+                            totalTime = DungeonStats.sessionM6Stats.totalTime;
+
+                            if (totalRuns == 0) {
+                                ChatUtils.partyChat("I have no available run data for this session!");
+                                scheduleReset(1000);
+                                return;
+                            }
+
+                            ChatUtils.partyChat("MeowMayo > M6 Session Stats:");
+                            scheduleTask(() -> ChatUtils.partyChat(" | Runs Tracked: " + totalRuns), 1000);
+                            scheduleTask(() -> ChatUtils.partyChat(" | Average Run Time: " + ChatUtils.formatTime(Math.round(totalTime / totalComps))), 2000);
+                            scheduleTask(() -> ChatUtils.partyChat(" | Total Run Time: " + ChatUtils.formatTime(totalTime)), 3000);
+                            scheduleTask(() -> ChatUtils.partyChat(" | Fastest Run Time: " + ChatUtils.formatTime(DungeonStats.sessionM6Stats.fastest)), 4000);
+                            scheduleTask(() -> ChatUtils.partyChat(" | Slowest Run Time: " + ChatUtils.formatTime(DungeonStats.sessionM6Stats.slowest)), 5000);
+                            scheduleReset(6000);
+                            break;
+                        case "M7":
+                            totalRuns = DungeonStats.sessionM7Stats.totalRuns;
+                            totalComps = DungeonStats.sessionM7Stats.totalComps;
+                            totalTime = DungeonStats.sessionM7Stats.totalTime;
+
+                            if (totalRuns == 0) {
+                                ChatUtils.partyChat("I have no available run data for this session!");
+                                scheduleReset(1000);
+                                return;
+                            }
+
+                            ChatUtils.partyChat("MeowMayo > M7 Session Stats:");
+                            scheduleTask(() -> ChatUtils.partyChat(" | Runs Tracked: " + totalRuns), 1000);
+                            scheduleTask(() -> ChatUtils.partyChat(" | Average Run Time: " + ChatUtils.formatTime(Math.round(totalTime / totalComps))), 2000);
+                            scheduleTask(() -> ChatUtils.partyChat(" | Total Run Time: " + ChatUtils.formatTime(totalTime)), 3000);
+                            scheduleTask(() -> ChatUtils.partyChat(" | Fastest Run Time: " + ChatUtils.formatTime(DungeonStats.sessionM7Stats.fastest)), 4000);
+                            scheduleTask(() -> ChatUtils.partyChat(" | Slowest Run Time: " + ChatUtils.formatTime(DungeonStats.sessionM7Stats.slowest)), 5000);
+                            scheduleReset(6000);
+                            break;
+                    }
+                }
+                break;
             case "basic":
             case "t1":
             case "tier1":
@@ -566,23 +880,106 @@ public class PartyCommands {
                         return;
                     }
 
-                    int totalRuns = KuudraStats.sessionInfernalStats.totalRuns;
-                    int totalComps = KuudraStats.sessionInfernalStats.totalComps;
-                    double totalTime = KuudraStats.sessionInfernalStats.totalTime;
+                    int totalRuns, totalComps;
+                    double totalTime;
 
-                    if (totalRuns == 0) {
-                        ChatUtils.partyChat("I have no available run data for this session!");
-                        scheduleReset(1000);
-                        return;
+                    switch (KuudraTracker.getTier()) {
+                        case "Basic":
+                            totalRuns = KuudraStats.sessionBasicStats.totalRuns;
+                            totalComps = KuudraStats.sessionBasicStats.totalComps;
+                            totalTime = KuudraStats.sessionBasicStats.totalTime;
+
+                            if (totalRuns == 0) {
+                                ChatUtils.partyChat("I have no available run data for this session!");
+                                scheduleReset(1000);
+                                return;
+                            }
+
+                            ChatUtils.partyChat("MeowMayo > Basic Session Stats:");
+                            scheduleTask(() -> ChatUtils.partyChat(" | Runs Tracked: " + totalRuns), 1000);
+                            scheduleTask(() -> ChatUtils.partyChat(" | Average Run Time: " + ChatUtils.formatTime(Math.round(totalTime / totalComps))), 2000);
+                            scheduleTask(() -> ChatUtils.partyChat(" | Total Run Time: " + ChatUtils.formatTime(totalTime)), 3000);
+                            scheduleTask(() -> ChatUtils.partyChat(" | Fastest Run Time: " + ChatUtils.formatTime(KuudraStats.sessionBasicStats.fastest)), 4000);
+                            scheduleTask(() -> ChatUtils.partyChat(" | Slowest Run Time: " + ChatUtils.formatTime(KuudraStats.sessionBasicStats.slowest)), 5000);
+                            scheduleReset(6000);
+                            break;
+                        case "Hot":
+                            totalRuns = KuudraStats.sessionHotStats.totalRuns;
+                            totalComps = KuudraStats.sessionHotStats.totalComps;
+                            totalTime = KuudraStats.sessionHotStats.totalTime;
+
+                            if (totalRuns == 0) {
+                                ChatUtils.partyChat("I have no available run data for this session!");
+                                scheduleReset(1000);
+                                return;
+                            }
+
+                            ChatUtils.partyChat("MeowMayo > Hot Session Stats:");
+                            scheduleTask(() -> ChatUtils.partyChat(" | Runs Tracked: " + totalRuns), 1000);
+                            scheduleTask(() -> ChatUtils.partyChat(" | Average Run Time: " + ChatUtils.formatTime(Math.round(totalTime / totalComps))), 2000);
+                            scheduleTask(() -> ChatUtils.partyChat(" | Total Run Time: " + ChatUtils.formatTime(totalTime)), 3000);
+                            scheduleTask(() -> ChatUtils.partyChat(" | Fastest Run Time: " + ChatUtils.formatTime(KuudraStats.sessionHotStats.fastest)), 4000);
+                            scheduleTask(() -> ChatUtils.partyChat(" | Slowest Run Time: " + ChatUtils.formatTime(KuudraStats.sessionHotStats.slowest)), 5000);
+                            scheduleReset(6000);
+                            break;
+                        case "Burning":
+                            totalRuns = KuudraStats.sessionBurningStats.totalRuns;
+                            totalComps = KuudraStats.sessionBurningStats.totalComps;
+                            totalTime = KuudraStats.sessionBurningStats.totalTime;
+
+                            if (totalRuns == 0) {
+                                ChatUtils.partyChat("I have no available run data for this session!");
+                                scheduleReset(1000);
+                                return;
+                            }
+
+                            ChatUtils.partyChat("MeowMayo > Burning Session Stats:");
+                            scheduleTask(() -> ChatUtils.partyChat(" | Runs Tracked: " + totalRuns), 1000);
+                            scheduleTask(() -> ChatUtils.partyChat(" | Average Run Time: " + ChatUtils.formatTime(Math.round(totalTime / totalComps))), 2000);
+                            scheduleTask(() -> ChatUtils.partyChat(" | Total Run Time: " + ChatUtils.formatTime(totalTime)), 3000);
+                            scheduleTask(() -> ChatUtils.partyChat(" | Fastest Run Time: " + ChatUtils.formatTime(KuudraStats.sessionBurningStats.fastest)), 4000);
+                            scheduleTask(() -> ChatUtils.partyChat(" | Slowest Run Time: " + ChatUtils.formatTime(KuudraStats.sessionBurningStats.slowest)), 5000);
+                            scheduleReset(6000);
+                            break;
+                        case "Fiery":
+                            totalRuns = KuudraStats.sessionFieryStats.totalRuns;
+                            totalComps = KuudraStats.sessionFieryStats.totalComps;
+                            totalTime = KuudraStats.sessionFieryStats.totalTime;
+
+                            if (totalRuns == 0) {
+                                ChatUtils.partyChat("I have no available run data for this session!");
+                                scheduleReset(1000);
+                                return;
+                            }
+
+                            ChatUtils.partyChat("MeowMayo > Fiery Session Stats:");
+                            scheduleTask(() -> ChatUtils.partyChat(" | Runs Tracked: " + totalRuns), 1000);
+                            scheduleTask(() -> ChatUtils.partyChat(" | Average Run Time: " + ChatUtils.formatTime(Math.round(totalTime / totalComps))), 2000);
+                            scheduleTask(() -> ChatUtils.partyChat(" | Total Run Time: " + ChatUtils.formatTime(totalTime)), 3000);
+                            scheduleTask(() -> ChatUtils.partyChat(" | Fastest Run Time: " + ChatUtils.formatTime(KuudraStats.sessionFieryStats.fastest)), 4000);
+                            scheduleTask(() -> ChatUtils.partyChat(" | Slowest Run Time: " + ChatUtils.formatTime(KuudraStats.sessionFieryStats.slowest)), 5000);
+                            scheduleReset(6000);
+                            break;
+                        case "Infernal":
+                            totalRuns = KuudraStats.sessionInfernalStats.totalRuns;
+                            totalComps = KuudraStats.sessionInfernalStats.totalComps;
+                            totalTime = KuudraStats.sessionInfernalStats.totalTime;
+
+                            if (totalRuns == 0) {
+                                ChatUtils.partyChat("I have no available run data for this session!");
+                                scheduleReset(1000);
+                                return;
+                            }
+
+                            ChatUtils.partyChat("MeowMayo > Infernal Session Stats:");
+                            scheduleTask(() -> ChatUtils.partyChat(" | Runs Tracked: " + totalRuns), 1000);
+                            scheduleTask(() -> ChatUtils.partyChat(" | Average Run Time: " + ChatUtils.formatTime(Math.round(totalTime / totalComps))), 2000);
+                            scheduleTask(() -> ChatUtils.partyChat(" | Total Run Time: " + ChatUtils.formatTime(totalTime)), 3000);
+                            scheduleTask(() -> ChatUtils.partyChat(" | Fastest Run Time: " + ChatUtils.formatTime(KuudraStats.sessionInfernalStats.fastest)), 4000);
+                            scheduleTask(() -> ChatUtils.partyChat(" | Slowest Run Time: " + ChatUtils.formatTime(KuudraStats.sessionInfernalStats.slowest)), 5000);
+                            scheduleReset(6000);
+                            break;
                     }
-
-                    ChatUtils.partyChat("MeowMayo > Kuudra Session Stats:");
-                    scheduleTask(() -> ChatUtils.partyChat(" | Runs Tracked: " + totalRuns), 1000);
-                    scheduleTask(() -> ChatUtils.partyChat(" | Average Run Time: " + ChatUtils.formatTime(Math.round(totalTime / totalComps))), 2000);
-                    scheduleTask(() -> ChatUtils.partyChat(" | Total Run Time: " + ChatUtils.formatTime(totalTime)), 3000);
-                    scheduleTask(() -> ChatUtils.partyChat(" | Fastest Run Time: " + ChatUtils.formatTime(KuudraStats.sessionInfernalStats.fastest)), 4000);
-                    scheduleTask(() -> ChatUtils.partyChat(" | Slowest Run Time: " + ChatUtils.formatTime(KuudraStats.sessionInfernalStats.slowest)), 5000);
-                    scheduleReset(6000);
                 }
                 break;
             case "cf":

@@ -1,5 +1,6 @@
 package com.mmdev.meowmayo.utils.events;
 
+import net.minecraft.util.EnumChatFormatting;
 import net.minecraftforge.fml.common.eventhandler.Event;
 import net.minecraft.network.play.server.S02PacketChat;
 
@@ -19,6 +20,6 @@ public class S02ChatReceivedEvent extends Event {
     }
 
     public String getUnformattedMessage() {
-        return packet.getChatComponent().getUnformattedText().replaceAll("§.", "");
+        return EnumChatFormatting.getTextWithoutFormattingCodes(packet.getChatComponent().getUnformattedText());
     }
 }

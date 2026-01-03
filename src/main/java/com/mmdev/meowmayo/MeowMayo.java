@@ -79,6 +79,7 @@ public class MeowMayo {
         MinecraftForge.EVENT_BUS.register(new BuffItems());
         MinecraftForge.EVENT_BUS.register(new ToggleSprint());
         MinecraftForge.EVENT_BUS.register(new EtherwarpHelper());
+        MinecraftForge.EVENT_BUS.register(new CoordinateWaypoints());
 
         MinecraftForge.EVENT_BUS.register(new PartyCommands());
 

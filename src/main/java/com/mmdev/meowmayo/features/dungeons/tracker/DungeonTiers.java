@@ -36,7 +36,7 @@ public class DungeonTiers {
         DungeonChatListener bloodOpen = new DungeonChatListener(tracker, "The BLOOD DOOR has been opened!", Events.BLOOD_OPEN);
         DungeonChatListener bloodDone = new DungeonChatListener(tracker, "[BOSS] The Watcher: You have proven yourself. You may pass.", Events.BLOOD_DONE);
 
-        DungeonRegexListener bossDead = new DungeonRegexListener(tracker, "^\\s*☠ Defeated (\\w+) in (.+)s$", Events.DUNGEON_BOSS_DEAD);
+        DungeonRegexListener bossDead = new DungeonRegexListener(tracker, "^\\s*☠ Defeated (.+) in (.+)s$", Events.DUNGEON_BOSS_DEAD);
 
         // f/m1
         DungeonChatListener bonzoSpawn = new DungeonChatListener(tracker, "[BOSS] Bonzo: Gratz for making it this far, but I’m basically unbeatable.", Events.BOSS_ENTER);
@@ -54,7 +54,7 @@ public class DungeonTiers {
         DungeonChatListener thornSpawn = new DungeonChatListener(tracker, "[BOSS] Thorn: Welcome Adventurers! I am Thorn, the Spirit! And host of the Vegan Trials!", Events.BOSS_ENTER);
 
         // f/m5
-        DungeonChatListener lividSpawn = new DungeonChatListener(tracker, "[BOSS] Livid: Welcome, you arrive right on time. I am Livid, the Master of Shadows.", Events.BOSS_ENTER);
+        DungeonChatListener lividSpawn = new DungeonChatListener(tracker, "[BOSS] Livid: Welcome, you've arrived right on time. I am Livid, the Master of Shadows.", Events.BOSS_ENTER);
 
         // f/m6
         DungeonChatListener sadanSpawn = new DungeonChatListener(tracker, "[BOSS] Sadan: So you made it all the way here... Now you wish to defy me? Sadan?!", Events.BOSS_ENTER);
