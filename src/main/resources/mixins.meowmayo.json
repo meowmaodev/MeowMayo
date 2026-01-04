@@ -1,0 +1,18 @@
+{
+  "required" :  true,
+  "compatibilityLevel" : "JAVA_8",
+  "minVersion": "0.7.10",
+  "package" : "com.mmdev.meowmayo.mixins",
+  "refmap" : "mixins.meowmayo.refmap.json",
+  "mixins" : [
+    "MixinS0F",
+    "MixinS2A",
+    "MixinS02",
+    "MixinS14",
+    "MixinS23",
+    "MixinS3E",
+    "MixinS29",
+    "MixinS32",
+    "MixinS45"
+  ]
+}

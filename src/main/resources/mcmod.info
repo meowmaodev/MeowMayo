@@ -1,0 +1,16 @@
+[
+{
+  "modid": "meowmayo",
+  "name": "MeowMayo",
+  "description": "MeowMayo :D",
+  "version": "${version}",
+  "mcversion": "${mcversion}",
+  "url": "https://github.com/meowmaodev/MeowMayo",
+  "updateUrl": "",
+  "authorList": ["maomao", "Aidan"],
+  "credits": "maomao",
+  "logoFile": "",
+  "screenshots": [],
+  "dependencies": []
+}
+]
