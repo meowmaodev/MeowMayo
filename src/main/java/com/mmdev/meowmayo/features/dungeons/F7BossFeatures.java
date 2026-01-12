@@ -207,16 +207,17 @@ public class F7BossFeatures {
                 p3TickTimer++;
             }
 
-            if (!recored && recore.getValue()) {
+            if (!recored && recore.getValue() && termPhase == 4) {
                 int total = 0;
 
                 for (Entity e: Minecraft.getMinecraft().theWorld.getLoadedEntityList()) {
                     if (e instanceof EntityPlayer) {
-                        if (e.posZ < 54) {
+                        if (e.posZ < 54 && e.posY < 135 && PartyUtils.isPlayerInParty(e.getName())) {
                             total += 1;
 
                             if (total >= 5) {
                                 PlayerUtils.makeTextAlert("RECORE NOW!", "random.anvil_use", 1000);
+                                recored = true;
                             }
                         }
                     }
@@ -262,7 +263,7 @@ public class F7BossFeatures {
         Minecraft.getMinecraft().fontRendererObj.drawStringWithShadow(
                 deathTickText,
                 (int)((screenWidth / 2 - (textWidth * scale) / 2) / scale),
-                (int)((screenHeight / 2) / scale),
+                (int)(((screenHeight * 3) / 5) / scale),
                 0xFFFFFF
         );
 
