@@ -6,7 +6,6 @@ import com.mmdev.meowmayo.keybinds.KeyInputHandler;
 import com.mmdev.meowmayo.keybinds.ModKeybinds;
 import com.mmdev.meowmayo.utils.PartyUtils;
 import com.mmdev.meowmayo.utils.ScoreboardUtils;
-import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
@@ -27,7 +26,7 @@ import com.mmdev.meowmayo.utils.PartyCommandListUtils;
 @Mod(modid = MeowMayo.MODID, version = MeowMayo.VERSION, clientSideOnly = true)
 public class MeowMayo {
     public static final String MODID = "meowmayo";
-    public static final String VERSION = "1.0.1";
+    public static final String VERSION = "1.0.2";
 
     // Initialization
     @Mod.EventHandler

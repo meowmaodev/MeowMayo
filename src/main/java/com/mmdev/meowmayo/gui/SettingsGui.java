@@ -1,22 +1,21 @@
 package com.mmdev.meowmayo.gui;
 
 import com.mmdev.meowmayo.config.ModConfig;
-import com.mmdev.meowmayo.config.ConfigSettings;
 import com.mmdev.meowmayo.config.settings.*;
+import com.mmdev.meowmayo.gui.components.SettingsRow;
+import com.mmdev.meowmayo.gui.components.SettingsRow.*;
+import com.mmdev.meowmayo.gui.components.SettingsRow.ISettingComponent;
 
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
-import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.gui.ScaledResolution;
 
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
 import java.lang.Math;
 
 public class SettingsGui extends GuiScreen {
@@ -24,14 +23,12 @@ public class SettingsGui extends GuiScreen {
     private float scrollAmount = 0;
     private int maxScroll = 0;
 
-    private Setting activeSlider = null;
+    private TextField searchField;
 
-    private final Map<Setting, TextField> textFields = new HashMap<>();
+    private final List<ISettingComponent> activeRows = new ArrayList<>();
 
     @Override
     public void initGui() {
-        super.initGui();
-
         this.buttonList.clear();
         this.buttonList.add(new GuiButton(-1, width - 25, 5, 20, 20, "X"));
 
@@ -42,27 +39,73 @@ public class SettingsGui extends GuiScreen {
             y += 30;
         }
 
-        this.buttonList.get(selectedCategory+1).enabled = false;
+        if (this.buttonList.size() > selectedCategory + 1) {
+            this.buttonList.get(selectedCategory + 1).enabled = false;
+        }
 
-        // Initialize TextFields for all TextSettings
-        for (SettingCategory cat : ModConfig.getSettings()) {
+        this.searchField = new TextField(5, 5, 200, 20);
+        this.searchField.setFocused(true);
+
+        rebuildSettingsList();
+    }
+
+    private void rebuildSettingsList() {
+        activeRows.clear();
+        this.maxScroll = 0;
+
+        SettingsRow.currentQuery = searchField.getText();
+        String query = searchField.getText().toLowerCase();
+
+        int totalHeight = 40;
+
+        List<SettingCategory> categoriesToSearch = new ArrayList<>();
+
+        if (!query.isEmpty()) {
+            categoriesToSearch.addAll(ModConfig.getSettings());
+        } else {
+            categoriesToSearch.add(ModConfig.getSettings().get(selectedCategory));
+        }
+        for (SettingCategory cat : categoriesToSearch) {
+            // If global searching, add a Header for the Category Name itself
+            if (!query.isEmpty()) {
+                activeRows.add(new HeaderRow("Category: " + cat.getName()));
+                totalHeight += 20;
+            }
+
+            // Filter Misc Settings
             for (Setting s : cat.getMiscSettings()) {
-                if (s instanceof TextSetting) {
-                    TextField tf = new TextField(0, 0, 120, 20);
-                    tf.setText((String) s.getValue());
-                    textFields.put(s, tf);
+                if (s.getTitle().toLowerCase().contains(query)) {
+                    activeRows.add(createRow(s));
+                    totalHeight += 85;
                 }
             }
+
+            // Filter Subcategories
             for (SettingSubcategory sub : cat.getSubcategories()) {
+                List<ISettingComponent> tempResults = new ArrayList<>();
                 for (Setting s : sub.getSettings()) {
-                    if (s instanceof TextSetting) {
-                        TextField tf = new TextField(0, 0, 120, 20);
-                        tf.setText((String) s.getValue());
-                        textFields.put(s, tf);
+                    if (s.getTitle().toLowerCase().contains(query)) {
+                        tempResults.add(createRow(s));
                     }
+                }
+
+                if (!tempResults.isEmpty() || sub.getName().toLowerCase().contains(query)) {
+                    activeRows.add(new HeaderRow(sub.getName()));
+                    totalHeight += 20;
+                    activeRows.addAll(tempResults);
+                    totalHeight += (tempResults.size() * 85);
                 }
             }
         }
+
+        this.maxScroll = Math.max(0, totalHeight - this.height);
+    }
+
+    private ISettingComponent createRow(Setting s) {
+        if (s instanceof ToggleSetting) return new ToggleRow((ToggleSetting) s);
+        if (s instanceof IntSliderSetting || s instanceof FloatSliderSetting) return new SliderRow(s);
+        if (s instanceof TextSetting) return new TextRow((TextSetting) s);
+        return new HeaderRow(s.getTitle()); // Fallback
     }
 
     @Override
@@ -74,13 +117,18 @@ public class SettingsGui extends GuiScreen {
         if (button.id >= 0) {
             selectedCategory = button.id;
 
+            searchField.setText("");
+            searchField.setFocused(false);
+
+            this.scrollAmount = 0;
+
             for (GuiButton b : this.buttonList) {
-                if (b.id >= 0) {
-                    b.enabled = true;
-                }
+                if (b.id >= 0) b.enabled = true;
             }
+
             button.enabled = false;
-            scrollAmount = 0;
+
+            initGui();
         }
     }
 
@@ -90,79 +138,42 @@ public class SettingsGui extends GuiScreen {
         this.drawDefaultBackground();
 
         drawCenteredString(this.fontRendererObj, title, this.width / 2, 12, 0xFFFFFF);
+
+        searchField.draw(mouseX, mouseY);
+
         drawHorizontalLine(10, width - 10, 30, 0xFFAAAAAA);
         drawVerticalLine(100, 30, height-10, 0xFFAAAAAA);
 
         ScaledResolution scaledRes = new ScaledResolution(mc);
 
-        int scissorX = 110;
-        int scissorY = 35;
-        int scissorWidth = width - scissorX - 10;
-        int scissorHeight = height - scissorY - 10;
-
-        double scaleX = (double) mc.displayWidth / scaledRes.getScaledWidth();
-        double scaleY = (double) mc.displayHeight / scaledRes.getScaledHeight();
-
-        int fbX = (int) (scissorX * scaleX);
-        int fbY = (int) ((scaledRes.getScaledHeight() - scissorY - scissorHeight) * scaleY);
-        int fbWidth = (int) (scissorWidth * scaleX);
-        int fbHeight = (int) (scissorHeight * scaleY);
+        int scale = scaledRes.getScaleFactor();
+        int scissorX = 105 * scale;
+        int scissorY = 10 * scale;
+        int scissorWidth = (width - 115) * scale;
+        int scissorHeight = (height - 45) * scale;
 
         GL11.glEnable(GL11.GL_SCISSOR_TEST);
-        GL11.glScissor(fbX, fbY, fbWidth, fbHeight);
+        GL11.glScissor(scissorX, scissorY, scissorWidth, scissorHeight);
 
-        int yOffset = 40 - (int) scrollAmount;
-        int boxHeight = 40;
-
-        // Draw misc settings
-        for (Setting s : ModConfig.getSettings().get(selectedCategory).getMiscSettings()) {
-            drawSettingBox(110, yOffset, width-10, s);
-            yOffset += 85;
-            boxHeight += 85;
-        }
-
-        // Draw subcategory settings
-        for (SettingSubcategory sub : ModConfig.getSettings().get(selectedCategory).getSubcategories()) {
-            drawString(fontRendererObj, sub.getName(), 110, yOffset, 0xFFFFFF);
-            yOffset += 15;
-            boxHeight += 15;
-
-            for (Setting s : sub.getSettings()) {
-                drawSettingBox(110, yOffset, width-10, s);
-                yOffset += 85;
-                boxHeight += 85;
+        int currY = 40 - (int) scrollAmount;
+        for (ISettingComponent row : activeRows) {
+            if (currY + row.getHeight() > 30 && currY < height) {
+                row.draw(110, currY, width - 120, mouseX, mouseY);
             }
+            currY += row.getHeight();
         }
-
-        maxScroll = Math.max(0, boxHeight-this.height);
-        scrollAmount = Math.max(0, Math.min(scrollAmount, maxScroll));
 
         GL11.glDisable(GL11.GL_SCISSOR_TEST);
 
         super.drawScreen(mouseX, mouseY, partialTicks);
-
-        if (activeSlider != null && Mouse.isButtonDown(0)) {
-            float x1 = (width-10) - ((int)(((width-10)-110)*.25f)+15);
-            float percent = (mouseX - x1) / ((width-25)-x1);
-            if (activeSlider instanceof FloatSliderSetting) {
-                FloatSliderSetting sl = (FloatSliderSetting) activeSlider;
-                sl.setValue(Math.round((((sl.getMax() - sl.getMin())*percent) + sl.getMin())*10)/10f);
-            } else if (activeSlider instanceof IntSliderSetting) {
-                IntSliderSetting sl = (IntSliderSetting) activeSlider;
-                sl.setValue(Math.round((sl.getMax() - sl.getMin())*percent) + sl.getMin());
-            }
-        }
     }
 
     @Override
     public void handleMouseInput() throws IOException {
-
         super.handleMouseInput();
-        if (maxScroll <= 0) return;
-
         int wheel = Mouse.getDWheel();
         if (wheel != 0) {
-            scrollAmount -= wheel / 8f;
+            scrollAmount -= (wheel / 120f) * 20;
             scrollAmount = Math.max(0, Math.min(scrollAmount, maxScroll));
         }
     }
@@ -171,170 +182,64 @@ public class SettingsGui extends GuiScreen {
     protected void mouseClicked(int mouseX, int mouseY, int mouseButton) throws IOException {
         super.mouseClicked(mouseX, mouseY, mouseButton);
 
-        if (mouseButton != 0) return;
-
-        int yOffset = 40 - (int) scrollAmount;
-
-        // Handle toggles for misc settings
-        for (Setting s : ModConfig.getSettings().get(selectedCategory).getMiscSettings()) {
-            if (s instanceof ToggleSetting) {
-                int toggleX1 = width - 55;
-                int toggleX2 = width - 25;
-                int toggleY1 = yOffset + 22;
-                int toggleY2 = yOffset + 52;
-
-                if (mouseX >= toggleX1 && mouseX <= toggleX2 && mouseY >= toggleY1 && mouseY <= toggleY2) {
-                    ConfigSettings.edit(s.getTitle(), !((Boolean) s.getValue()));
-                    return;
-                }
-            } else if (s instanceof IntSliderSetting || s instanceof FloatSliderSetting) {
-                int sliderX1 = width - ((int)(((width-10)-110)*.25f)+10); //110  (int)((eX-x)*.25f)
-                int sliderX2 = width - 25;
-                int sliderY1 = yOffset + 27;
-                int sliderY2 = yOffset + 38;
-                if (mouseX >= sliderX1 && mouseX <= sliderX2 && mouseY >= sliderY1 && mouseY <= sliderY2) {
-                    activeSlider = s;
-                    return;
-                }
-            }
-            yOffset += 85;
+        String textBefore = searchField.getText();
+        searchField.mouseClicked(mouseX, mouseY, mouseButton);
+        if (!searchField.getText().equals(textBefore)) {
+            scrollAmount = 0;
+            rebuildSettingsList();
         }
 
-        // Handle toggles for subcategory settings
-        for (SettingSubcategory sub : ModConfig.getSettings().get(selectedCategory).getSubcategories()) {
-            yOffset += 15;
-            for (Setting s : sub.getSettings()) {
-                if (s instanceof ToggleSetting) {
-                    int toggleX1 = width - 55;
-                    int toggleX2 = width - 25;
-                    int toggleY1 = yOffset + 22;
-                    int toggleY2 = yOffset + 52;
+        int currY = 40 - (int) scrollAmount;
 
-                    if (mouseX >= toggleX1 && mouseX <= toggleX2 && mouseY >= toggleY1 && mouseY <= toggleY2) {
-                        ConfigSettings.edit(s.getTitle(), !((Boolean) s.getValue()));
-                        return;
-                    }
-                } else if (s instanceof IntSliderSetting || s instanceof FloatSliderSetting) {
-                    int sliderX1 = width - ((int)(((width-10)-110)*.25f)+10); //110  (int)((eX-x)*.25f)
-                    int sliderX2 = width - 25;
-                    int sliderY1 = yOffset + 27;
-                    int sliderY2 = yOffset + 38;
-
-                    if (mouseX >= sliderX1 && mouseX <= sliderX2 && mouseY >= sliderY1 && mouseY <= sliderY2) {
-                        activeSlider = s;
-                        return;
-                    }
+        for (ISettingComponent row : activeRows) {
+            if (mouseY >= currY && mouseY <= currY + row.getHeight()) {
+                if (row.mouseClicked(mouseX, mouseY, mouseButton)) {
+                    break;
                 }
-                yOffset += 85;
             }
-        }
-
-        // Handle TextFields
-        for (TextField field : textFields.values()) {
-            field.mouseClicked(mouseX, mouseY, mouseButton);
+            currY += row.getHeight();
         }
     }
 
     @Override
     protected void mouseReleased(int mouseX, int mouseY, int state) {
         super.mouseReleased(mouseX, mouseY, state);
-        if (state == 0 && activeSlider != null) {
-            ConfigSettings.edit(activeSlider.getTitle(), activeSlider.getValue());
-            activeSlider = null;
+
+        for (ISettingComponent row : activeRows) {
+            row.mouseReleased(mouseX, mouseY, state);
         }
     }
 
     @Override
     protected void keyTyped(char typedChar, int keyCode) throws IOException {
-        super.keyTyped(typedChar, keyCode);
+        String oldText = searchField.getText();
+        searchField.keyTyped(typedChar, keyCode);
 
-        if (keyCode == 1) {
-            GuiHandler.setGuiToOpen(new MainGui());
+        if (!searchField.getText().equals(oldText)) {
+            scrollAmount = 0;
+
+            if (!searchField.getText().isEmpty()) {
+                for (GuiButton b : this.buttonList) {
+                    if (b.id >= 0) b.enabled = true;
+                }
+            } else {
+                if (this.buttonList.size() > selectedCategory + 1) {
+                    this.buttonList.get(selectedCategory + 1).enabled = false;
+                }
+            }
+
+            rebuildSettingsList();
         }
 
-        for (Map.Entry<Setting, TextField> entry : textFields.entrySet()) {
-            TextField field = entry.getValue();
-            if (field.isFocused()) {
-                field.keyTyped(typedChar, keyCode);
-                ConfigSettings.edit(entry.getKey().getTitle(), field.getText());
-            }
+        if (keyCode == 1) GuiHandler.setGuiToOpen(new MainGui());
+
+        for (ISettingComponent row : activeRows) {
+            row.keyTyped(typedChar, keyCode);
         }
     }
 
     @Override
     public boolean doesGuiPauseGame() {
         return false;
-    }
-
-    private void drawSettingBox(int x, int y, int eX, Setting s) {
-        drawRect(x, y, eX, y+75, 0xFF333333);
-
-        GlStateManager.pushMatrix();
-        GlStateManager.scale(1.5f, 1.5f, 1.0f);
-        drawString(fontRendererObj, s.getTitle(), (int)((x + 4)/1.5f), (int)((y + 4)/1.5f), 0xFFFFFF);
-        GlStateManager.popMatrix();
-
-        String desc = s.getDescription();
-        if (desc != null && !desc.isEmpty()) {
-            int maxWidth = (int)((eX-x) * 0.6f);
-            List<String> lines = fontRendererObj.listFormattedStringToWidth(desc, maxWidth);
-            int lineY = y + 19;
-            for (String line : lines) {
-                GlStateManager.pushMatrix();
-                GlStateManager.scale(1.2f, 1.2f, 1.0f);
-                drawString(fontRendererObj, line, (int)((x+8)/1.2f), (int)(lineY/1.2f), 0xAAAAAA);
-                GlStateManager.popMatrix();
-                lineY += 15;
-            }
-        }
-
-        if (s instanceof ToggleSetting) {
-            boolean value = (Boolean) s.getValue();
-            drawRect(eX - 45, y + 22, eX - 15, y + 52, value ? 0xdd328046 : 0xddd44848);
-        } else if (s instanceof IntSliderSetting || s instanceof FloatSliderSetting) {
-            int barX = eX - (int)((eX-x)*.25f);
-            int barY = y + 30;
-            int barWidth = (int)((eX-x)*.25f)-15;
-            int barHeight = 5;
-
-            // Draw slider background
-            drawRect(barX, barY, barX + barWidth, barY + barHeight, 0xFF555555);
-
-            // Calculate handle position
-            float percent;
-            if (s instanceof IntSliderSetting) {
-                IntSliderSetting intS = (IntSliderSetting) s;
-                percent = (intS.getValue() - intS.getMin()) / (float) (intS.getMax() - intS.getMin());
-            } else {
-                FloatSliderSetting floatS = (FloatSliderSetting) s;
-                percent = (floatS.getValue() - floatS.getMin()) / (float) (floatS.getMax() - floatS.getMin());
-            }
-
-            int handleX = barX + Math.round(percent * barWidth);
-            int handleY = barY - 3;
-            int handleSize = 10;
-
-            // Draw slider handle
-            drawRect(handleX - handleSize/2, handleY, handleX + handleSize/2, handleY + barHeight + 6, 0xFFAAAAAA);
-
-            // Draw value above handle
-            String valueStr;
-            if (s instanceof IntSliderSetting) {
-                valueStr = String.valueOf(((IntSliderSetting)s).getValue());
-            } else {
-                float val = ((FloatSliderSetting)s).getValue();
-                val = ((int)(val * 10)) / 10f; // truncate to 1 decimal place
-                valueStr = String.valueOf(val);
-            }
-            int textWidth = fontRendererObj.getStringWidth(valueStr);
-            drawString(fontRendererObj, valueStr, handleX - textWidth/2, handleY - 12, 0xAAAAAA);
-        } else if (s instanceof TextSetting) {
-            TextField field = textFields.get(s);
-            if (field != null) {
-                field.setPosition(eX - (int)((eX-x)*.25f), y + 25);
-                field.setSize((int)((eX-x)*.25f)-15, 25);
-                field.draw(0, 0); // mouse coords not needed for now
-            }
-        }
     }
 }
