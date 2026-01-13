@@ -72,20 +72,27 @@ public class SupplyUtils {
         }
     }
 
-    private static final double grav = 0.05;
-    private static final double eVel = 1.67;
+    private static final double grav = 0.05; // 0.05
+    private static final double eVel = 1.67; // 1.67
 
     public static class PearlResult {
-        public double[] location;
-        public int timing;
+        public double[] upLocation;
+        public double[] flatLocation;
 
-        public PearlResult(double[] location, int timing) {
-            this.location = location;
-            this.timing = timing;
+        public int upTiming;
+        public int flatTiming;
+
+        public PearlResult(double[] upLocation, double[] flatLocation, int upTiming, int flatTiming) {
+            this.upLocation = upLocation;
+            this.flatLocation = flatLocation;
+            this.upTiming = upTiming;
+            this.flatTiming = flatTiming;
         }
 
-        public double[] getLocation() { return location; }
-        public int getTiming() { return timing; }
+        public double[] getUpLocation() { return upLocation; }
+        public double[] getFlatLocation() { return flatLocation; }
+        public int getUpTiming() { return upTiming; }
+        public int getFlatTiming() { return flatTiming; }
     }
 
     public static PearlResult calculatePearl(double[] target) {
@@ -98,58 +105,77 @@ public class SupplyUtils {
         final double offZ = target[2] - playerZ;
         final double offHor = Math.hypot(offX, offZ);
 
-        final double vSq = eVel * eVel;
-        final double term1 = (grav * offHor * offHor) / (2 * vSq);
-        final double discrim = vSq - grav * (term1 - offY);
+        final double v2 = eVel * eVel;
+        final double v4 = v2 * v2;
+        double g = grav * (1.0 + (offHor * 0.0012)); // drag
 
-        if (discrim < 0) {
-            return new PearlResult(new double[]{0.0, 9.0, 0.0}, 0);
+        final double discriminant = v4 - g * (g * (offHor * offHor) + 2 * offY * v2);
+
+        if (discriminant < 0) {
+            return new PearlResult(new double[]{0.0, 9.0, 0.0}, new double[]{0.0, 9.0, 0.0}, 0, 0);
         }
 
-        final double sqrtDiscrim = Math.sqrt(discrim);
-        final double atanFactor = grav * offHor;
-        final double angle1 = Math.toDegrees(Math.atan((vSq + sqrtDiscrim) / atanFactor));
-        final double angle2 = Math.toDegrees(Math.atan((vSq - sqrtDiscrim) / atanFactor));
+        final double root = Math.sqrt(discriminant);
 
-        double angle = angle1 >= 45.0 ? angle1 : angle2 >= 45.0 ? angle2 : -1.0;
+        final double angle1 = Math.toDegrees(Math.atan((v2 + root) / (g * offHor)));
+        final double angle2 = Math.toDegrees(Math.atan((v2 - root) / (g * offHor)));
 
-        if (angle < 0.0) {
-            return new PearlResult(new double[]{0.0, 10.0, 0.0}, 0);
+        double uAngle = Math.max(angle1, angle2);
+        double fAngle = Math.min(angle1, angle2);
+
+        double[] uRes = {0, 10, 0};
+        double[] fRes = {0, 10, 0};
+
+        int uTiming = 0;
+        int fTiming = 0;
+
+        if (uAngle > 0.0) {
+            final double pitch = -uAngle;
+            final double radP = Math.toRadians(pitch);
+            final double radY = -Math.atan2(offX, offZ);
+
+            final double vY = eVel * Math.sin(Math.toRadians(uAngle));
+            final double flightTimeFactor = Math.pow(1.0012, Math.max(offHor / 15, 1)) * 0.8;
+            double fT = (vY + Math.sqrt(vY * vY + 2 * grav * (playerY + 1.62 - target[1]))) / grav;
+            uTiming = (int) (Math.floor((fT / Math.pow(0.992, fT)) * flightTimeFactor)) - 2;
+
+            final double cosRadP = Math.cos(radP);
+            final double fX = cosRadP * Math.sin(radY);
+            final double fY = -Math.sin(radP);
+            final double fZ = cosRadP * Math.cos(radY);
+
+            final double targetX = playerX - fX * 10;
+            final double targetY = playerY + fY * 10;
+            final double targetZ = playerZ + fZ * 10;
+
+            uRes = new double[]{targetX, targetY, targetZ};
         }
 
-        double dragAng = 1.0;
-        if (offHor < 45 && offHor > 36) {
-            dragAng = 0.982;
-        } else if (offHor < 10) {
-            dragAng = 1.0;
-        } else if (offHor < 40 && offHor >= 28) {
-            dragAng = 1.033 + (((offHor - 28) / (12)) * (-0.033));
-        } else if (offHor < 28) {
-            dragAng = 1.026 + (((offHor - 10) / (18)) * (-0.017));
-        } else {
-            dragAng = 1.0 + (((offHor - 40) / (15)) * (-0.12));
+        if (fAngle > 0.0) {
+            final double pitch = -fAngle;
+            final double radP = Math.toRadians(pitch);
+            final double radY = -Math.atan2(offX, offZ);
+
+            double vX = eVel * Math.cos(Math.toRadians(fAngle));
+
+            double drag = 0.978;
+            double ticks = Math.log(1 - (offHor * (1 - drag) / vX)) / Math.log(drag);
+
+            fTiming = Double.isNaN(ticks) ? (int)(offHor / vX) : (int) Math.ceil(ticks);
+
+            final double cosRadP = Math.cos(radP);
+            final double fX = cosRadP * Math.sin(radY);
+            final double fY = -Math.sin(radP);
+            final double fZ = cosRadP * Math.cos(radY);
+
+            final double targetX = playerX - fX * 10;
+            final double targetY = playerY + 1.2 + fY * 10;
+            final double targetZ = playerZ + fZ * 10;
+
+            fRes = new double[]{targetX, targetY, targetZ};
         }
-        angle *= dragAng;
 
-        final double pitch = -angle;
-        final double radP = Math.toRadians(pitch);
-        final double radY = -Math.atan2(offX, offZ);
-
-        final double vY = eVel * Math.sin(Math.toRadians(angle));
-        final double flightTimeFactor = Math.pow(1.0015, Math.max(offHor / 15, 1)) * 0.8;
-        double fT = (vY + Math.sqrt(vY * vY + 2 * grav * (playerY + 1.62 - target[1]))) / grav;
-        int timing = (int) (Math.floor((fT / Math.pow(0.992, fT)) * flightTimeFactor)) - 2;
-
-        final double cosRadP = Math.cos(radP);
-        final double fX = cosRadP * Math.sin(radY);
-        final double fY = -Math.sin(radP);
-        final double fZ = cosRadP * Math.cos(radY);
-
-        final double targetX = playerX - fX * 10;
-        final double targetY = playerY + fY * 10;
-        final double targetZ = playerZ + fZ * 10;
-
-        return new PearlResult(new double[]{targetX, targetY, targetZ}, timing);
+        return new PearlResult(uRes, fRes, uTiming, fTiming);
     }
 
     public static PreLocation getPreLocation(String missing) {

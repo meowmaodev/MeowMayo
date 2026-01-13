@@ -1,6 +1,8 @@
 package com.mmdev.meowmayo.features.dungeons;
 
 import com.mmdev.meowmayo.config.ConfigSettings;
+import com.mmdev.meowmayo.config.HudManager;
+import com.mmdev.meowmayo.config.settings.HudElementSetting;
 import com.mmdev.meowmayo.config.settings.ToggleSetting;
 import com.mmdev.meowmayo.features.dungeons.tracker.DungeonTracker;
 import com.mmdev.meowmayo.utils.*;
@@ -10,6 +12,7 @@ import com.mmdev.meowmayo.utils.events.S32ReceivedEvent;
 import com.mmdev.meowmayo.utils.tracker.Events;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.ScaledResolution;
+import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.EntityArmorStand;
 import net.minecraft.entity.player.EntityPlayer;
@@ -36,6 +39,8 @@ public class F7BossFeatures {
     private ToggleSetting PyPad = (ToggleSetting) ConfigSettings.getSetting("PY Pad Notifier");
     private ToggleSetting highlightRelicLeap = (ToggleSetting) ConfigSettings.getSetting("Highlight Relic Leap");
     private ToggleSetting recore = (ToggleSetting) ConfigSettings.getSetting("Recore Notifier");
+
+    private HudElementSetting damageTickLocation = HudManager.getLocation("Damage Tick Warning");
 
     private static HashMap<String, Integer> prio;
     private static HashMap<String, Integer> noSplitPrio; // who isnt splitting in the big 2025?
@@ -207,16 +212,17 @@ public class F7BossFeatures {
                 p3TickTimer++;
             }
 
-            if (!recored && recore.getValue()) {
+            if (!recored && recore.getValue() && termPhase == 4) {
                 int total = 0;
 
                 for (Entity e: Minecraft.getMinecraft().theWorld.getLoadedEntityList()) {
                     if (e instanceof EntityPlayer) {
-                        if (e.posZ < 54) {
+                        if (e.posZ < 54 && e.posY < 135 && PartyUtils.isPlayerInParty(e.getName())) {
                             total += 1;
 
                             if (total >= 5) {
                                 PlayerUtils.makeTextAlert("RECORE NOW!", "random.anvil_use", 1000);
+                                recored = true;
                             }
                         }
                     }
@@ -247,26 +253,22 @@ public class F7BossFeatures {
 
     @SubscribeEvent
     public void onRenderOverlay(RenderGameOverlayEvent.Text event) {
-        if (deathTickText == null) return;
+        if (deathTickText == null || damageTickLocation == null) return;
 
-        ScaledResolution sr = new ScaledResolution(Minecraft.getMinecraft());
-        int screenWidth = sr.getScaledWidth();
-        int screenHeight = sr.getScaledHeight();
+        float scale = damageTickLocation.getScale();
 
-        float scale = 2.0f; // 2x bigger text
-        int textWidth = Minecraft.getMinecraft().fontRendererObj.getStringWidth(deathTickText);
-
-        GL11.glPushMatrix();
-        GL11.glScalef(scale, scale, 1.0f);
+        GlStateManager.pushMatrix();
+        GlStateManager.translate(damageTickLocation.getX(), damageTickLocation.getY(), 0);
+        GlStateManager.scale(scale, scale, 1.0f);
 
         Minecraft.getMinecraft().fontRendererObj.drawStringWithShadow(
                 deathTickText,
-                (int)((screenWidth / 2 - (textWidth * scale) / 2) / scale),
-                (int)((screenHeight / 2) / scale),
+                0,
+                0,
                 0xFFFFFF
         );
 
-        GL11.glPopMatrix();
+        GlStateManager.popMatrix();
     }
 
     @SubscribeEvent

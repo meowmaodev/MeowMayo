@@ -20,12 +20,9 @@ import java.util.Map;
 import java.lang.Math;
 
 public class SettingsGui extends GuiScreen {
-
     private int selectedCategory = 0;
     private float scrollAmount = 0;
     private int maxScroll = 0;
-
-    private Minecraft mc;
 
     private Setting activeSlider = null;
 
@@ -34,7 +31,6 @@ public class SettingsGui extends GuiScreen {
     @Override
     public void initGui() {
         super.initGui();
-        mc = Minecraft.getMinecraft();
 
         this.buttonList.clear();
         this.buttonList.add(new GuiButton(-1, width - 25, 5, 20, 20, "X"));
@@ -72,7 +68,7 @@ public class SettingsGui extends GuiScreen {
     @Override
     protected void actionPerformed(GuiButton button) {
         if (button.id == -1) {
-            mc.displayGuiScreen(null);
+            GuiHandler.setGuiToOpen(new MainGui());
         }
 
         if (button.id >= 0) {
@@ -251,6 +247,10 @@ public class SettingsGui extends GuiScreen {
     @Override
     protected void keyTyped(char typedChar, int keyCode) throws IOException {
         super.keyTyped(typedChar, keyCode);
+
+        if (keyCode == 1) {
+            GuiHandler.setGuiToOpen(new MainGui());
+        }
 
         for (Map.Entry<Setting, TextField> entry : textFields.entrySet()) {
             TextField field = entry.getValue();

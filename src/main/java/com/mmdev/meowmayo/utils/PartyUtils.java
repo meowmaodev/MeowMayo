@@ -38,6 +38,11 @@ public class PartyUtils {
     public static boolean isInParty() { return inParty; }
     public static Set<String> getParty() { return party; }
 
+    public static boolean isPlayerInParty(String playerName) {
+        if (playerName == null) return false;
+        return party.contains(playerName);
+    }
+
     // ===== Regex Patterns =====
     private static final Pattern disbandPattern = Pattern.compile("^(.+) has disbanded the party!$");
     private static final Pattern removedPattern = Pattern.compile("^(.+) has been removed from the party\\.$");

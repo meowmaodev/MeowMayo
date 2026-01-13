@@ -10,7 +10,7 @@ import com.mmdev.meowmayo.config.settings.*;
 
 public class ConfigSettings {
     private static final List<Setting> expected = new ArrayList<>(); // stored settings for validation
-    private static final String[] removed = {"Supplies Info", "Fresh Info"}; // removed settings
+    private static final String[] removed = {}; // removed settings
     private static File configFile;
 
     // Write scheduling
@@ -105,7 +105,7 @@ public class ConfigSettings {
         add(new ToggleSetting("Mimic Dead Message", "Sends a message when a mimic dies (idk if this works properly yet)", "Dungeons", "General", false));
         add(new ToggleSetting("Prince Dead Message", "Sends a message when a prince crypt dies", "Dungeons", "General", false));
         add(new ToggleSetting("Terminals Breakdown", "Various Terminal Info", "Floor 7", "Terminals", false));
-        add(new ToggleSetting("Pre4 Reminder", "Alerts you when Pre4 is not done | Requires Terminals Breakdown", "Floor 7", "Terminals", false));
+        add(new ToggleSetting("Pre4 Reminder", "Alerts you when Pre4 is not done", "Floor 7", "Terminals", false));
         add(new ToggleSetting("Blood Mob Timer", "Displays a timer for blood mob spawn times", "Dungeons", "Blood Room", false));
         add(new ToggleSetting("Blood Mob Spawn Overview", "Says how much each mob takes to spawn", "Dungeons", "Blood Room", false));
         add(new ToggleSetting("Blood Mob Kill Tracker", "Tracks how long each blood mob takes to kill", "Dungeons", "Blood Room", false));
@@ -126,7 +126,9 @@ public class ConfigSettings {
         add(new IntSliderSetting("Party Chat Coordinate Waypoints Duration", "How long to draw waypoints for", "General", "Waypoints", 30, 15, 120));
         add(new ToggleSetting("Dungeon Time Stats Command", "Enables Dungeon Time Stats Party Command", "Party Commands", "Catacombs", false));
         add(new ToggleSetting("Coordinates Command", "Enables Coordiantes Party Command", "Party Commands", "General", false));
-        add(new ToggleSetting("Recore Notifier", "Alerts you when you can safely recore | Requires Terminals Breakdown", "Floor 7", "Terminals", false));
+        add(new ToggleSetting("Recore Notifier", "Alerts you when you can safely recore", "Floor 7", "Terminals", false));
+        add(new ToggleSetting("Dungeon Splits", "Displays Dungeon Run Splits", "Dungeons", "Run Tracker", false));
+        add(new ToggleSetting("Kuudra Splits", "Displays Kuudra Run Splits", "Kuudra", "Run Tracker", false));
     }
 
     private static int readInt(String input) {

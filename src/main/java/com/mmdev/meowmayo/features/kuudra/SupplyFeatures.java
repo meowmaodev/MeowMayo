@@ -49,13 +49,21 @@ public class SupplyFeatures {
     public static double[] firstAt = new double[]{0.0, 0.0, 0.0};
     public static double[] secondAt = new double[]{0.0, 0.0, 0.0};
 
-    public static double[] pearlTarget = new double[]{0.0, 0.0, 0.0};
-    public static int pearlTiming = 0;
-    public static boolean pearlFound = false;
+    public static double[] firstUpTarget = new double[]{0.0, 0.0, 0.0};
+    public static int firstUpTiming = 0;
+    public static boolean firstUpFound = false;
 
-    public static double[] secondTarget = new double[]{0.0, 0.0, 0.0};
-    public static int secondTiming = 0;
-    public static boolean secondFound = false;
+    public static double[] firstFlatTarget = new double[]{0.0, 0.0, 0.0};
+    public static int firstFlatTiming = 0;
+    public static boolean firstFlatFound = false;
+
+    public static double[] secondUpTarget = new double[]{0.0, 0.0, 0.0};
+    public static int secondUpTiming = 0;
+    public static boolean secondUpFound = false;
+
+    public static double[] secondFlatTarget = new double[]{0.0, 0.0, 0.0};
+    public static int secondFlatTiming = 0;
+    public static boolean secondFlatFound = false;
 
     public static int time = 0;
     private static int ticks = 0;
@@ -90,18 +98,29 @@ public class SupplyFeatures {
 
                     SupplyUtils.PearlResult res = SupplyUtils.calculatePearl(firstAt);
 
-                    double[] pos = res.getLocation();
-                    int time = res.getTiming();
+                    double[] posUp = res.getUpLocation();
+                    int timeUp = res.getUpTiming();
 
-                    if (pos[0] == 0.0) {
-                        ChatUtils.system("An error has occurred calculating Pearl Trajectory. | Error: " + pos[1]);
-                        return;
+                    if (posUp[0] == 0.0) {
+                        ChatUtils.system("An error has occurred calculating Upwards Pearl Trajectory. | Error: " + posUp[1]);
+                    } else {
+                        firstUpTarget = posUp;
+                        firstUpTiming = timeUp;
+
+                        firstUpFound = true;
                     }
 
-                    pearlTarget = pos;
-                    pearlTiming = time;
+                    double[] posFlat = res.getFlatLocation();
+                    int timeFlat = res.getFlatTiming();
 
-                    pearlFound = true;
+                    if (posFlat[0] == 0.0) {
+                        ChatUtils.system("An error has occurred calculating Upwards Pearl Trajectory. | Error: " + posFlat[1]);
+                    } else {
+                        firstFlatTarget = posFlat;
+                        firstFlatTiming = timeFlat;
+
+                        firstFlatFound = true;
+                    }
                 }
                 if (waypoint2.getValue() && isPre) {
                     if (secondAt[0] == 0.0) {
@@ -111,18 +130,29 @@ public class SupplyFeatures {
 
                     SupplyUtils.PearlResult res = SupplyUtils.calculatePearl(secondAt);
 
-                    double[] pos = res.getLocation();
-                    int time = res.getTiming();
+                    double[] posUp = res.getUpLocation();
+                    int timeUp = res.getUpTiming();
 
-                    if (pos[0] == 0.0) {
-                        ChatUtils.system("An error has occurred calculating Pearl Trajectory. | Error: " + pos[1]);
-                        return;
+                    if (posUp[0] == 0.0) {
+                        ChatUtils.system("An error has occurred calculating Upwards Pearl Trajectory. | Error: " + posUp[1]);
+                    } else {
+                        secondUpTarget = posUp;
+                        secondUpTiming = timeUp;
+
+                        secondUpFound = true;
                     }
 
-                    secondTarget = pos;
-                    secondTiming = time;
+                    double[] posFlat = res.getFlatLocation();
+                    int timeFlat = res.getFlatTiming();
 
-                    secondFound = true;
+                    if (posFlat[0] == 0.0) {
+                        ChatUtils.system("An error has occurred calculating Upwards Pearl Trajectory. | Error: " + posFlat[1]);
+                    } else {
+                        secondFlatTarget = posFlat;
+                        secondFlatTiming = timeFlat;
+
+                        secondFlatFound = true;
+                    }
                 }
             }
         }
@@ -261,23 +291,43 @@ public class SupplyFeatures {
     public void onRenderWorld(RenderWorldLastEvent event) {
         if (pickingUp && KuudraTracker.getPhase() == 1 && waypoint1.getValue()) {
             double size = ((double) waypointSize.getValue()) / 100;
-            if (pearlFound) {
+            if (firstUpFound) {
                 RenderShapeUtils.drawBox(
-                        pearlTarget[0], pearlTarget[1], pearlTarget[2],
+                        firstUpTarget[0], firstUpTarget[1], firstUpTarget[2],
                         size, size, size,
-                        (time > pearlTiming ? 1f : 0f), (time > pearlTiming ? 0f : 1f), 0f, 1f,
+                        (time > firstUpTiming ? 1f : 0f), (time > firstUpTiming ? 0f : 1f), 0f, 1f,
                         true,
                         event.partialTicks
                 );
             }
-            if (waypoint2.getValue() && secondFound) {
+            if (firstFlatFound) {
                 RenderShapeUtils.drawBox(
-                        secondTarget[0], secondTarget[1], secondTarget[2],
+                        firstFlatTarget[0], firstFlatTarget[1], firstFlatTarget[2],
                         size, size, size,
-                        (time > secondTiming - 6 ? 1f : 0f), 0f, 1f, 1f,
+                        (time > firstFlatTiming ? 1f : 0f), (time > firstFlatTiming ? 0f : 1f), 0f, 1f,
                         true,
                         event.partialTicks
                 );
+            }
+            if (waypoint2.getValue()) {
+                if (secondUpFound) {
+                    RenderShapeUtils.drawBox(
+                            secondUpTarget[0], secondUpTarget[1], secondUpTarget[2],
+                            size, size, size,
+                            (time > secondUpTiming - 6 ? 1f : 0f), 0f, 1f, 1f,
+                            true,
+                            event.partialTicks
+                    );
+                }
+                if (secondFlatFound) {
+                    RenderShapeUtils.drawBox(
+                            secondFlatTarget[0], secondFlatTarget[1], secondFlatTarget[2],
+                            size, size, size,
+                            (time > secondFlatTiming - 6 ? 1f : 0f), 0f, 1f, 1f,
+                            true,
+                            event.partialTicks
+                    );
+                }
             }
         }
     }
@@ -333,26 +383,25 @@ public class SupplyFeatures {
     }
 
     private static void endGrab() {
-        pearlFound = false;
-        secondFound = false;
-
         isPre = false;
 
         playerPos[0] = 0.0;
         playerPos[1] = 0.0;
         playerPos[2] = 0.0;
 
-        pearlTarget = new double[]{0.0, 0.0, 0.0};
-        pearlTiming = 0;
+        firstUpTarget = new double[]{0.0, 0.0, 0.0};
+        firstUpTiming = 0;
 
-        secondTarget = new double[]{0.0, 0.0, 0.0};
-        secondTiming = 0;
+        secondUpTarget = new double[]{0.0, 0.0, 0.0};
+        secondUpTiming = 0;
 
         firstAt = new double[]{0.0, 0.0, 0.0};
         secondAt = new double[]{0.0, 0.0, 0.0};
 
-        pearlFound = false; // apparently this fixed something in the other version?
-        secondFound = false;
+        firstUpFound = false; // apparently this fixed something in the other version?
+        firstFlatFound = false;
+        secondUpFound = false;
+        secondFlatFound = false;
 
         endTimer();
     }

@@ -1,5 +1,6 @@
 package com.mmdev.meowmayo.commands;
 
+import com.mmdev.meowmayo.gui.MainGui;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.ICommandSender;
 import java.util.List;
@@ -32,6 +33,6 @@ public class SettingsCommand extends CommandBase {
 
     @Override
     public void processCommand(ICommandSender sender, String[] args) {
-        GuiHandler.setGuiToOpen(new SettingsGui());
+        GuiHandler.setGuiToOpen(new MainGui());
     }
 }

@@ -27,7 +27,7 @@ import com.mmdev.meowmayo.utils.PartyCommandListUtils;
 @Mod(modid = MeowMayo.MODID, version = MeowMayo.VERSION, clientSideOnly = true)
 public class MeowMayo {
     public static final String MODID = "meowmayo";
-    public static final String VERSION = "1.0.0";
+    public static final String VERSION = "1.0.1";
 
     // Initialization
     @Mod.EventHandler

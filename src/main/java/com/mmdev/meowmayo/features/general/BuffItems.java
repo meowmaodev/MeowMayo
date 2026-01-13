@@ -1,15 +1,19 @@
 package com.mmdev.meowmayo.features.general;
 
 import com.mmdev.meowmayo.config.ConfigSettings;
+import com.mmdev.meowmayo.config.HudManager;
+import com.mmdev.meowmayo.config.settings.HudElementSetting;
 import com.mmdev.meowmayo.config.settings.ToggleSetting;
 import com.mmdev.meowmayo.utils.ChatUtils;
 import com.mmdev.meowmayo.utils.DelayUtils;
 import com.mmdev.meowmayo.utils.PlayerUtils;
 import com.mmdev.meowmayo.utils.events.S02ActionBarReceivedEvent;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
+import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 import java.util.regex.Matcher;
@@ -19,9 +23,13 @@ public class BuffItems {
     private ToggleSetting ragMessage = (ToggleSetting) ConfigSettings.getSetting("Ragnarok Buff Message");
     private ToggleSetting ragTitle = (ToggleSetting) ConfigSettings.getSetting("Ragnarok Buff Title");
 
+    private HudElementSetting ragLocation = HudManager.getLocation("Ragnarock Title");
+
     private static final Pattern digitPattern = Pattern.compile("(\\d+)");
 
     private static boolean ragCast = false;
+
+    private static String ragTitleText = null;
 
     @SubscribeEvent
     public void onChatPacket(S02ActionBarReceivedEvent event) {
@@ -59,7 +67,8 @@ public class BuffItems {
                         }
                     }
                     if (ragTitle.getValue()) {
-                        PlayerUtils.makeTextTitle("Gained " + strength + " Strength", 1500);
+                        ragTitleText = "Gained " + strength + " strength from Ragnarock";
+                        DelayUtils.scheduleTask(() -> { ragTitleText = null; }, 1500);
                     }
                     if (ragMessage.getValue()) {
                         ChatUtils.partyChat("Gained " + strength + " strength from Ragnarock");
@@ -67,5 +76,25 @@ public class BuffItems {
                 }
             }
         }
+    }
+
+    @SubscribeEvent
+    public void onRenderOverlay(RenderGameOverlayEvent.Text event) {
+        if (ragTitleText == null || ragLocation == null) return;
+
+        float scale = ragLocation.getScale();
+
+        GlStateManager.pushMatrix();
+        GlStateManager.translate(ragLocation.getX(), ragLocation.getY(), 0);
+        GlStateManager.scale(scale, scale, 1.0f);
+
+        Minecraft.getMinecraft().fontRendererObj.drawStringWithShadow(
+                ragTitleText,
+                0,
+                0,
+                0xFFFFFF
+        );
+
+        GlStateManager.popMatrix();
     }
 }

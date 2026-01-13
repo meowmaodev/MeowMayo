@@ -49,4 +49,12 @@ public class DungeonTimer {
     public long getLag() {
         return Math.max(0, clientMs - serverMs);
     }
+
+    public long getCurrentSplit() {
+        return clientMs;
+    }
+
+    public long getCurrentLaglessSplit() {
+        return serverMs;
+    }
 }
