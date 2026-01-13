@@ -1,6 +1,8 @@
 package com.mmdev.meowmayo.features.dungeons.tracker;
 
 import com.mmdev.meowmayo.config.ConfigSettings;
+import com.mmdev.meowmayo.config.HudManager;
+import com.mmdev.meowmayo.config.settings.HudElementSetting;
 import com.mmdev.meowmayo.config.settings.IntSliderSetting;
 import com.mmdev.meowmayo.config.settings.ToggleSetting;
 import com.mmdev.meowmayo.features.dungeons.F5BossFeatures;
@@ -14,8 +16,11 @@ import com.mmdev.meowmayo.utils.events.S02ChatReceivedEvent;
 import com.mmdev.meowmayo.utils.tracker.Events;
 import com.mmdev.meowmayo.utils.tracker.Tiers;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.GlStateManager;
+import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.common.gameevent.TickEvent;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,6 +37,13 @@ public class DungeonTracker {
     private ToggleSetting resetOnParty = (ToggleSetting) ConfigSettings.getSetting("Reset Dungeon Tracker on Party Change");
     private ToggleSetting lagMessage = (ToggleSetting) ConfigSettings.getSetting("Dungeon Run Lag Timing");
     private ToggleSetting btt = (ToggleSetting) ConfigSettings.getSetting("Dungeon B.T.T. Message");
+
+    private ToggleSetting splits = (ToggleSetting) ConfigSettings.getSetting("Dungeon Splits");
+
+    private HudElementSetting splitLocation = HudManager.getLocation("Dungeon Time Splits");
+
+    private final List<String> cachedSplits = new ArrayList<>();
+    private String activeSplitLine = null;
 
     private static Tiers currentTier = null;
     private static int currentPhase = -1;
@@ -64,6 +76,42 @@ public class DungeonTracker {
     }
 
     Pattern location = Pattern.compile("^⏣ The Catacombs \\((\\w\\d)\\)$");
+
+    @SubscribeEvent
+    public void onClientTick(TickEvent.ClientTickEvent event) {
+        if (event.phase != TickEvent.Phase.END || !runActive || !splits.getValue()) return;
+
+        activeSplitLine = currentTier.getPhases().get(currentPhase).getName() + ": " +
+                ChatUtils.formatTime(dt.getCurrentSplit()/1000.0) + " (" +
+                ChatUtils.formatTime(dt.getCurrentLaglessSplit()/1000.0) + ")";
+    }
+
+    @SubscribeEvent
+    public void onRenderOverlay(RenderGameOverlayEvent.Post event) {
+        if (event.type != RenderGameOverlayEvent.ElementType.ALL) return;
+        if (!runActive || splitLocation == null || activeSplitLine == null) return;
+
+        Minecraft mc = Minecraft.getMinecraft();
+
+        GlStateManager.pushMatrix();
+        GlStateManager.translate(splitLocation.getX(), splitLocation.getY(), 0);
+        GlStateManager.scale(splitLocation.getScale(), splitLocation.getScale(), 1.0f);
+
+        int yOffset = 0;
+        int fontHeight = mc.fontRendererObj.FONT_HEIGHT;
+
+        mc.fontRendererObj.drawStringWithShadow(getTier() + " Run Splits:", 0, yOffset, 0xFFFFFF);
+        yOffset += fontHeight;
+
+        for (String line : cachedSplits) {
+            mc.fontRendererObj.drawStringWithShadow(line, 0, yOffset, 0xFFFFFF);
+            yOffset += fontHeight;
+        }
+
+        mc.fontRendererObj.drawStringWithShadow(activeSplitLine, 0, yOffset, 0xFFFFFF);
+
+        GlStateManager.popMatrix();
+    }
 
     @SubscribeEvent
     public void onChat(S02ChatReceivedEvent event) {
@@ -172,6 +220,9 @@ public class DungeonTracker {
         startTime = 0;
         rt.clear();
         lt.clear();
+
+        cachedSplits.clear();
+        activeSplitLine = null;
     }
 
     public void setCurrentTier(Tiers tier) {
@@ -1024,6 +1075,12 @@ public class DungeonTracker {
 
     public void advancePhase() {
         dt.split(rt, lt, currentPhase); // tracks end of split and amount of lag
+
+        if (currentPhase <= 0) {
+            cachedSplits.add(currentTier.getPhases().get(0).getName() + ": " + ChatUtils.formatTime((rt.get(0) - startTime) / 1000.0) + " (" + ChatUtils.formatTime(((rt.get(0) - startTime) / 1000.0) - ((lt.get(0)) / 1000.0)) + ")");
+        } else {
+            cachedSplits.add(currentTier.getPhases().get(currentPhase).getName() + ": " + ChatUtils.formatTime((rt.get(currentPhase) - rt.get(currentPhase-1)) / 1000.0) + " (" + ChatUtils.formatTime(((rt.get(currentPhase) - rt.get(currentPhase-1)) / 1000.0) - ((lt.get(currentPhase)) / 1000.0)) + ")");
+        }
 
         currentTier.getPhases().get(currentPhase).exitPhase();
         currentPhase++;

@@ -42,8 +42,6 @@ public class DungeonsExtras {
     public void onMobDeath(LivingDeathEvent event) {
         EntityLivingBase mob = event.entityLiving;
 
-        if (event.entity.isEntityAlive()) return;
-
         if (!princeDead && announcePrince.getValue() && assumePrinceShard.getValue()) {
             if (event.entityLiving instanceof EntityOtherPlayerMP) {
                 EntityOtherPlayerMP fake = (EntityOtherPlayerMP) event.entityLiving;

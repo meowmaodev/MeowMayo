@@ -10,7 +10,7 @@ import com.mmdev.meowmayo.config.settings.*;
 
 public class ConfigSettings {
     private static final List<Setting> expected = new ArrayList<>(); // stored settings for validation
-    private static final String[] removed = {"Supplies Info", "Fresh Info"}; // removed settings
+    private static final String[] removed = {}; // removed settings
     private static File configFile;
 
     // Write scheduling
@@ -127,6 +127,8 @@ public class ConfigSettings {
         add(new ToggleSetting("Dungeon Time Stats Command", "Enables Dungeon Time Stats Party Command", "Party Commands", "Catacombs", false));
         add(new ToggleSetting("Coordinates Command", "Enables Coordiantes Party Command", "Party Commands", "General", false));
         add(new ToggleSetting("Recore Notifier", "Alerts you when you can safely recore", "Floor 7", "Terminals", false));
+        add(new ToggleSetting("Dungeon Splits", "Displays Dungeon Run Splits", "Dungeons", "Run Tracker", false));
+        add(new ToggleSetting("Kuudra Splits", "Displays Kuudra Run Splits", "Kuudra", "Run Tracker", false));
     }
 
     private static int readInt(String input) {
