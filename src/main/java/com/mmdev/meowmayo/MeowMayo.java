@@ -1,6 +1,7 @@
 package com.mmdev.meowmayo;
 
 import com.mmdev.meowmayo.features.dungeons.tracker.DungeonStats;
+import com.mmdev.meowmayo.features.general.farming.PestAlert;
 import com.mmdev.meowmayo.features.kuudra.tracker.KuudraStats;
 import com.mmdev.meowmayo.keybinds.KeyInputHandler;
 import com.mmdev.meowmayo.keybinds.ModKeybinds;
@@ -66,6 +67,10 @@ public class MeowMayo {
         MinecraftForge.EVENT_BUS.register(new TextOverlayUtils());
         MinecraftForge.EVENT_BUS.register(new PartyUtils());
         MinecraftForge.EVENT_BUS.register(new ScoreboardUtils());
+
+        MinecraftForge.EVENT_BUS.register(new Terminals());
+
+        MinecraftForge.EVENT_BUS.register(new PestAlert());
 
         MinecraftForge.EVENT_BUS.register(new DungeonsExtras());
         MinecraftForge.EVENT_BUS.register(new LeapExtras());

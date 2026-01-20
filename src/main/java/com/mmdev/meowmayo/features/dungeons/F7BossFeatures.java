@@ -185,7 +185,7 @@ public class F7BossFeatures {
             if (lightninged) {
                 p2TickTimer++;
             }
-            if (playerClass == 'M' && (p2TickTimer > 75)) { // technically early but its to give people time to react
+            if (playerClass != null && playerClass == 'M' && (p2TickTimer > 75)) { // technically early but its to give people time to react
                 PlayerUtils.makeTextAlert("PAD!", "note.pling", 500);
                 p2TickTimer = 0;
                 lightninged = false;

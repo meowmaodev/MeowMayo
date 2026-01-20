@@ -9,13 +9,19 @@ public class ModKeybinds {
     public static KeyBinding petKey;
     public static KeyBinding equipmentKey;
 
+    public static KeyBinding pestWarpKey;
+
     public static void init() {
         wardrobeKey = new KeyBinding("key.meowmayo.wardrobe", Keyboard.KEY_NONE, "key.categories.meowmayo");
         petKey = new KeyBinding("key.meowmayo.pet", Keyboard.KEY_NONE, "key.categories.meowmayo");
         equipmentKey = new KeyBinding("key.meowmayo.equipment", Keyboard.KEY_NONE, "key.categories.meowmayo");
 
+
+        pestWarpKey = new KeyBinding("key.meowmayo.pestwarp", Keyboard.KEY_NONE, "key.categories.meowmayo");
+
         ClientRegistry.registerKeyBinding(wardrobeKey);
         ClientRegistry.registerKeyBinding(petKey);
         ClientRegistry.registerKeyBinding(equipmentKey);
+        ClientRegistry.registerKeyBinding(pestWarpKey);
     }
 }

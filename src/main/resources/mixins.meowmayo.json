@@ -5,8 +5,11 @@
   "package" : "com.mmdev.meowmayo.mixins",
   "refmap" : "mixins.meowmayo.refmap.json",
   "mixins" : [
+    "MixinC0D",
     "MixinS0F",
     "MixinS2A",
+    "MixinS2D",
+    "MixinS2E",
     "MixinS02",
     "MixinS14",
     "MixinS23",
