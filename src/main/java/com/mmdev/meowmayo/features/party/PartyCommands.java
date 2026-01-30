@@ -863,7 +863,7 @@ public class PartyCommands {
             case "meowmayo":
                 if (selloutCommand.getValue()) {
                     delayed = true;
-                    ChatUtils.partyChat("MeowMayo is a Quality of life mod that offers a ton of quality of life kuudra features!");
+                    ChatUtils.partyChat("MeowMayo is a Quality of life mod that offers a ton of quality of life kuudra and dungeons features!");
                     scheduleTask(() -> ChatUtils.partyChat("Download MeowMayo here -> discord.gg/TBtp9rVHhM"), 1000);
                     scheduleReset(2000);
                 }

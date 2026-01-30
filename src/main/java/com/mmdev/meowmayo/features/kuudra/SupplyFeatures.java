@@ -299,6 +299,13 @@ public class SupplyFeatures {
                         true,
                         event.partialTicks
                 );
+                if (pearlTimer.getValue()) {
+                    RenderShapeUtils.drawFloatingText(
+                            (time > firstUpTiming) ? "" + (firstUpTiming - time) : "THROW NOW!",
+                            firstUpTarget[0], firstUpTarget[1] + 0.85, firstUpTarget[2],
+                            0.05f, event.partialTicks
+                            );
+                }
             }
             if (firstFlatFound) {
                 RenderShapeUtils.drawBox(
@@ -308,6 +315,13 @@ public class SupplyFeatures {
                         true,
                         event.partialTicks
                 );
+                if (pearlTimer.getValue()) {
+                    RenderShapeUtils.drawFloatingText(
+                            (time > firstFlatTiming) ? "" + (firstFlatTiming - time) : "THROW NOW!",
+                            firstFlatTarget[0], firstFlatTarget[1] + 0.85, firstFlatTarget[2],
+                            0.05f, event.partialTicks
+                    );
+                }
             }
             if (waypoint2.getValue()) {
                 if (secondUpFound) {
@@ -318,6 +332,13 @@ public class SupplyFeatures {
                             true,
                             event.partialTicks
                     );
+                    if (pearlTimer.getValue()) {
+                        RenderShapeUtils.drawFloatingText(
+                                (time > secondUpTiming) ? "" + (secondUpTiming - time) : "THROW NOW!",
+                                secondUpTarget[0], secondUpTarget[1] + 0.85, secondUpTarget[2],
+                                0.05f, event.partialTicks
+                        );
+                    }
                 }
                 if (secondFlatFound) {
                     RenderShapeUtils.drawBox(
@@ -327,6 +348,13 @@ public class SupplyFeatures {
                             true,
                             event.partialTicks
                     );
+                    if (pearlTimer.getValue()) {
+                        RenderShapeUtils.drawFloatingText(
+                                (time > secondFlatTiming) ? "" + (secondFlatTiming - time) : "THROW NOW!",
+                                secondFlatTarget[0], secondFlatTarget[1] + 0.85, secondFlatTarget[2],
+                                0.05f, event.partialTicks
+                        );
+                    }
                 }
             }
         }

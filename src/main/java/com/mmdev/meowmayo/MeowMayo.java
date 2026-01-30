@@ -90,5 +90,6 @@ public class MeowMayo {
         MinecraftForge.EVENT_BUS.register(new KuudraExtras());
         MinecraftForge.EVENT_BUS.register(new SupplyFeatures());
         MinecraftForge.EVENT_BUS.register(new RendFeatures());
+        MinecraftForge.EVENT_BUS.register(new StunFeatures());
     }
 }
