@@ -57,9 +57,7 @@ public class TextField {
         GuiScreen.drawRect(x - 1, y - 1, x + width + 1, y + height + 1, borderColor);
         GuiScreen.drawRect(x, y, x + width, y + height, bgColor);
 
-        enableScissor(x, y, width, height);
-
-        String visible = trimToWidth(text.substring(renderOffset), width - 6);
+        String visible = fontRenderer.trimStringToWidth(text.substring(renderOffset), width - 6);
         fontRenderer.drawString(visible, x + 3, y + (height - 8) / 2, 0xFFFFFF);
 
         // Draw cursor
@@ -69,8 +67,6 @@ public class TextField {
                 GuiScreen.drawRect(cursorX, y + 3, cursorX + 1, y + height - 3, 0xFFFFFFFF);
             }
         }
-
-        disableScissor();
     }
 
     public void keyTyped(char typedChar, int keyCode) {
@@ -106,8 +102,16 @@ public class TextField {
     }
 
     public void mouseClicked(int mouseX, int mouseY, int button) {
-        focused = mouseX >= x && mouseX < x + width &&
+        boolean hovered = mouseX >= x && mouseX < x + width &&
                 mouseY >= y && mouseY < y + height;
+
+        focused = hovered;
+
+        if (hovered && button == 1) {
+            this.text = "";
+            this.cursorPosition = 0;
+            this.renderOffset = 0;
+        }
     }
 
     private void adjustRenderOffset() {
@@ -129,25 +133,5 @@ public class TextField {
             renderOffset--;
             if (renderOffset < 0) renderOffset = 0;
         }
-    }
-
-    private String trimToWidth(String input, int maxWidth) {
-        return fontRenderer.trimStringToWidth(input, maxWidth);
-    }
-
-    private void enableScissor(int x, int y, int w, int h) {
-        Minecraft mc = Minecraft.getMinecraft();
-        double scaleX = (double) mc.displayWidth / mc.currentScreen.width;
-        double scaleY = (double) mc.displayHeight / mc.currentScreen.height;
-        int scissorX = (int) (x * scaleX);
-        int scissorY = (int) ((mc.currentScreen.height - (y + h)) * scaleY);
-        int scissorW = (int) (w * scaleX);
-        int scissorH = (int) (h * scaleY);
-        GL11.glEnable(GL11.GL_SCISSOR_TEST);
-        GL11.glScissor(scissorX, scissorY, scissorW, scissorH);
-    }
-
-    private void disableScissor() {
-        GL11.glDisable(GL11.GL_SCISSOR_TEST);
     }
 }

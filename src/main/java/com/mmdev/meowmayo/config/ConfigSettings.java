@@ -129,6 +129,16 @@ public class ConfigSettings {
         add(new ToggleSetting("Recore Notifier", "Alerts you when you can safely recore", "Floor 7", "Terminals", false));
         add(new ToggleSetting("Dungeon Splits", "Displays Dungeon Run Splits", "Dungeons", "Run Tracker", false));
         add(new ToggleSetting("Kuudra Splits", "Displays Kuudra Run Splits", "Kuudra", "Run Tracker", false));
+        add(new ToggleSetting("Starts With Solver", "Displays the best order to click for the starts with letter terminal", "Floor 7", "Terminals", false));
+        add(new ToggleSetting("All Colors Solver", "Displays the best order to click for the all colors terminal", "Floor 7", "Terminals", false));
+        add(new ToggleSetting("Announce Melody", "Announces when you get melody", "Floor 7", "Terminals", false));
+        add(new TextSetting("Announce Melody Message", "Message sent when you get melody", "Floor 7", "Terminals", "Melody Opened!"));
+        add(new ToggleSetting("Draw Line on Solvers", "Draws Lines connecting solver route", "Floor 7", "Terminals", false));
+        add(new ToggleSetting("Click In Order Solver", "Displays the item to click for the click in order terminal", "Floor 7", "Terminals", false));
+        add(new ToggleSetting("Pest Alert", "Alerts you when pests spawn", "Farming","Pests", false));
+        add(new ToggleSetting("Pest Swap Alert", "Alerts you when to swap armors for pest farming", "Farming","Pests", false));
+        add(new ToggleSetting("Pest Warp Waypoint", "Draws a waypoint to your original spot when you pest warp", "Farming","Pests", false));
+        add(new ToggleSetting("Stun Waypoint", "Draws a waypoint to aim at for insta-stun | Spam click it and when you land on the pod use pickob", "Kuudra", "Stun", false));
     }
 
     private static int readInt(String input) {

@@ -204,14 +204,19 @@ public class CampHelper {
             slowSpawn = false;
         }
         if (msg.equals("[BOSS] The Watcher: You have proven yourself. You may pass.") && totalMobs > 0) {
+            int otrate = (int) ((ots/(double)totalMobs) * 100);
+
+            double akt = Math.round(rt/(double)totalMobs * 100.0) / 100.0;
+            double att = Math.round(totalTicks/(double)totalMobs * 100.0) / 100.0;
+
             double rtStd = Math.round(MathUtils.calculateStandardDeviationL(rtKills) * 100.0) / 100.0;
             double ttStd = Math.round(MathUtils.calculateStandardDeviationI(ttKills) * 100.0) / 100.0;
 
-            if (mobKill.getValue()) {
+            if (mobKill.getValue()) { // I HATE FORMATTED STRINGS
                 ChatUtils.system(
                         "Blood Camp Overview:\n§2| §r" + totalMobs + " blood mob kills tracked.\n§2| §r" +
-                        ots + " one-tick kills detected. " + ((int) ((ots/(double)totalMobs) * 100)) + "% one-tick rate\n§2| §r" +
-                        "Average Kill Time: " + (rt / totalMobs) + "ms (" + (totalTicks / totalMobs) + " ticks)\n§2| §r" +
+                        ots + " one-tick kills detected. " + otrate + "% one-tick rate\n§2| §r" +
+                        "Average Kill Time: " + akt + "ms (" + att + " ticks)\n§2| §r" +
                         "Standard Deviation: " + rtStd + "ms (" + ttStd + " ticks)"
                 );
             }
@@ -219,8 +224,8 @@ public class CampHelper {
                 DelayUtils.scheduleTask(() -> {
                     ChatUtils.partyChat(
                             totalMobs + " blood mob kills tracked. " + ots + " one-tick kills detected. " +
-                            ((int) ((ots/(double)totalMobs) * 100)) + "% one-tick rate |" +
-                            " Average Kill Time: " + (rt / totalMobs) + "ms (" + (totalTicks / totalMobs) + " ticks)" +
+                            otrate + "% one-tick rate |" +
+                            " Average Kill Time: " + akt + "ms (" + att + " ticks)" +
                             " St Dev: " + rtStd + "ms (" + ttStd + " ticks)."
                     );
                 }, 1000);

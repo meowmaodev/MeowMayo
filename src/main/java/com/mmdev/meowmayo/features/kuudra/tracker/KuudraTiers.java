@@ -26,10 +26,6 @@ public class KuudraTiers {
     public static Tiers hot = new Tiers("Hot");
     public static Tiers basic = new Tiers("Basic");
 
-    private static ToggleSetting stunPing = (ToggleSetting) ConfigSettings.getSetting("Stun Ping");
-    private static FloatSliderSetting stunPingHp = (FloatSliderSetting) ConfigSettings.getSetting("Stun Ping HP");
-    private static TextSetting stunMessage = (TextSetting) ConfigSettings.getSetting("Stun Ping Message");
-
     public static KuudraRegexListener runOver;
 
     public static void init(KuudraTracker tracker) {
@@ -43,19 +39,6 @@ public class KuudraTiers {
         KuudraChatListener cannonStart = new KuudraChatListener(tracker, "[NPC] Elle: Phew! The Ballista is finally ready! It should be strong enough to tank Kuudra's blows now!", Events.CANNON_START);
         KuudraChatListener eatenStart = new KuudraChatListener(tracker, "^(.{2,16}) has been eaten by Kuudra!$", Events.EATEN_START);
         KuudraChatListener stunnedStart = new KuudraChatListener(tracker, "^(.{2,16}) destroyed one of Kuudra's pods!$", Events.STUNNED_START);
-        KuudraTickListener stunPingListener = new KuudraTickListener(tracker, Events.STUN_PING, () -> {
-            if (KuudraUtils.getKuudra() == null) {
-                return;
-            }
-
-            float kuudraHp = KuudraUtils.getKuudra().getHealth();
-
-            if (stunPing.getValue()) {
-                if (kuudraHp < (stunPingHp.getValue()*1000)) {
-                    PlayerUtils.makeTextAlert(stunMessage.getValue(), "random.anvil_land", 1000);
-                }
-            }
-        });
         KuudraTickListener skipStart = new KuudraTickListener(tracker, Events.DPS_DONE, () -> {
                 if (KuudraUtils.getKuudra() == null) {
                     return;
@@ -97,7 +80,7 @@ public class KuudraTiers {
         infernal.addPhase(new Phase("Start", new HashSet<>(Arrays.asList(runStart, suppliesStart))));
         infernal.addPhase(new Phase("Supplies", new HashSet<>(Arrays.asList(noSupply, supplyGrab, buildStart))));
         infernal.addPhase(new Phase("Build", new HashSet<>(Arrays.asList(fresh, cannonStart))));
-        infernal.addPhase(new Phase("DPS", new HashSet<>(Arrays.asList(eatenStart, stunnedStart, stunPingListener, skipStart, finalStart))));
+        infernal.addPhase(new Phase("DPS", new HashSet<>(Arrays.asList(eatenStart, stunnedStart, skipStart, finalStart))));
         infernal.addPhase(new Phase("Final", new HashSet<>(Collections.singletonList(runSuccess))));
     }
 }
